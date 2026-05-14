@@ -46,7 +46,7 @@ function statusColor(status: string | undefined): string {
     case 'idle': case 'waiting': return 'bg-amber-400'
     case 'error': return 'bg-red-500'
     case 'completed': case 'done': return 'bg-blue-400'
-    default: return 'bg-neutral-400'
+    default: return 'bg-primary-400'
   }
 }
 
@@ -90,8 +90,8 @@ export function RemoteAgentsPanel({ localSessionKeys }: RemoteAgentsPanelProps) 
 
   if (sessions.length === 0 && !loading && !error) {
     return (
-      <div className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-slate-900 p-6 text-center">
-        <p className="text-sm text-neutral-600 dark:text-neutral-300">No remote agents found</p>
+      <div className="rounded-xl border border-primary-200 dark:border-primary-700 bg-white dark:bg-slate-900 p-6 text-center">
+        <p className="text-sm text-primary-600 dark:text-primary-300">No remote agents found</p>
       </div>
     )
   }
@@ -99,9 +99,9 @@ export function RemoteAgentsPanel({ localSessionKeys }: RemoteAgentsPanelProps) 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-sm font-semibold text-neutral-900 dark:text-white">
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-primary-900 dark:text-white">
           Remote Agents
-          <span className="rounded-full bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 text-[10px] font-medium text-neutral-500">
+          <span className="rounded-full bg-primary-100 dark:bg-primary-800 px-2 py-0.5 text-[10px] font-medium text-primary-500">
             {sessions.length}
           </span>
         </h3>
@@ -109,7 +109,7 @@ export function RemoteAgentsPanel({ localSessionKeys }: RemoteAgentsPanelProps) 
           type="button"
           onClick={() => void refresh()}
           disabled={loading}
-          className="rounded-lg px-2.5 py-1 text-xs text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          className="rounded-lg px-2.5 py-1 text-xs text-primary-500 hover:bg-primary-100 dark:hover:bg-primary-800 transition-colors"
         >
           {loading ? 'Refreshing...' : 'Refresh'}
         </button>
@@ -127,31 +127,31 @@ export function RemoteAgentsPanel({ localSessionKeys }: RemoteAgentsPanelProps) 
           return (
             <div
               key={s.key}
-              className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-slate-900 p-3 shadow-sm hover:shadow-md transition-shadow"
+              className="rounded-xl border border-primary-200 dark:border-primary-700 bg-white dark:bg-slate-900 p-3 shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="flex items-center gap-2 mb-2">
                 <span className={cn('size-2 shrink-0 rounded-full', statusColor(s.status))} />
-                <span className="flex-1 truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                <span className="flex-1 truncate text-sm font-semibold text-primary-900 dark:text-white">
                   {s.label || s.title || s.derivedTitle || s.key?.slice(0, 20) || 'Unknown'}
                 </span>
-                <span className="text-[10px] text-neutral-400">{timeAgo(s.updatedAt)}</span>
+                <span className="text-[10px] text-primary-400">{timeAgo(s.updatedAt)}</span>
               </div>
 
               {s.model && (
-                <span className="inline-block rounded-full bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 text-[10px] font-medium text-neutral-500 dark:text-neutral-400 mb-2">
+                <span className="inline-block rounded-full bg-primary-100 dark:bg-primary-800 px-2 py-0.5 text-[10px] font-medium text-primary-500 dark:text-primary-400 mb-2">
                   {formatModelName(s.model)}
                 </span>
               )}
 
               {s.task && (
-                <p className="text-[11px] text-neutral-600 dark:text-neutral-400 line-clamp-2 mb-2">{s.task}</p>
+                <p className="text-[11px] text-primary-600 dark:text-primary-400 line-clamp-2 mb-2">{s.task}</p>
               )}
 
               {preview && (
-                <p className="text-[10px] text-neutral-400 line-clamp-1">{preview}</p>
+                <p className="text-[10px] text-primary-400 line-clamp-1">{preview}</p>
               )}
 
-              <div className="mt-2 flex items-center gap-2 text-[10px] text-neutral-400">
+              <div className="mt-2 flex items-center gap-2 text-[10px] text-primary-400">
                 {s.tokenCount != null && <span>{(s.tokenCount).toLocaleString()} tok</span>}
                 {s.cost != null && s.cost > 0 && <span>· ${s.cost.toFixed(4)}</span>}
                 {s.status && <span className="ml-auto capitalize">{s.status}</span>}
@@ -166,8 +166,8 @@ export function RemoteAgentsPanel({ localSessionKeys }: RemoteAgentsPanelProps) 
                   }}
                   className={cn(
                     'inline-flex items-center rounded-lg border px-2 py-1 text-[10px] font-medium transition-colors',
-                    'border-neutral-200 text-neutral-700 hover:bg-neutral-50',
-                    'dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800',
+                    'border-primary-200 text-primary-700 hover:bg-primary-50',
+                    'dark:border-primary-700 dark:text-primary-300 dark:hover:bg-primary-800',
                   )}
                 >
                   Open Session

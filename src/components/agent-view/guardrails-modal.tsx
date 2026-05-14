@@ -108,13 +108,13 @@ export function GuardrailsModal({ open, agentName, agentId, sessionKey, onOpenCh
 
           <section className="space-y-2">
             <p className="text-xs font-medium text-primary-700">Max tokens per run</p>
-            <div className="inline-flex rounded-lg bg-neutral-100 dark:bg-neutral-800 p-1 gap-1">
+            <div className="inline-flex rounded-lg bg-primary-100 dark:bg-primary-800 p-1 gap-1">
               {TOKEN_PRESETS.map((preset) => (
                 <button
                   key={preset.label}
                   type="button"
                   onClick={() => setMaxTokens(preset.value)}
-                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${maxTokens === preset.value ? 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-700 dark:text-neutral-100' : 'text-neutral-600 hover:bg-white/70 dark:text-neutral-300 dark:hover:bg-neutral-700'}`}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${maxTokens === preset.value ? 'bg-white text-primary-900 shadow-sm dark:bg-primary-700 dark:text-primary-100' : 'text-primary-600 hover:bg-white/70 dark:text-primary-300 dark:hover:bg-primary-700'}`}
                 >
                   {preset.label}
                 </button>
@@ -137,13 +137,13 @@ export function GuardrailsModal({ open, agentName, agentId, sessionKey, onOpenCh
           <section className="space-y-2">
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs font-medium text-primary-700">Mode</p>
-              <div className="inline-flex rounded-lg bg-neutral-100 dark:bg-neutral-800 p-1 gap-1">
+              <div className="inline-flex rounded-lg bg-primary-100 dark:bg-primary-800 p-1 gap-1">
                 {(['allowlist', 'blocklist'] as const).map((mode) => (
                   <button
                     key={mode}
                     type="button"
                     onClick={() => setToolMode(mode)}
-                    className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${toolMode === mode ? 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-700 dark:text-neutral-100' : 'text-neutral-600 hover:bg-white/70 dark:text-neutral-300 dark:hover:bg-neutral-700'}`}
+                    className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${toolMode === mode ? 'bg-white text-primary-900 shadow-sm dark:bg-primary-700 dark:text-primary-100' : 'text-primary-600 hover:bg-white/70 dark:text-primary-300 dark:hover:bg-primary-700'}`}
                   >
                     {mode === 'allowlist' ? 'Allowlist' : 'Blocklist'}
                   </button>
@@ -167,7 +167,7 @@ export function GuardrailsModal({ open, agentName, agentId, sessionKey, onOpenCh
                 key={row.label}
                 type="button"
                 onClick={row.onToggle}
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer text-left"
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 hover:bg-primary-50 dark:hover:bg-primary-800 cursor-pointer text-left"
               >
                 <span>{row.checked ? '☑' : '☐'}</span>
                 <span className="text-sm text-primary-900 dark:text-primary-100">{row.label}</span>

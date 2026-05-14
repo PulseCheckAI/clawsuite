@@ -52,11 +52,11 @@ export function DashboardGlassCard({
       className={cn(
         'group relative flex h-full flex-col overflow-hidden rounded-xl border transition-colors',
         tier === 'primary' &&
-          'border-neutral-200 bg-white px-4 py-3.5 hover:border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 md:px-5 md:py-4',
+          'border-primary-200 bg-white px-4 py-3.5 hover:border-primary-300 dark:border-primary-700 dark:bg-primary-900 md:px-5 md:py-4',
         tier === 'secondary' &&
-          'border-neutral-200 bg-white px-3.5 py-3 hover:border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 md:px-4 md:py-3',
+          'border-primary-200 bg-white px-3.5 py-3 hover:border-primary-300 dark:border-primary-700 dark:bg-primary-900 md:px-4 md:py-3',
         tier === 'tertiary' &&
-          'border-neutral-200 bg-white px-3 py-2.5 hover:border-neutral-300 dark:border-neutral-700 dark:bg-neutral-900 md:px-3.5 md:py-2.5',
+          'border-primary-200 bg-white px-3 py-2.5 hover:border-primary-300 dark:border-primary-700 dark:bg-primary-900 md:px-3.5 md:py-2.5',
         className,
       )}
     >
@@ -70,9 +70,9 @@ export function DashboardGlassCard({
             icon={icon}
             size={15}
             strokeWidth={1.5}
-            className="shrink-0 text-neutral-600 dark:text-neutral-300"
+            className="shrink-0 text-primary-600 dark:text-primary-300"
           />
-          <h2 className="truncate text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 className="truncate text-xs font-semibold text-primary-900 dark:text-primary-100">
             {title}
             {titleAccessory ? (
               <span className="ml-1.5 inline-flex align-middle normal-case tracking-normal">
@@ -112,14 +112,14 @@ export function DashboardGlassCard({
                 />
               </button>
               {menuOpen ? (
-                <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-primary-200 bg-primary-50 py-1 shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
+                <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-primary-200 bg-primary-50 py-1 shadow-lg dark:border-primary-700 dark:bg-primary-900">
                   <button
                     type="button"
                     onClick={() => {
                       onRemove()
                       setMenuOpen(false)
                     }}
-                    className="w-full px-3 py-1.5 text-left text-xs text-primary-600 dark:text-neutral-200 hover:bg-primary-100 dark:hover:bg-primary-800"
+                    className="w-full px-3 py-1.5 text-left text-xs text-primary-600 dark:text-primary-200 hover:bg-primary-100 dark:hover:bg-primary-800"
                   >
                     Remove from dashboard
                   </button>

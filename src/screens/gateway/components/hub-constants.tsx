@@ -172,14 +172,14 @@ export const CONFIG_SECTIONS: Array<{ id: ConfigSection; icon: string; label: st
   { id: 'keys', icon: '🔑', label: 'API Keys' },
 ]
 
-export const HUB_PAGE_TITLE_CLASS = 'text-lg font-bold text-neutral-900 dark:text-neutral-100 md:text-xl'
-export const HUB_SUBSECTION_TITLE_CLASS = 'text-base font-bold text-neutral-900 dark:text-white'
-export const HUB_CARD_LABEL_CLASS = 'text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-slate-400'
+export const HUB_PAGE_TITLE_CLASS = 'text-lg font-bold text-primary-900 dark:text-primary-100 md:text-xl'
+export const HUB_SUBSECTION_TITLE_CLASS = 'text-base font-bold text-primary-900 dark:text-white'
+export const HUB_CARD_LABEL_CLASS = 'text-[10px] font-bold uppercase tracking-widest text-primary-500 dark:text-slate-400'
 export const HUB_PRIMARY_BUTTON_CLASS = 'min-h-11 rounded-lg bg-accent-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-accent-600 sm:px-4 sm:py-2 sm:text-sm'
-export const HUB_SECONDARY_BUTTON_CLASS = 'min-h-11 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 sm:px-4 sm:py-2 sm:text-sm'
-export const HUB_PAGE_HEADER_CARD_CLASS = 'flex w-full items-center justify-between gap-3 rounded-xl border border-primary-200 bg-primary-50/95 px-3 py-2 shadow-sm dark:border-neutral-800 dark:bg-[var(--theme-panel)] sm:px-4 sm:py-3'
-export const HUB_FILTER_PILL_CLASS = 'flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-700 transition-colors whitespace-nowrap hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700'
-export const HUB_FILTER_PILL_ACTIVE_CLASS = 'border border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800/60 dark:bg-orange-900/20 dark:text-orange-300'
+export const HUB_SECONDARY_BUTTON_CLASS = 'min-h-11 rounded-lg border border-primary-200 bg-white px-3 py-1.5 text-xs font-semibold text-primary-700 transition-colors hover:bg-primary-50 dark:border-primary-700 dark:bg-primary-800 dark:text-primary-300 dark:hover:bg-primary-700 sm:px-4 sm:py-2 sm:text-sm'
+export const HUB_PAGE_HEADER_CARD_CLASS = 'flex w-full items-center justify-between gap-3 rounded-xl border border-primary-200 bg-primary-50/95 px-3 py-2 shadow-sm dark:border-primary-800 dark:bg-[var(--theme-panel)] sm:px-4 sm:py-3'
+export const HUB_FILTER_PILL_CLASS = 'flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-primary-200 bg-white px-4 py-2 text-sm font-semibold text-primary-700 transition-colors whitespace-nowrap hover:bg-primary-50 dark:border-primary-700 dark:bg-primary-800 dark:text-primary-300 dark:hover:bg-primary-700'
+export const HUB_FILTER_PILL_ACTIVE_CLASS = 'border border-accent-200 bg-accent-50 text-accent-700 dark:border-accent-800/60 dark:bg-accent-900/20 dark:text-accent-300'
 
 export const WIZARD_STEP_ORDER: WizardStep[] = ['gateway', 'team', 'goal', 'launch']
 

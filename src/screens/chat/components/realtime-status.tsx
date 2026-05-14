@@ -40,7 +40,7 @@ const STATUS_CONFIG: Record<
   disconnected: {
     icon: WifiDisconnected01Icon,
     label: 'Updates paused',
-    color: 'text-neutral-400',
+    color: 'text-primary-400',
   },
   error: {
     icon: WifiDisconnected01Icon,

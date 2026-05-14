@@ -97,9 +97,6 @@ type ChatComposerHandle = {
   insertText: (value: string) => void
 }
 
-
-
-
 function nextThinkingLevel(level: ThinkingLevel): ThinkingLevel {
   if (level === 'off') return 'low'
   if (level === 'low') return 'adaptive'
@@ -222,13 +219,16 @@ function hasAttachableData(dt: DataTransfer | null): boolean {
     items.some(
       (item) =>
         item.kind === 'file' &&
-        (isImageMimeType(item.type) || isTextMimeType(item.type) || item.type.trim().length === 0),
+        (isImageMimeType(item.type) ||
+          isTextMimeType(item.type) ||
+          item.type.trim().length === 0),
     )
   )
     return true
   const files = Array.from(dt.files)
   return files.some(
-    (file) => isImageFile(file) || isTextFile(file) || file.type.trim().length === 0,
+    (file) =>
+      isImageFile(file) || isTextFile(file) || file.type.trim().length === 0,
   )
 }
 
@@ -297,8 +297,7 @@ function estimateDataUrlBytes(dataUrl: string): number {
   const commaIndex = dataUrl.indexOf(',')
   const base64 = commaIndex >= 0 ? dataUrl.slice(commaIndex + 1) : dataUrl
   if (!base64) return 0
-  const padding =
-    base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0
+  const padding = base64.endsWith('==') ? 2 : base64.endsWith('=') ? 1 : 0
   return Math.max(0, Math.floor((base64.length * 3) / 4) - padding)
 }
 
@@ -560,8 +559,12 @@ function ChatComposerComponent({
   onThinkingLevelChange,
 }: ChatComposerProps) {
   const mobileKeyboardInset = useWorkspaceStore((s) => s.mobileKeyboardInset)
-  const mobileComposerFocused = useWorkspaceStore((s) => s.mobileComposerFocused)
-  const setMobileKeyboardOpen = useWorkspaceStore((s) => s.setMobileKeyboardOpen)
+  const mobileComposerFocused = useWorkspaceStore(
+    (s) => s.mobileComposerFocused,
+  )
+  const setMobileKeyboardOpen = useWorkspaceStore(
+    (s) => s.setMobileKeyboardOpen,
+  )
   const setMobileKeyboardInset = useWorkspaceStore(
     (s) => s.setMobileKeyboardInset,
   )
@@ -574,7 +577,10 @@ function ChatComposerComponent({
   )
   const [attachmentProcessingCount, setAttachmentProcessingCount] = useState(0)
   const [isDraggingOver, setIsDraggingOver] = useState(false)
-  const [previewImage, setPreviewImage] = useState<{ url: string; name: string } | null>(null)
+  const [previewImage, setPreviewImage] = useState<{
+    url: string
+    name: string
+  } | null>(null)
   const [focusAfterSubmitTick, setFocusAfterSubmitTick] = useState(0)
   const { settings: composerSettings } = useSettings()
   const chatNavMode = composerSettings.mobileChatNavMode ?? 'dock'
@@ -590,7 +596,8 @@ function ChatComposerComponent({
   const [fastMode, setFastMode] = useState(false)
   // Per-session thinking level — controlled externally (chat-screen owns the state)
   // Falls back to internal state if no external controller provided
-  const [internalThinkingLevel, setInternalThinkingLevel] = useState<ThinkingLevel>('low')
+  const [internalThinkingLevel, setInternalThinkingLevel] =
+    useState<ThinkingLevel>('low')
   const thinkingLevel = externalThinkingLevel ?? internalThinkingLevel
   const handleThinkingToggle = useCallback(() => {
     const next = nextThinkingLevel(thinkingLevel)
@@ -724,8 +731,6 @@ function ChatComposerComponent({
     },
   })
 
-
-
   const handleModelSelect = useCallback(
     function handleModelSelect(nextModel: string) {
       const model = nextModel.trim()
@@ -776,11 +781,19 @@ function ChatComposerComponent({
     [sessionKey],
   )
   const modelButtonLabel = (() => {
-    const base = shortenModelName(currentModel) || (currentModelQuery.isLoading ? '…' : 'Model')
+    const base =
+      shortenModelName(currentModel) ||
+      (currentModelQuery.isLoading ? '…' : 'Model')
     const suffix = [
-      thinkingLevel === 'low' ? '🧠 Low' : thinkingLevel === 'off' ? '🧠 Off' : null,
+      thinkingLevel === 'low'
+        ? '🧠 Low'
+        : thinkingLevel === 'off'
+          ? '🧠 Off'
+          : null,
       fastMode ? '⚡' : null,
-    ].filter(Boolean).join(' ')
+    ]
+      .filter(Boolean)
+      .join(' ')
     return suffix ? `${base} · ${suffix}` : base
   })()
   // Don't show "Gateway disconnected" for models query failures - it's confusing
@@ -997,83 +1010,92 @@ function ChatComposerComponent({
 
       const timestamp = Date.now()
       const prepared = await Promise.all(
-        files.map(async (file, index): Promise<ChatComposerAttachment | null> => {
-          const imageFile = isImageFile(file)
-          const textFile = isTextFile(file)
-          if (!imageFile && !textFile && file.type.trim().length > 0) {
-            return null
-          }
+        files.map(
+          async (file, index): Promise<ChatComposerAttachment | null> => {
+            const imageFile = isImageFile(file)
+            const textFile = isTextFile(file)
+            if (!imageFile && !textFile && file.type.trim().length > 0) {
+              return null
+            }
 
-          if (file.size > MAX_ATTACHMENT_FILE_SIZE) {
-            toast(
-              `“${file.name || 'file'}” is ${formatFileSize(file.size)}. Max upload input size is ${formatFileSize(MAX_ATTACHMENT_FILE_SIZE)}.`,
-              { type: 'warning' },
+            if (file.size > MAX_ATTACHMENT_FILE_SIZE) {
+              toast(
+                `“${file.name || 'file'}” is ${formatFileSize(file.size)}. Max upload input size is ${formatFileSize(MAX_ATTACHMENT_FILE_SIZE)}.`,
+                { type: 'warning' },
+              )
+              return null
+            }
+
+            if (textFile) {
+              const textContent = await readFileAsText(file)
+              if (textContent === null) return null
+              const name =
+                file.name && file.name.trim().length > 0
+                  ? file.name.trim()
+                  : `pasted-text-${timestamp}-${index + 1}.txt`
+              const textBytes = new TextEncoder().encode(textContent).length
+              return {
+                id: crypto.randomUUID(),
+                name,
+                contentType:
+                  (isTextMimeType(file.type)
+                    ? normalizeMimeType(file.type)
+                    : '') ||
+                  inferTextMimeTypeFromFileName(name) ||
+                  'text/plain',
+                size: textBytes,
+                dataUrl: textContent,
+                kind: 'file',
+              }
+            }
+
+            const compressedDataUrl = await compressImageToDataUrl(file).catch(
+              () => null,
             )
-            return null
-          }
+            const dataUrl = compressedDataUrl || (await readFileAsDataUrl(file))
+            if (!dataUrl) return null
 
-          if (textFile) {
-            const textContent = await readFileAsText(file)
-            if (textContent === null) return null
+            const dataUrlMimeType = readDataUrlMimeType(dataUrl)
+            if (!isImageMimeType(dataUrlMimeType || '')) {
+              return null
+            }
+
+            const transportBytes = estimateDataUrlBytes(dataUrl)
+            if (transportBytes > MAX_TRANSPORT_IMAGE_SIZE) {
+              toast(
+                `Image compressed to ${(transportBytes / (1024 * 1024)).toFixed(2)}mb — still over the 1mb limit. Try a smaller screenshot.`,
+                { type: 'warning' },
+              )
+              return null
+            }
+
             const name =
               file.name && file.name.trim().length > 0
                 ? file.name.trim()
-                : `pasted-text-${timestamp}-${index + 1}.txt`
-            const textBytes = new TextEncoder().encode(textContent).length
+                : `pasted-image-${timestamp}-${index + 1}.jpg`
+            const detectedMimeType =
+              dataUrlMimeType ||
+              (isImageMimeType(file.type)
+                ? normalizeMimeType(file.type)
+                : '') ||
+              inferImageMimeTypeFromFileName(name) ||
+              'image/jpeg'
             return {
               id: crypto.randomUUID(),
               name,
-              contentType:
-                (isTextMimeType(file.type) ? normalizeMimeType(file.type) : '') ||
-                inferTextMimeTypeFromFileName(name) ||
-                'text/plain',
-              size: textBytes,
-              dataUrl: textContent,
-              kind: 'file',
+              contentType: detectedMimeType,
+              size: transportBytes,
+              dataUrl,
+              previewUrl: dataUrl,
+              kind: 'image',
             }
-          }
-
-          const compressedDataUrl = await compressImageToDataUrl(file).catch(() => null)
-          const dataUrl = compressedDataUrl || (await readFileAsDataUrl(file))
-          if (!dataUrl) return null
-
-          const dataUrlMimeType = readDataUrlMimeType(dataUrl)
-          if (!isImageMimeType(dataUrlMimeType || '')) {
-            return null
-          }
-
-          const transportBytes = estimateDataUrlBytes(dataUrl)
-          if (transportBytes > MAX_TRANSPORT_IMAGE_SIZE) {
-            toast(
-              `Image compressed to ${(transportBytes / (1024 * 1024)).toFixed(2)}mb — still over the 1mb limit. Try a smaller screenshot.`,
-              { type: 'warning' },
-            )
-            return null
-          }
-
-          const name =
-            file.name && file.name.trim().length > 0
-              ? file.name.trim()
-              : `pasted-image-${timestamp}-${index + 1}.jpg`
-          const detectedMimeType =
-            dataUrlMimeType ||
-            (isImageMimeType(file.type) ? normalizeMimeType(file.type) : '') ||
-            inferImageMimeTypeFromFileName(name) ||
-            'image/jpeg'
-          return {
-            id: crypto.randomUUID(),
-            name,
-            contentType: detectedMimeType,
-            size: transportBytes,
-            dataUrl,
-            previewUrl: dataUrl,
-            kind: 'image',
-          }
-        }),
+          },
+        ),
       )
 
       const valid = prepared.filter(
-        (attachment): attachment is ChatComposerAttachment => attachment !== null,
+        (attachment): attachment is ChatComposerAttachment =>
+          attachment !== null,
       )
 
       const skippedCount = prepared.length - valid.length
@@ -1176,7 +1198,8 @@ function ChatComposerComponent({
     }))
     try {
       // Fast mode is incompatible with extended thinking — disable if thinking is on
-      const effectiveFastMode = fastMode && thinkingLevel === 'off' ? true : false
+      const effectiveFastMode =
+        fastMode && thinkingLevel === 'off' ? true : false
       onSubmit(body, attachmentPayload, effectiveFastMode, {
         reset,
         setValue: setComposerValue,
@@ -1228,7 +1251,8 @@ function ChatComposerComponent({
       }
     }
     window.addEventListener('keydown', handleModelShortcut, true)
-    return () => window.removeEventListener('keydown', handleModelShortcut, true)
+    return () =>
+      window.removeEventListener('keydown', handleModelShortcut, true)
   }, [])
 
   const submitDisabled =
@@ -1399,17 +1423,20 @@ function ChatComposerComponent({
     setIsSlashMenuDismissed(true)
   }, [])
 
-  const handlePromptSubmit = useCallback((e?: React.FormEvent) => {
-    e?.preventDefault()
-    if (isSlashMenuOpen) {
-      const applied = slashMenuRef.current?.selectActive() ?? false
-      if (!applied) {
-        setIsSlashMenuDismissed(true)
+  const handlePromptSubmit = useCallback(
+    (e?: React.FormEvent) => {
+      e?.preventDefault()
+      if (isSlashMenuOpen) {
+        const applied = slashMenuRef.current?.selectActive() ?? false
+        if (!applied) {
+          setIsSlashMenuDismissed(true)
+        }
+        return
       }
-      return
-    }
-    handleSubmit()
-  }, [handleSubmit, isSlashMenuOpen])
+      handleSubmit()
+    },
+    [handleSubmit, isSlashMenuOpen],
+  )
 
   const handlePromptKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -1524,49 +1551,47 @@ function ChatComposerComponent({
   // Always show composer when keyboard/focus is active
   const effectiveScrollHidden = scrollHidden && !keyboardOrFocusActive
 
-  const composerWrapperStyle = useMemo(
-    () => {
-      if (!isMobileViewport) return { maxWidth: 'min(768px, 100%)' } as CSSProperties
-      const safeArea = 'env(safe-area-inset-bottom, 0px)'
-      const tabBarH = 'var(--tabbar-h, 5rem)'
-      const tf = effectiveScrollHidden ? 'translateY(110%)' : 'translateY(0)'
+  const composerWrapperStyle = useMemo(() => {
+    if (!isMobileViewport)
+      return { maxWidth: 'min(768px, 100%)' } as CSSProperties
+    const safeArea = 'env(safe-area-inset-bottom, 0px)'
+    const tabBarH = 'var(--tabbar-h, 5rem)'
+    const tf = effectiveScrollHidden ? 'translateY(110%)' : 'translateY(0)'
 
-      if (keyboardOrFocusActive) {
-        // All modes: keyboard up = flush at bottom with keyboard inset
-        return {
-          maxWidth: 'min(768px, 100%)',
-          bottom: '0px',
-          paddingBottom: `calc(var(--kb-inset, 0px))`,
-          transform: tf,
-          WebkitTransform: tf,
-          '--mobile-tab-bar-offset': MOBILE_TAB_BAR_OFFSET,
-        } as CSSProperties
-      }
-
-      if (chatNavMode === 'dock') {
-        // iMessage mode: tab bar hidden, composer docks to bottom with safe area only
-        return {
-          maxWidth: 'min(768px, 100%)',
-          bottom: '0px',
-          paddingBottom: `max(var(--safe-b, 0px), ${safeArea})`,
-          transform: tf,
-          WebkitTransform: tf,
-          '--mobile-tab-bar-offset': MOBILE_TAB_BAR_OFFSET,
-        } as CSSProperties
-      }
-
-      // scroll-hide / integrated: tab bar visible, composer sits above it
+    if (keyboardOrFocusActive) {
+      // All modes: keyboard up = flush at bottom with keyboard inset
       return {
         maxWidth: 'min(768px, 100%)',
-        bottom: `calc(${tabBarH} + 4px)`,
-        paddingBottom: '0px',
+        bottom: '0px',
+        paddingBottom: `calc(var(--kb-inset, 0px))`,
         transform: tf,
         WebkitTransform: tf,
         '--mobile-tab-bar-offset': MOBILE_TAB_BAR_OFFSET,
       } as CSSProperties
-    },
-    [isMobileViewport, keyboardOrFocusActive, effectiveScrollHidden],
-  )
+    }
+
+    if (chatNavMode === 'dock') {
+      // iMessage mode: tab bar hidden, composer docks to bottom with safe area only
+      return {
+        maxWidth: 'min(768px, 100%)',
+        bottom: '0px',
+        paddingBottom: `max(var(--safe-b, 0px), ${safeArea})`,
+        transform: tf,
+        WebkitTransform: tf,
+        '--mobile-tab-bar-offset': MOBILE_TAB_BAR_OFFSET,
+      } as CSSProperties
+    }
+
+    // scroll-hide / integrated: tab bar visible, composer sits above it
+    return {
+      maxWidth: 'min(768px, 100%)',
+      bottom: `calc(${tabBarH} + 4px)`,
+      paddingBottom: '0px',
+      transform: tf,
+      WebkitTransform: tf,
+      '--mobile-tab-bar-offset': MOBILE_TAB_BAR_OFFSET,
+    } as CSSProperties
+  }, [isMobileViewport, keyboardOrFocusActive, effectiveScrollHidden])
 
   return (
     <div
@@ -1579,18 +1604,21 @@ function ChatComposerComponent({
                 ? [
                     // iMessage-style: edge-to-edge, docked to bottom
                     'left-0 right-0',
-                    'bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl',
-                    'border-t border-primary-200/60 dark:border-neutral-800',
+                    'bg-white/95 dark:bg-primary-900/95 backdrop-blur-xl',
+                    'border-t border-primary-200/60 dark:border-primary-800',
                   ].join(' ')
                 : [
                     // scroll-hide / integrated: floating pill above tab bar
                     'left-4 right-4',
-                    'bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl',
+                    'bg-white/95 dark:bg-primary-900/95 backdrop-blur-2xl',
                     'shadow-[0_8px_32px_rgba(0,0,0,0.15)]',
                     'rounded-[22px]',
                   ].join(' '),
             ].join(' ')
-          : ['relative z-40 shrink-0 w-full mx-auto px-3 pt-2 sm:px-5', 'bg-surface'].join(' '),
+          : [
+              'relative z-40 shrink-0 w-full mx-auto px-3 pt-2 sm:px-5',
+              'bg-surface',
+            ].join(' '),
         // Mobile: pin above tab bar + safe-area inset. Desktop: normal bottom padding.
         !isMobileViewport
           ? 'pb-[max(var(--safe-b),0px)] md:pb-[calc(var(--safe-b)+0.75rem)]'
@@ -1618,7 +1646,8 @@ function ChatComposerComponent({
         className={cn(
           'relative z-50 transition-all duration-300',
           // On mobile: remove PromptInput's built-in rounded/bg/padding — outer wrapper owns the container
-          isMobileViewport && 'py-0 gap-0 !rounded-none !bg-transparent shadow-none outline-none',
+          isMobileViewport &&
+            'py-0 gap-0 !rounded-none !bg-transparent shadow-none outline-none',
           isDraggingOver &&
             'outline-primary-500 ring-2 ring-primary-300 bg-primary-50/80',
           isLoading &&
@@ -1726,7 +1755,7 @@ function ChatComposerComponent({
                   setIsModelMenuOpen(false)
                   setIsMobileActionsMenuOpen((prev) => !prev)
                 }}
-                className="size-8 shrink-0 rounded-full bg-neutral-100 dark:bg-white/10 flex items-center justify-center text-primary-600 active:bg-neutral-200 dark:active:bg-white/20 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                className="size-8 shrink-0 rounded-full bg-primary-100 dark:bg-white/10 flex items-center justify-center text-primary-600 active:bg-primary-200 dark:active:bg-white/20 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <HugeiconsIcon icon={Add01Icon} size={18} strokeWidth={1.5} />
               </button>
@@ -1754,8 +1783,6 @@ function ChatComposerComponent({
                 className="min-h-[36px] max-h-[120px] flex-1 text-base leading-snug"
               />
 
-
-
               {/* Right side: stop / send / mic */}
               <div className="shrink-0">
                 {isLoading ? (
@@ -1767,7 +1794,9 @@ function ChatComposerComponent({
                   >
                     <HugeiconsIcon icon={StopIcon} size={18} strokeWidth={2} />
                   </button>
-                ) : value.trim().length > 0 || attachments.length > 0 || attachmentProcessingCount > 0 ? (
+                ) : value.trim().length > 0 ||
+                  attachments.length > 0 ||
+                  attachmentProcessingCount > 0 ? (
                   <button
                     type="button"
                     onClick={handleSubmit}
@@ -1775,9 +1804,13 @@ function ChatComposerComponent({
                     aria-label="Send message"
                     className="size-9 rounded-full bg-accent-500 flex items-center justify-center text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                   >
-                    <HugeiconsIcon icon={ArrowUp02Icon} size={18} strokeWidth={2} />
+                    <HugeiconsIcon
+                      icon={ArrowUp02Icon}
+                      size={18}
+                      strokeWidth={2}
+                    />
                   </button>
-                ) : (voiceInput.isSupported || voiceRecorder.isSupported) ? (
+                ) : voiceInput.isSupported || voiceRecorder.isSupported ? (
                   <button
                     type="button"
                     onClick={() => {
@@ -1806,10 +1839,14 @@ function ChatComposerComponent({
                         ? 'text-red-600 bg-red-100 animate-pulse'
                         : voiceInput.isListening
                           ? 'text-red-500 bg-red-50 animate-pulse'
-                          : 'text-primary-500 bg-neutral-100 dark:bg-white/10',
+                          : 'text-primary-500 bg-primary-100 dark:bg-white/10',
                     )}
                   >
-                    <HugeiconsIcon icon={Mic01Icon} size={20} strokeWidth={1.5} />
+                    <HugeiconsIcon
+                      icon={Mic01Icon}
+                      size={20}
+                      strokeWidth={1.5}
+                    />
                     {voiceRecorder.isRecording ? (
                       <span className="absolute -top-1 -right-1 flex size-3">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
@@ -1825,7 +1862,11 @@ function ChatComposerComponent({
                     aria-label="Send message"
                     className="size-9 rounded-full bg-accent-500 flex items-center justify-center text-white transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
-                    <HugeiconsIcon icon={ArrowUp02Icon} size={18} strokeWidth={2} />
+                    <HugeiconsIcon
+                      icon={ArrowUp02Icon}
+                      size={18}
+                      strokeWidth={2}
+                    />
                   </button>
                 )}
               </div>
@@ -1844,13 +1885,13 @@ function ChatComposerComponent({
                       }}
                     />
                     <div
-                      className="fixed bottom-0 left-0 right-0 z-[200] rounded-t-2xl bg-white shadow-2xl pb-safe dark:bg-neutral-900 animate-in slide-in-from-bottom-10 duration-200"
+                      className="fixed bottom-0 left-0 right-0 z-[200] rounded-t-2xl bg-white shadow-2xl pb-safe dark:bg-primary-900 animate-in slide-in-from-bottom-10 duration-200"
                       role="dialog"
                       aria-label="Actions"
                       onClick={(event) => event.stopPropagation()}
                     >
-                      <div className="mx-auto mt-3 mb-4 h-1 w-10 rounded-full bg-neutral-300" />
-                      <div className="px-4 pb-2 text-sm font-semibold text-neutral-500">
+                      <div className="mx-auto mt-3 mb-4 h-1 w-10 rounded-full bg-primary-300" />
+                      <div className="px-4 pb-2 text-sm font-semibold text-primary-500">
                         Actions
                       </div>
                       <div className="grid grid-cols-2 gap-2 px-4 pb-4">
@@ -1862,12 +1903,16 @@ function ChatComposerComponent({
                             handleOpenAttachmentPicker(event)
                             // sheet stays open; closes naturally after file selected or on backdrop tap
                           }}
-                          className="rounded-xl border border-neutral-100 bg-neutral-50 p-4 flex flex-col items-start gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50"
+                          className="rounded-xl border border-primary-100 bg-primary-50 p-4 flex flex-col items-start gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          <span className="rounded-lg bg-orange-100 p-1.5 text-orange-600">
-                            <HugeiconsIcon icon={Add01Icon} size={24} strokeWidth={1.5} />
+                          <span className="rounded-lg bg-accent-100 p-1.5 text-accent-600">
+                            <HugeiconsIcon
+                              icon={Add01Icon}
+                              size={24}
+                              strokeWidth={1.5}
+                            />
                           </span>
-                          <span className="text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                          <span className="text-sm font-medium text-primary-800 dark:text-primary-100">
                             Attach File
                           </span>
                         </button>
@@ -1883,12 +1928,16 @@ function ChatComposerComponent({
                               setIsModelMenuOpen(true)
                             }
                           }}
-                          className="rounded-xl border border-neutral-100 bg-neutral-50 p-4 flex flex-col items-start gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50"
+                          className="rounded-xl border border-primary-100 bg-primary-50 p-4 flex flex-col items-start gap-2 text-left disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <span className="rounded-lg bg-indigo-100 p-1.5 text-indigo-600">
-                            <HugeiconsIcon icon={ArrowDown01Icon} size={24} strokeWidth={1.5} />
+                            <HugeiconsIcon
+                              icon={ArrowDown01Icon}
+                              size={24}
+                              strokeWidth={1.5}
+                            />
                           </span>
-                          <span className="text-sm font-medium text-neutral-800 dark:text-neutral-100 truncate max-w-full">
+                          <span className="text-sm font-medium text-primary-800 dark:text-primary-100 truncate max-w-full">
                             {modelButtonLabel}
                           </span>
                         </button>
@@ -1900,12 +1949,16 @@ function ChatComposerComponent({
                               handleClearDraft()
                               setIsMobileActionsMenuOpen(false)
                             }}
-                            className="rounded-xl border border-neutral-100 bg-neutral-50 p-4 flex flex-col items-start gap-2 text-left"
+                            className="rounded-xl border border-primary-100 bg-primary-50 p-4 flex flex-col items-start gap-2 text-left"
                           >
                             <span className="rounded-lg bg-red-100 p-1.5 text-red-600">
-                              <HugeiconsIcon icon={Delete01Icon} size={24} strokeWidth={1.5} />
+                              <HugeiconsIcon
+                                icon={Delete01Icon}
+                                size={24}
+                                strokeWidth={1.5}
+                              />
                             </span>
-                            <span className="text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                            <span className="text-sm font-medium text-primary-800 dark:text-primary-100">
                               Clear Draft
                             </span>
                           </button>
@@ -1918,12 +1971,16 @@ function ChatComposerComponent({
                               onNewSession()
                               setIsMobileActionsMenuOpen(false)
                             }}
-                            className="rounded-xl border border-neutral-100 bg-neutral-50 p-4 flex flex-col items-start gap-2 text-left"
+                            className="rounded-xl border border-primary-100 bg-primary-50 p-4 flex flex-col items-start gap-2 text-left"
                           >
                             <span className="rounded-lg bg-green-100 p-1.5 text-green-600">
-                              <HugeiconsIcon icon={Add01Icon} size={24} strokeWidth={1.5} />
+                              <HugeiconsIcon
+                                icon={Add01Icon}
+                                size={24}
+                                strokeWidth={1.5}
+                              />
                             </span>
-                            <span className="text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                            <span className="text-sm font-medium text-primary-800 dark:text-primary-100">
                               New Session
                             </span>
                           </button>
@@ -1946,13 +2003,13 @@ function ChatComposerComponent({
                       onClick={() => setIsModelMenuOpen(false)}
                     />
                     <div
-                      className="fixed bottom-0 left-0 right-0 z-[210] rounded-t-2xl bg-white shadow-2xl pb-safe dark:bg-neutral-900 animate-in slide-in-from-bottom-10 duration-200"
+                      className="fixed bottom-0 left-0 right-0 z-[210] rounded-t-2xl bg-white shadow-2xl pb-safe dark:bg-primary-900 animate-in slide-in-from-bottom-10 duration-200"
                       role="dialog"
                       aria-label="Select model"
                       onClick={(event) => event.stopPropagation()}
                     >
-                      <div className="mx-auto mt-3 mb-4 h-1 w-10 rounded-full bg-neutral-300" />
-                      <div className="px-4 pb-2 text-sm font-semibold text-neutral-500">
+                      <div className="mx-auto mt-3 mb-4 h-1 w-10 rounded-full bg-primary-300" />
+                      <div className="px-4 pb-2 text-sm font-semibold text-primary-500">
                         Model
                       </div>
                       {groupedModels.length === 0 && modelsUnavailable ? (
@@ -1960,7 +2017,9 @@ function ChatComposerComponent({
                           <p className="mb-1 font-medium text-primary-700">
                             {modelConnectionError.title}
                           </p>
-                          <p className="text-xs">{modelConnectionError.description}</p>
+                          <p className="text-xs">
+                            {modelConnectionError.description}
+                          </p>
                           {modelConnectionError.action ? (
                             <p className="mt-2 text-xs font-medium text-primary-700">
                               {modelConnectionError.action}
@@ -1969,32 +2028,79 @@ function ChatComposerComponent({
                         </div>
                       ) : groupedModels.length === 0 ? (
                         <div className="p-4 text-center text-sm text-primary-500">
-                          <p className="font-medium text-primary-700 mb-1">No models configured</p>
-                          <p className="text-xs mb-3">Add API keys for providers in your OpenClaw config to unlock more models.</p>
-                          <a href="https://docs.openclaw.ai/configuration" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-lg bg-accent-500/10 px-3 py-1.5 text-xs font-medium text-accent-600">Setup Guide →</a>
+                          <p className="font-medium text-primary-700 mb-1">
+                            No models configured
+                          </p>
+                          <p className="text-xs mb-3">
+                            Add API keys for providers in your OpenClaw config
+                            to unlock more models.
+                          </p>
+                          <a
+                            href="https://docs.openclaw.ai/configuration"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 rounded-lg bg-accent-500/10 px-3 py-1.5 text-xs font-medium text-accent-600"
+                          >
+                            Setup Guide →
+                          </a>
                         </div>
                       ) : (
                         <div className="max-h-[60dvh] overflow-y-auto overflow-x-hidden pb-4">
-                          {(pinnedModels.length > 0 || unavailablePinnedModels.length > 0) && (
-                            <div className="mb-2 border-b border-neutral-100 dark:border-neutral-800 pb-2">
-                              <div className="flex items-center gap-1.5 px-4 py-2 text-[11px] font-medium uppercase tracking-wider text-neutral-400">
-                                <HugeiconsIcon icon={PinIcon} size={13} strokeWidth={1.5} className="text-accent-500" />
+                          {(pinnedModels.length > 0 ||
+                            unavailablePinnedModels.length > 0) && (
+                            <div className="mb-2 border-b border-primary-100 dark:border-primary-800 pb-2">
+                              <div className="flex items-center gap-1.5 px-4 py-2 text-[11px] font-medium uppercase tracking-wider text-primary-400">
+                                <HugeiconsIcon
+                                  icon={PinIcon}
+                                  size={13}
+                                  strokeWidth={1.5}
+                                  className="text-accent-500"
+                                />
                                 <span>Pinned</span>
                               </div>
                               {pinnedModels.map((option) => {
-                                const optionActive = isSameModel(option, currentModel)
+                                const optionActive = isSameModel(
+                                  option,
+                                  currentModel,
+                                )
                                 return (
                                   <button
                                     key={option.value}
                                     type="button"
-                                    onClick={(e) => { e.stopPropagation(); setIsModelMenuOpen(false); handleModelSelect(option.value) }}
-                                    className={cn('flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors', optionActive ? 'bg-accent-50 text-accent-700 font-medium' : 'text-neutral-700 dark:text-neutral-200')}
-                                    role="option" aria-selected={optionActive}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setIsModelMenuOpen(false)
+                                      handleModelSelect(option.value)
+                                    }}
+                                    className={cn(
+                                      'flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors',
+                                      optionActive
+                                        ? 'bg-accent-50 text-accent-700 font-medium'
+                                        : 'text-primary-700 dark:text-primary-200',
+                                    )}
+                                    role="option"
+                                    aria-selected={optionActive}
                                   >
-                                    <span className="flex-1 truncate">{option.label}</span>
-                                    {optionActive && <span className="size-1.5 rounded-full bg-accent-500 shrink-0" />}
-                                    <button type="button" onClick={(e) => { e.stopPropagation(); togglePin(option.value) }} className="shrink-0 p-1 text-accent-500 hover:bg-accent-50 rounded" aria-label={`Unpin ${option.label}`}>
-                                      <HugeiconsIcon icon={PinIcon} size={13} strokeWidth={2} />
+                                    <span className="flex-1 truncate">
+                                      {option.label}
+                                    </span>
+                                    {optionActive && (
+                                      <span className="size-1.5 rounded-full bg-accent-500 shrink-0" />
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        togglePin(option.value)
+                                      }}
+                                      className="shrink-0 p-1 text-accent-500 hover:bg-accent-50 rounded"
+                                      aria-label={`Unpin ${option.label}`}
+                                    >
+                                      <HugeiconsIcon
+                                        icon={PinIcon}
+                                        size={13}
+                                        strokeWidth={2}
+                                      />
                                     </button>
                                   </button>
                                 )
@@ -2003,21 +2109,52 @@ function ChatComposerComponent({
                           )}
                           {unpinnedGroupedModels.map(([provider, models]) => (
                             <div key={provider}>
-                              <div className="px-4 pb-1 pt-3 text-[10px] font-medium uppercase tracking-wider text-neutral-400">{provider}</div>
+                              <div className="px-4 pb-1 pt-3 text-[10px] font-medium uppercase tracking-wider text-primary-400">
+                                {provider}
+                              </div>
                               {models.map((option) => {
-                                const optionActive = isSameModel(option, currentModel)
+                                const optionActive = isSameModel(
+                                  option,
+                                  currentModel,
+                                )
                                 return (
                                   <button
                                     key={option.value}
                                     type="button"
-                                    onClick={(e) => { e.stopPropagation(); setIsModelMenuOpen(false); handleModelSelect(option.value) }}
-                                    className={cn('flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors', optionActive ? 'bg-accent-50 text-accent-700 font-medium' : 'text-neutral-700 dark:text-neutral-200')}
-                                    role="option" aria-selected={optionActive}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setIsModelMenuOpen(false)
+                                      handleModelSelect(option.value)
+                                    }}
+                                    className={cn(
+                                      'flex w-full items-center gap-3 px-4 py-3 text-left text-sm transition-colors',
+                                      optionActive
+                                        ? 'bg-accent-50 text-accent-700 font-medium'
+                                        : 'text-primary-700 dark:text-primary-200',
+                                    )}
+                                    role="option"
+                                    aria-selected={optionActive}
                                   >
-                                    <span className="flex-1 truncate">{option.label}</span>
-                                    {optionActive && <span className="size-1.5 rounded-full bg-accent-500 shrink-0" />}
-                                    <button type="button" onClick={(e) => { e.stopPropagation(); togglePin(option.value) }} className="shrink-0 p-1 text-neutral-400 hover:text-accent-500 hover:bg-neutral-100 rounded" aria-label={`Pin ${option.label}`}>
-                                      <HugeiconsIcon icon={PinIcon} size={13} strokeWidth={2} />
+                                    <span className="flex-1 truncate">
+                                      {option.label}
+                                    </span>
+                                    {optionActive && (
+                                      <span className="size-1.5 rounded-full bg-accent-500 shrink-0" />
+                                    )}
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        togglePin(option.value)
+                                      }}
+                                      className="shrink-0 p-1 text-primary-400 hover:text-accent-500 hover:bg-primary-100 rounded"
+                                      aria-label={`Pin ${option.label}`}
+                                    >
+                                      <HugeiconsIcon
+                                        icon={PinIcon}
+                                        size={13}
+                                        strokeWidth={2}
+                                      />
                                     </button>
                                   </button>
                                 )
@@ -2068,7 +2205,11 @@ function ChatComposerComponent({
                     disabled={disabled}
                     onClick={handleOpenAttachmentPicker}
                   >
-                    <HugeiconsIcon icon={Add01Icon} size={20} strokeWidth={1.5} />
+                    <HugeiconsIcon
+                      icon={Add01Icon}
+                      size={20}
+                      strokeWidth={1.5}
+                    />
                   </Button>
                 </PromptInputAction>
                 {hasDraft && !isLoading && (
@@ -2112,12 +2253,12 @@ function ChatComposerComponent({
                         'cursor-not-allowed opacity-50',
                     )}
                     aria-haspopup="listbox"
-                    aria-expanded={
-                      !isModelSwitcherDisabled && isModelMenuOpen
-                    }
+                    aria-expanded={!isModelSwitcherDisabled && isModelMenuOpen}
                     aria-disabled={isModelSwitcherDisabled}
                     disabled={isModelSwitcherDisabled}
-                    title={currentModel || modelAvailabilityLabel || 'Select model'}
+                    title={
+                      currentModel || modelAvailabilityLabel || 'Select model'
+                    }
                   >
                     <span className="max-w-[5.5rem] truncate sm:max-w-[8.5rem] md:max-w-[12rem]">
                       {modelButtonLabel}
@@ -2172,7 +2313,9 @@ function ChatComposerComponent({
                           <p className="font-medium text-primary-700 mb-1">
                             {modelConnectionError.title}
                           </p>
-                          <p className="text-xs">{modelConnectionError.description}</p>
+                          <p className="text-xs">
+                            {modelConnectionError.description}
+                          </p>
                           {modelConnectionError.action ? (
                             <p className="mt-2 text-xs font-medium text-primary-700">
                               {modelConnectionError.action}
@@ -2185,8 +2328,8 @@ function ChatComposerComponent({
                             No models configured
                           </p>
                           <p className="text-xs mb-2">
-                            Add API keys for providers in your OpenClaw config to
-                            unlock more models.
+                            Add API keys for providers in your OpenClaw config
+                            to unlock more models.
                           </p>
                           <a
                             href="https://docs.openclaw.ai/configuration"
@@ -2202,8 +2345,8 @@ function ChatComposerComponent({
                           {/* Phase 4.2: Pinned models section */}
                           {(pinnedModels.length > 0 ||
                             unavailablePinnedModels.length > 0) && (
-                            <div className="mb-2 border-t border-neutral-200 bg-neutral-50 py-2">
-                              <div className="mb-1.5 flex items-center gap-1 px-3 text-[11px] font-medium uppercase tracking-wider text-neutral-500">
+                            <div className="mb-2 border-t border-primary-200 bg-primary-50 py-2">
+                              <div className="mb-1.5 flex items-center gap-1 px-3 text-[11px] font-medium uppercase tracking-wider text-primary-500">
                                 <HugeiconsIcon
                                   icon={PinIcon}
                                   size={14}
@@ -2230,9 +2373,9 @@ function ChatComposerComponent({
                                         handleModelSelect(option.value)
                                       }}
                                       className={cn(
-                                        'flex flex-1 items-center gap-2 px-3 py-2.5 text-left text-sm text-neutral-700 transition-colors hover:bg-neutral-50 dark:hover:bg-white/10',
+                                        'flex flex-1 items-center gap-2 px-3 py-2.5 text-left text-sm text-primary-700 transition-colors hover:bg-primary-50 dark:hover:bg-white/10',
                                         optionActive &&
-                                          'border-l-2 border-accent-500 bg-neutral-100 text-neutral-900',
+                                          'border-l-2 border-accent-500 bg-primary-100 text-primary-900',
                                       )}
                                       role="option"
                                       aria-selected={optionActive}
@@ -2273,7 +2416,7 @@ function ChatComposerComponent({
                                   key={modelId}
                                   className="group relative flex items-center"
                                 >
-                                  <div className="flex flex-1 items-center gap-2 px-3 py-2.5 text-left text-sm text-neutral-400 opacity-60">
+                                  <div className="flex flex-1 items-center gap-2 px-3 py-2.5 text-left text-sm text-primary-400 opacity-60">
                                     <span className="flex-1 truncate font-medium">
                                       {modelId}
                                     </span>
@@ -2301,7 +2444,7 @@ function ChatComposerComponent({
                           {/* Regular models grouped by provider */}
                           {unpinnedGroupedModels.map(([provider, models]) => (
                             <div key={provider} className="mb-2 last:mb-0">
-                              <div className="border-t border-neutral-100 px-3 pb-2 pt-3 text-[10px] font-medium uppercase tracking-wider text-neutral-400">
+                              <div className="border-t border-primary-100 px-3 pb-2 pt-3 text-[10px] font-medium uppercase tracking-wider text-primary-400">
                                 {provider}
                               </div>
                               {models.map((option) => {
@@ -2322,9 +2465,9 @@ function ChatComposerComponent({
                                         handleModelSelect(option.value)
                                       }}
                                       className={cn(
-                                        'flex flex-1 items-center gap-2 px-3 py-2.5 text-left text-sm text-neutral-700 transition-colors hover:bg-neutral-50 dark:hover:bg-white/10',
+                                        'flex flex-1 items-center gap-2 px-3 py-2.5 text-left text-sm text-primary-700 transition-colors hover:bg-primary-50 dark:hover:bg-white/10',
                                         optionActive &&
-                                          'border-l-2 border-accent-500 bg-neutral-100 text-neutral-900',
+                                          'border-l-2 border-accent-500 bg-primary-100 text-primary-900',
                                       )}
                                       role="option"
                                       aria-selected={optionActive}
@@ -2346,7 +2489,7 @@ function ChatComposerComponent({
                                         event.stopPropagation()
                                         togglePin(option.value)
                                       }}
-                                      className="absolute right-3 rounded px-1 text-xs leading-none text-neutral-400 opacity-0 transition-opacity hover:bg-neutral-100 dark:hover:bg-white/10 hover:text-accent-500 focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-accent-300 group-hover:opacity-100"
+                                      className="absolute right-3 rounded px-1 text-xs leading-none text-primary-400 opacity-0 transition-opacity hover:bg-primary-100 dark:hover:bg-white/10 hover:text-accent-500 focus:opacity-100 focus:outline-none focus:ring-1 focus:ring-accent-300 group-hover:opacity-100"
                                       aria-label={`Pin ${option.label}`}
                                       title="Pin"
                                     >
@@ -2364,9 +2507,11 @@ function ChatComposerComponent({
                         </div>
                       )}
                       {/* Settings footer — thinking + fast mode */}
-                      <div className="border-t border-neutral-100 dark:border-neutral-800 px-3 py-2 flex items-center gap-2">
+                      <div className="border-t border-primary-100 dark:border-primary-800 px-3 py-2 flex items-center gap-2">
                         {fastMode && thinkingLevel !== 'off' && (
-                          <span className="text-[10px] text-amber-500 mr-1">⚠ Fast disabled while thinking is on</span>
+                          <span className="text-[10px] text-amber-500 mr-1">
+                            ⚠ Fast disabled while thinking is on
+                          </span>
                         )}
                         <button
                           type="button"
@@ -2377,10 +2522,15 @@ function ChatComposerComponent({
                               ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
                               : thinkingLevel === 'low'
                                 ? 'bg-primary-100 text-primary-600'
-                                : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200',
+                                : 'bg-primary-100 text-primary-500 hover:bg-primary-200',
                           )}
                         >
-                          🧠 {thinkingLevel === 'adaptive' ? 'Auto' : thinkingLevel === 'low' ? 'Low' : 'Off'}
+                          🧠{' '}
+                          {thinkingLevel === 'adaptive'
+                            ? 'Auto'
+                            : thinkingLevel === 'low'
+                              ? 'Low'
+                              : 'Off'}
                         </button>
                         <button
                           type="button"
@@ -2389,7 +2539,7 @@ function ChatComposerComponent({
                             'inline-flex h-6 items-center gap-1 rounded-full px-2 text-[11px] font-medium transition-colors',
                             fastMode
                               ? 'bg-accent-500/15 text-accent-600'
-                              : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200',
+                              : 'bg-primary-100 text-primary-500 hover:bg-primary-200',
                           )}
                         >
                           ⚡ Fast
@@ -2452,7 +2602,11 @@ function ChatComposerComponent({
                       }
                       disabled={disabled}
                     >
-                      <HugeiconsIcon icon={Mic01Icon} size={20} strokeWidth={1.5} />
+                      <HugeiconsIcon
+                        icon={Mic01Icon}
+                        size={20}
+                        strokeWidth={1.5}
+                      />
                       {voiceRecorder.isRecording ? (
                         <span className="absolute -top-1 -right-1 flex size-3">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
@@ -2471,27 +2625,31 @@ function ChatComposerComponent({
                       className="rounded-md"
                       aria-label="Stop generation"
                     >
-                      <HugeiconsIcon icon={StopIcon} size={20} strokeWidth={1.5} />
-                    </Button>
-                  </PromptInputAction>
-                ) : (
-                  <>
-                  <PromptInputAction tooltip="Send message">
-                    <Button
-                      type="button"
-                      onClick={handleSubmit}
-                      disabled={submitDisabled}
-                      size="icon-sm"
-                      className="rounded-full"
-                      aria-label="Send message"
-                    >
                       <HugeiconsIcon
-                        icon={ArrowUp02Icon}
+                        icon={StopIcon}
                         size={20}
                         strokeWidth={1.5}
                       />
                     </Button>
                   </PromptInputAction>
+                ) : (
+                  <>
+                    <PromptInputAction tooltip="Send message">
+                      <Button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={submitDisabled}
+                        size="icon-sm"
+                        className="rounded-full"
+                        aria-label="Send message"
+                      >
+                        <HugeiconsIcon
+                          icon={ArrowUp02Icon}
+                          size={20}
+                          strokeWidth={1.5}
+                        />
+                      </Button>
+                    </PromptInputAction>
                   </>
                 )}
               </div>
@@ -2501,30 +2659,34 @@ function ChatComposerComponent({
       </PromptInput>
 
       {/* Fullscreen image preview overlay — portaled to body to escape stacking context */}
-      {previewImage && createPortal(
-        <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-sm animate-in fade-in duration-200"
-          onClick={() => setPreviewImage(null)}
-          role="dialog"
-          aria-label="Image preview"
-        >
-          <button
-            type="button"
-            className="absolute right-4 top-4 z-10 inline-flex size-10 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white dark:hover:bg-white/10/30 active:bg-white/40 transition-colors"
-            onClick={(e) => { e.stopPropagation(); setPreviewImage(null) }}
-            aria-label="Close preview"
+      {previewImage &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-sm animate-in fade-in duration-200"
+            onClick={() => setPreviewImage(null)}
+            role="dialog"
+            aria-label="Image preview"
           >
-            <HugeiconsIcon icon={Cancel01Icon} size={24} strokeWidth={2} />
-          </button>
-          <img
-            src={previewImage.url}
-            alt={previewImage.name}
-            className="max-h-[85vh] max-w-[92vw] rounded-lg object-contain shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>,
-        document.body,
-      )}
+            <button
+              type="button"
+              className="absolute right-4 top-4 z-10 inline-flex size-10 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white dark:hover:bg-white/10/30 active:bg-white/40 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation()
+                setPreviewImage(null)
+              }}
+              aria-label="Close preview"
+            >
+              <HugeiconsIcon icon={Cancel01Icon} size={24} strokeWidth={2} />
+            </button>
+            <img
+              src={previewImage.url}
+              alt={previewImage.name}
+              className="max-h-[85vh] max-w-[92vw] rounded-lg object-contain shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }
@@ -2532,4 +2694,9 @@ function ChatComposerComponent({
 const MemoizedChatComposer = memo(ChatComposerComponent)
 
 export { MemoizedChatComposer as ChatComposer }
-export type { ChatComposerAttachment, ChatComposerHelpers, ChatComposerHandle, ThinkingLevel }
+export type {
+  ChatComposerAttachment,
+  ChatComposerHelpers,
+  ChatComposerHandle,
+  ThinkingLevel,
+}

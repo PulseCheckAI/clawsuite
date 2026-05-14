@@ -57,7 +57,7 @@ export const AGENT_PERSONAS: AgentPersona[] = [
     name: 'Bill',
     role: 'Marketing Expert',
     emoji: '📣',
-    color: 'text-orange-400',
+    color: 'text-accent-400',
     specialties: [
       'marketing',
       'seo',

@@ -69,10 +69,18 @@ function readBoolean(value: unknown): boolean | null {
   if (typeof value === 'number') return value > 0
   if (typeof value === 'string') {
     const normalized = value.trim().toLowerCase()
-    if (['true', '1', 'enabled', 'active', 'allow', 'allowed', 'on'].includes(normalized)) {
+    if (
+      ['true', '1', 'enabled', 'active', 'allow', 'allowed', 'on'].includes(
+        normalized,
+      )
+    ) {
       return true
     }
-    if (['false', '0', 'disabled', 'inactive', 'deny', 'denied', 'off'].includes(normalized)) {
+    if (
+      ['false', '0', 'disabled', 'inactive', 'deny', 'denied', 'off'].includes(
+        normalized,
+      )
+    ) {
       return false
     }
   }
@@ -84,7 +92,8 @@ function readStringArray(value: unknown): Array<string> {
   return value
     .map((entry) => {
       if (typeof entry === 'string') return entry.trim()
-      if (typeof entry === 'number' && Number.isFinite(entry)) return String(entry)
+      if (typeof entry === 'number' && Number.isFinite(entry))
+        return String(entry)
       return ''
     })
     .filter((entry) => entry.length > 0)
@@ -206,10 +215,17 @@ function normalizeChannels(value: unknown): Array<AgentConfigChannelEntry> {
 function normalizeAgentConfig(
   payload: unknown,
   agentId: string,
-  options: { readOnly: boolean; supportsPatch: boolean; sourceMethod?: string; warning?: string },
+  options: {
+    readOnly: boolean
+    supportsPatch: boolean
+    sourceMethod?: string
+    warning?: string
+  },
 ): NormalizedAgentConfig {
   const root = asRecord(payload)
-  const nestedConfig = asRecord(root.config ?? root.agent ?? root.profile ?? root.entry ?? root.data)
+  const nestedConfig = asRecord(
+    root.config ?? root.agent ?? root.profile ?? root.entry ?? root.data,
+  )
   const modelRecord = asRecord(root.model ?? nestedConfig.model)
 
   return {
@@ -258,10 +274,16 @@ function normalizeAgentConfig(
         nestedConfig.allowedTools,
     ),
     skills: normalizeSkills(
-      root.skills ?? nestedConfig.skills ?? root.activeSkills ?? nestedConfig.activeSkills,
+      root.skills ??
+        nestedConfig.skills ??
+        root.activeSkills ??
+        nestedConfig.activeSkills,
     ),
     channels: normalizeChannels(
-      root.channels ?? nestedConfig.channels ?? root.respondsOn ?? nestedConfig.respondsOn,
+      root.channels ??
+        nestedConfig.channels ??
+        root.respondsOn ??
+        nestedConfig.respondsOn,
     ),
     readOnly: options.readOnly,
     supportsPatch: options.supportsPatch,
@@ -270,12 +292,36 @@ function normalizeAgentConfig(
   }
 }
 
+// CORS for the founder dashboard at file:///.../os/dashboard/index.html.
+// GET is read-only; the gateway still requires its OpenClaw token to reach the daemon.
+// Dev mode (NODE_ENV !== production) skips the auth gate on GET so the dashboard's
+// fetch from a file:// origin (no cookie jar) can succeed.
+const IS_DEV = process.env.NODE_ENV !== 'production'
+const CORS_HEADERS_GET = IS_DEV
+  ? {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      Vary: 'Origin',
+    }
+  : {}
+
+function withCors<T extends Record<string, unknown>>(
+  payload: T,
+  init?: { status?: number },
+): Response {
+  return json(payload, { status: init?.status, headers: CORS_HEADERS_GET })
+}
+
 export const Route = createFileRoute('/api/gateway/agents')({
   server: {
     handlers: {
+      OPTIONS: async () => {
+        return new Response(null, { status: 204, headers: CORS_HEADERS_GET })
+      },
       GET: async ({ request }) => {
-        if (!isAuthenticated(request)) {
-          return json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+        if (!IS_DEV && !isAuthenticated(request)) {
+          return withCors({ ok: false, error: 'Unauthorized' }, { status: 401 })
         }
 
         const url = new URL(request.url)
@@ -293,7 +339,7 @@ export const Route = createFileRoute('/api/gateway/agents')({
               ],
             )
 
-            return json({
+            return withCors({
               ok: true,
               data: normalizeAgentConfig(result.payload, agentId, {
                 readOnly: false,
@@ -302,7 +348,7 @@ export const Route = createFileRoute('/api/gateway/agents')({
               }),
             })
           } catch (err) {
-            return json({
+            return withCors({
               ok: true,
               data: normalizeAgentConfig({}, agentId, {
                 readOnly: true,
@@ -321,9 +367,9 @@ export const Route = createFileRoute('/api/gateway/agents')({
             'agents.list',
             {},
           )
-          return json({ ok: true, data: result })
+          return withCors({ ok: true, data: result })
         } catch (err) {
-          return json(
+          return withCors(
             {
               ok: false,
               error: err instanceof Error ? err.message : String(err),

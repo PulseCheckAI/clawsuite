@@ -13,12 +13,12 @@ export const Route = createFileRoute('/api/gateway/nodes')({
 
         try {
           const result = await gatewayRpc<Record<string, unknown>>(
-            'nodes.list',
+            'node.list',
             {},
           )
           return json({ ok: true, data: result })
         } catch {
-          // nodes.list may not exist on all gateway versions — degrade silently
+          // node.list may not exist on all gateway versions — degrade silently
           return json({ ok: true, data: { nodes: [] } })
         }
       },

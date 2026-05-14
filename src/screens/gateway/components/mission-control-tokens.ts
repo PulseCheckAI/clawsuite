@@ -21,21 +21,21 @@ export const HUB_RADIUS = {
 
 export const HUB_COLORS = {
   surface:
-    'border border-primary-200 bg-white/80 dark:border-neutral-700 dark:bg-neutral-900/70',
+    'border border-primary-200 bg-white/80 dark:border-primary-700 dark:bg-primary-900/70',
   mutedSurface:
-    'border border-primary-200 bg-primary-50/60 dark:border-neutral-700 dark:bg-neutral-800/40',
+    'border border-primary-200 bg-primary-50/60 dark:border-primary-700 dark:bg-primary-800/40',
   softSurface:
-    'border border-primary-200 bg-primary-50/40 dark:border-neutral-700 dark:bg-neutral-900/20',
-  heading: 'text-primary-900 dark:text-neutral-100',
-  body: 'text-primary-700 dark:text-neutral-300',
-  muted: 'text-primary-500 dark:text-neutral-400',
+    'border border-primary-200 bg-primary-50/40 dark:border-primary-700 dark:bg-primary-900/20',
+  heading: 'text-primary-900 dark:text-primary-100',
+  body: 'text-primary-700 dark:text-primary-300',
+  muted: 'text-primary-500 dark:text-primary-400',
 } as const
 
 export const HUB_STATUS = {
   ready: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300',
   paused: 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300',
   blocked: 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-300',
-  neutral: 'bg-neutral-200 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300',
+  neutral: 'bg-primary-200 text-primary-600 dark:bg-primary-800 dark:text-primary-300',
 } as const
 
 export const HUB_TYPE = {
@@ -66,7 +66,7 @@ export const MISSION_CONTROL_STATUS_META: Record<
   completed: {
     label: 'Completed',
     className:
-      'border border-neutral-200 bg-neutral-100 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
+      'border border-primary-200 bg-primary-100 text-primary-700 dark:border-primary-700 dark:bg-primary-800 dark:text-primary-300',
   },
   aborted: {
     label: 'Aborted',
@@ -76,7 +76,7 @@ export const MISSION_CONTROL_STATUS_META: Record<
   stopped: {
     label: 'Stopped',
     className:
-      'border border-neutral-200 bg-neutral-100 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400',
+      'border border-primary-200 bg-primary-100 text-primary-600 dark:border-primary-700 dark:bg-primary-800 dark:text-primary-400',
   },
 }
 

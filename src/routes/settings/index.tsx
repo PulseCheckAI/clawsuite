@@ -160,7 +160,7 @@ function EnterpriseThemePickerPage() {
             <PageThemeSwatch colors={t.preview} />
             <div className="flex items-center gap-1">
               <span className="text-xs">{t.icon}</span>
-              <span className="text-xs font-semibold text-primary-900 dark:text-neutral-100">
+              <span className="text-xs font-semibold text-primary-900 dark:text-primary-100">
                 {t.label}
               </span>
               {isActive && (
@@ -169,7 +169,7 @@ function EnterpriseThemePickerPage() {
                 </span>
               )}
             </div>
-            <p className="text-[10px] leading-tight text-primary-500 dark:text-neutral-400">
+            <p className="text-[10px] leading-tight text-primary-500 dark:text-primary-400">
               {t.desc}
             </p>
           </button>
@@ -352,7 +352,7 @@ function SettingsRoute() {
   }
 
   function getAccentBadgeClass(color: AccentColor): string {
-    if (color === 'orange') return 'bg-orange-500'
+    if (color === 'orange') return 'bg-accent-500'
     if (color === 'purple') return 'bg-purple-500'
     if (color === 'blue') return 'bg-blue-500'
     return 'bg-green-500'
@@ -1085,7 +1085,7 @@ function ChatDisplaySection() {
         <select
           value={settings.mobileChatNavMode ?? 'dock'}
           onChange={(e) => updateSettings({ mobileChatNavMode: e.target.value as 'dock' | 'integrated' | 'scroll-hide' })}
-          className="rounded-lg border border-primary-200 bg-white px-3 py-1.5 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+          className="rounded-lg border border-primary-200 bg-white px-3 py-1.5 text-sm dark:border-primary-700 dark:bg-primary-800 dark:text-primary-200"
         >
           <option value="dock">Dock (iMessage)</option>
           <option value="scroll-hide">Nav visible (pill above)</option>

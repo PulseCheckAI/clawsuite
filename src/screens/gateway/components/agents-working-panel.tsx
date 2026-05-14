@@ -47,7 +47,7 @@ type AgentsWorkingPanelProps = {
 
 // Accent colors per agent index (cycled) — must match AGENT_ACCENT_COLORS in agent-hub-layout
 const ACCENT_COLORS = [
-  { bar: 'bg-orange-500', text: 'text-orange-600' },
+  { bar: 'bg-accent-500', text: 'text-accent-600' },
   { bar: 'bg-blue-500',   text: 'text-blue-600' },
   { bar: 'bg-violet-500', text: 'text-violet-600' },
   { bar: 'bg-emerald-500',text: 'text-emerald-600' },
@@ -56,8 +56,8 @@ const ACCENT_COLORS = [
 ]
 
 const MODEL_BADGE: Record<string, string> = {
-  auto:          'border border-neutral-200 bg-neutral-100 text-neutral-600',
-  opus:          'border border-orange-200 bg-orange-50 text-orange-700',
+  auto:          'border border-primary-200 bg-primary-100 text-primary-600',
+  opus:          'border border-accent-200 bg-accent-50 text-accent-700',
   sonnet:        'border border-blue-200 bg-blue-50 text-blue-700',
   codex:         'border border-emerald-200 bg-emerald-50 text-emerald-700',
   flash:         'border border-violet-200 bg-violet-50 text-violet-700',
@@ -86,7 +86,7 @@ const MODEL_LABEL: Record<string, string> = {
 }
 
 function getModelBadgeClass(modelId: string): string {
-  return MODEL_BADGE[modelId] ?? 'border border-neutral-200 bg-neutral-50 text-neutral-700'
+  return MODEL_BADGE[modelId] ?? 'border border-primary-200 bg-primary-50 text-primary-700'
 }
 
 function getModelLabel(modelId: string): string {
@@ -159,7 +159,7 @@ function AgentRow({
       onClick={onSelect}
       className={cn(
         'group relative flex cursor-pointer items-stretch overflow-hidden rounded-lg border transition-all',
-        'border-neutral-200 bg-white hover:border-neutral-300 hover:bg-neutral-50',
+        'border-primary-200 bg-white hover:border-primary-300 hover:bg-primary-50',
         isSelected && 'border-accent-200 bg-accent-50/40 ring-1 ring-accent-200',
       )}
     >
@@ -186,14 +186,14 @@ function AgentRow({
                   agent.status === 'idle'  ? 'bg-amber-500' :
                   agent.status === 'ready' ? 'bg-blue-400' :
                   agent.status === 'error' ? 'bg-red-500' :
-                  'bg-neutral-400',
+                  'bg-primary-400',
                 )}
               />
             )}
           </span>
 
           {/* Name */}
-          <span className="min-w-0 flex-1 truncate text-xs font-semibold text-neutral-900">
+          <span className="min-w-0 flex-1 truncate text-xs font-semibold text-primary-900">
             {agent.name}
           </span>
 
@@ -212,7 +212,7 @@ function AgentRow({
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onRespawn() }}
-              className="shrink-0 text-xs text-neutral-500 transition-colors hover:text-neutral-700"
+              className="shrink-0 text-xs text-primary-500 transition-colors hover:text-primary-700"
               title="Respawn agent"
             >
               ↻
@@ -225,7 +225,7 @@ function AgentRow({
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); setMenuOpen((p) => !p) }}
-                className="shrink-0 text-sm text-neutral-500 transition-colors group-hover:text-neutral-700 hover:text-neutral-900"
+                className="shrink-0 text-sm text-primary-500 transition-colors group-hover:text-primary-700 hover:text-primary-900"
               >
                 ⋯
               </button>
@@ -236,7 +236,7 @@ function AgentRow({
                     onClick={(e) => { e.stopPropagation(); setMenuOpen(false) }}
                     aria-hidden
                   />
-                  <div className="absolute bottom-full right-0 z-20 mb-1 min-w-[110px] rounded-lg border border-neutral-200 bg-white shadow-xl">
+                  <div className="absolute bottom-full right-0 z-20 mb-1 min-w-[110px] rounded-lg border border-primary-200 bg-white shadow-xl">
                     {canSteer && onSteer ? (
                       <button
                         type="button"
@@ -250,7 +250,7 @@ function AgentRow({
                           if (!directive || !directive.trim()) return
                           onSteer(directive.trim())
                         }}
-                        className="block w-full rounded-lg px-3 py-2 text-left text-[11px] font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+                        className="block w-full rounded-lg px-3 py-2 text-left text-[11px] font-medium text-primary-700 transition-colors hover:bg-primary-50"
                       >
                         Send directive
                       </button>
@@ -263,7 +263,7 @@ function AgentRow({
                           setMenuOpen(false)
                           onPause(agent.status !== 'paused')
                         }}
-                        className="block w-full rounded-lg px-3 py-2 text-left text-[11px] font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+                        className="block w-full rounded-lg px-3 py-2 text-left text-[11px] font-medium text-primary-700 transition-colors hover:bg-primary-50"
                       >
                         {agent.status === 'paused' ? 'Resume' : 'Pause'}
                       </button>
@@ -283,11 +283,11 @@ function AgentRow({
         </div>
 
         {/* Row 2: status / last activity in monospace */}
-        <p className="truncate font-mono text-[9px] text-neutral-500">
+        <p className="truncate font-mono text-[9px] text-primary-500">
           {statusLine}
         </p>
         {agent.lastAt ? (
-          <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
+          <span className="text-[10px] text-primary-500 dark:text-primary-400">
             {formatRelativeTime(agent.lastAt)}
           </span>
         ) : null}
@@ -315,7 +315,7 @@ function AgentCompactCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        'relative w-40 shrink-0 overflow-hidden rounded-xl border border-neutral-200 bg-white px-2.5 py-2 text-left transition-colors hover:border-neutral-300 hover:bg-neutral-50',
+        'relative w-40 shrink-0 overflow-hidden rounded-xl border border-primary-200 bg-white px-2.5 py-2 text-left transition-colors hover:border-primary-300 hover:bg-primary-50',
         isSelected && 'border-accent-200 ring-1 ring-accent-200',
       )}
     >
@@ -333,11 +333,11 @@ function AgentCompactCard({
               'inline-flex size-1.5 shrink-0 rounded-full',
               agent.status === 'idle' ? 'bg-amber-500' :
               agent.status === 'error' ? 'bg-red-500' :
-              'bg-neutral-600',
+              'bg-primary-600',
             )}
           />
         )}
-        <span className="min-w-0 flex-1 truncate text-[11px] font-semibold text-neutral-900">
+        <span className="min-w-0 flex-1 truncate text-[11px] font-semibold text-primary-900">
           {agent.name}
         </span>
         <span
@@ -349,11 +349,11 @@ function AgentCompactCard({
           {MODEL_LABEL[agent.modelId]}
         </span>
       </div>
-      <p className="mt-1 truncate font-mono text-[9px] text-neutral-500">
+      <p className="mt-1 truncate font-mono text-[9px] text-primary-500">
         {agent.lastLine ?? (isActive ? '● working' : STATUS_TEXT[agent.status])}
       </p>
       {agent.lastAt ? (
-        <span className="mt-0.5 block text-[10px] text-neutral-500 dark:text-neutral-400">
+        <span className="mt-0.5 block text-[10px] text-primary-500 dark:text-primary-400">
           {formatRelativeTime(agent.lastAt)}
         </span>
       ) : null}
@@ -380,14 +380,14 @@ export function AgentsWorkingPanel({
   return (
     <div
       className={cn(
-        'rounded-xl border border-neutral-200 bg-white shadow-sm',
+        'rounded-xl border border-primary-200 bg-white shadow-sm',
         className,
       )}
     >
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-3 py-2">
         <div className="flex items-center gap-2">
-          <h3 className="text-[11px] font-bold uppercase tracking-wider text-neutral-500" style={{ fontVariant: 'small-caps' }}>
+          <h3 className="text-[11px] font-bold uppercase tracking-wider text-primary-500" style={{ fontVariant: 'small-caps' }}>
             Agents Working
           </h3>
           {activeCount > 0 ? (
@@ -400,13 +400,13 @@ export function AgentsWorkingPanel({
           ) : null}
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-mono text-[10px] text-neutral-500">
+          <span className="font-mono text-[10px] text-primary-500">
             {agents.length} agent{agents.length !== 1 ? 's' : ''}
           </span>
           <button
             type="button"
             onClick={() => setCollapsed((c) => !c)}
-            className="rounded p-0.5 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
+            className="rounded p-0.5 text-primary-500 transition-colors hover:bg-primary-100 hover:text-primary-700"
             aria-label={collapsed ? 'Expand agents panel' : 'Collapse agents panel'}
           >
             <svg
@@ -426,7 +426,7 @@ export function AgentsWorkingPanel({
       {/* ── Content ─────────────────────────────────────────────────────── */}
       {!collapsed ? (
         agents.length === 0 ? (
-          <p className="px-3 pb-3 text-center font-mono text-[10px] text-neutral-500">
+          <p className="px-3 pb-3 text-center font-mono text-[10px] text-primary-500">
             // no agents configured
           </p>
         ) : (

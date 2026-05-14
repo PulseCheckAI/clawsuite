@@ -29,7 +29,7 @@ function cpuColor(pct: number): string {
 }
 
 function ramColor(used: number, total: number): string {
-  if (total === 0) return 'text-neutral-400'
+  if (total === 0) return 'text-primary-400'
   const pct = (used / total) * 100
   if (pct >= 80) return 'text-red-400'
   if (pct >= 50) return 'text-amber-400'
@@ -80,37 +80,37 @@ export function SystemMetricsFooter() {
       className={[
         'fixed bottom-0 left-0 right-0 z-40',
         'h-7 hidden md:flex items-center',
-        'bg-neutral-900/95 backdrop-blur-sm',
-        'text-neutral-400 text-[10px] font-mono',
+        'bg-primary-900/95 backdrop-blur-sm',
+        'text-primary-400 text-[10px] font-mono',
         'px-3 gap-4 select-none',
       ].join(' ')}
       aria-label="System metrics"
     >
       {/* CPU */}
       <span className="flex items-center gap-1">
-        <span className="text-neutral-500">CPU</span>
+        <span className="text-primary-500">CPU</span>
         <span className={cpuColor(cpu)}>{cpu.toFixed(1)}%</span>
       </span>
 
-      <span className="text-neutral-700">·</span>
+      <span className="text-primary-700">·</span>
 
       {/* RAM */}
       <span className="flex items-center gap-1">
-        <span className="text-neutral-500">RAM</span>
+        <span className="text-primary-500">RAM</span>
         <span className={ramColor(ramUsed, ramTotal)}>
           {bytesToGB(ramUsed)}/{bytesToGB(ramTotal)}GB
         </span>
       </span>
 
-      <span className="text-neutral-700">·</span>
+      <span className="text-primary-700">·</span>
 
       {/* Disk */}
       <span className="flex items-center gap-1">
-        <span className="text-neutral-500">Disk</span>
+        <span className="text-primary-500">Disk</span>
         <span className={diskColor(diskPercent)}>{diskPercent}%</span>
       </span>
 
-      <span className="text-neutral-700">·</span>
+      <span className="text-primary-700">·</span>
 
       {/* Gateway */}
       <span className="flex items-center gap-1.5">
@@ -126,12 +126,12 @@ export function SystemMetricsFooter() {
         </span>
       </span>
 
-      <span className="text-neutral-700">·</span>
+      <span className="text-primary-700">·</span>
 
       {/* Uptime */}
       <span className="flex items-center gap-1">
-        <span className="text-neutral-500">up</span>
-        <span className="text-neutral-300">{formatUptime(uptime)}</span>
+        <span className="text-primary-500">up</span>
+        <span className="text-primary-300">{formatUptime(uptime)}</span>
       </span>
     </div>
   )

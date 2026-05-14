@@ -63,6 +63,7 @@ export const useWorkspaceStore = create<WorkspaceState>()(
     }),
     {
       name: 'openclaw-workspace-v1',
+      skipHydration: true,
       partialize: (state) => ({
         sidebarCollapsed: state.sidebarCollapsed,
         fileExplorerCollapsed: state.fileExplorerCollapsed,

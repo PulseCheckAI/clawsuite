@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
-import type { AgentWorkingRow, AgentWorkingStatus } from './agents-working-panel'
+import type {
+  AgentWorkingRow,
+  AgentWorkingStatus,
+} from './agents-working-panel'
 import { AgentOutputPanel } from './agent-output-panel'
 import type { HubTask } from './task-board'
 
@@ -21,32 +24,40 @@ export type LiveActivityPanelProps = {
 type PanelTab = 'activity' | 'output'
 
 const MODEL_BADGE: Record<string, string> = {
-  auto:          'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-400',
-  opus:          'bg-orange-100 text-orange-700 dark:bg-orange-950/70 dark:text-orange-400',
-  sonnet:        'bg-blue-100 text-blue-700 dark:bg-blue-950/70 dark:text-blue-400',
-  codex:         'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-400',
-  flash:         'bg-violet-100 text-violet-700 dark:bg-violet-950/70 dark:text-violet-400',
-  'pc1-planner': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
-  'pc1-coder':   'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
-  'pc1-critic':  'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
-  'pc1-fast':    'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
-  'pc1-heavy':   'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
-  'pc1-fmt':      'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
-  'pc1-devstral': 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
+  auto: 'bg-primary-200 text-primary-700 dark:bg-primary-800 dark:text-primary-400',
+  opus: 'bg-accent-100 text-accent-700 dark:bg-accent-950/70 dark:text-accent-400',
+  sonnet: 'bg-blue-100 text-blue-700 dark:bg-blue-950/70 dark:text-blue-400',
+  codex:
+    'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-400',
+  flash:
+    'bg-violet-100 text-violet-700 dark:bg-violet-950/70 dark:text-violet-400',
+  'pc1-planner':
+    'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300',
+  'pc1-coder':
+    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  'pc1-critic':
+    'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
+  'pc1-fast':
+    'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+  'pc1-heavy':
+    'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300',
+  'pc1-fmt': 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
+  'pc1-devstral':
+    'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
 }
 
 const MODEL_LABEL: Record<string, string> = {
-  auto:          'Auto',
-  opus:          'Opus',
-  sonnet:        'Sonnet',
-  codex:         'Codex',
-  flash:         'Flash',
+  auto: 'Auto',
+  opus: 'Opus',
+  sonnet: 'Sonnet',
+  codex: 'Codex',
+  flash: 'Flash',
   'pc1-planner': 'PC1·Plan',
-  'pc1-coder':   'PC1·Code',
-  'pc1-critic':  'PC1·Critic',
-  'pc1-fast':    'PC1·Fast',
-  'pc1-heavy':   'PC1·Heavy',
-  'pc1-fmt':      'PC1·Fmt',
+  'pc1-coder': 'PC1·Code',
+  'pc1-critic': 'PC1·Critic',
+  'pc1-fast': 'PC1·Fast',
+  'pc1-heavy': 'PC1·Heavy',
+  'pc1-fmt': 'PC1·Fmt',
   'pc1-devstral': 'PC1·Dev',
 }
 
@@ -68,11 +79,18 @@ function statusDotEl(status: AgentWorkingStatus) {
     )
   }
   const dotClass =
-    status === 'idle' || status === 'ready' ? 'bg-amber-500' :
-    status === 'error' ? 'bg-red-500' :
-    status === 'paused' ? 'bg-amber-500' :
-    'bg-neutral-400'
-  return <span className={cn('inline-flex size-2 shrink-0 rounded-full', dotClass)} />
+    status === 'idle' || status === 'ready'
+      ? 'bg-amber-500'
+      : status === 'error'
+        ? 'bg-red-500'
+        : status === 'paused'
+          ? 'bg-amber-500'
+          : 'bg-primary-400'
+  return (
+    <span
+      className={cn('inline-flex size-2 shrink-0 rounded-full', dotClass)}
+    />
+  )
 }
 
 function AgentCard({
@@ -97,16 +115,16 @@ function AgentCard({
   return (
     <div
       className={cn(
-        'rounded-2xl border bg-white/70 backdrop-blur dark:bg-neutral-900/50 dark:border-white/10 p-3 transition-all',
+        'rounded-2xl border bg-white/70 backdrop-blur dark:bg-primary-900/50 dark:border-white/10 p-3 transition-all',
         isSelected
           ? 'border-emerald-200 ring-1 ring-emerald-500/30 dark:border-emerald-800/50'
-          : 'border-neutral-200 dark:border-neutral-800',
+          : 'border-primary-200 dark:border-primary-800',
       )}
     >
       {/* Row 1: status dot + agent name + model badge */}
       <div className="flex items-center gap-2">
         {statusDotEl(agent.status)}
-        <span className="min-w-0 flex-1 truncate text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+        <span className="min-w-0 flex-1 truncate text-xs font-semibold text-primary-900 dark:text-primary-100">
           {agent.name}
         </span>
         <span
@@ -120,7 +138,7 @@ function AgentCard({
       </div>
 
       {/* Row 2: current task */}
-      <p className="mt-1.5 truncate text-[11px] text-neutral-600 dark:text-neutral-400">
+      <p className="mt-1.5 truncate text-[11px] text-primary-600 dark:text-primary-400">
         {agent.currentTask
           ? agent.currentTask
           : agent.status === 'none'
@@ -132,11 +150,11 @@ function AgentCard({
 
       {/* Row 3: most recent output line (dimmed, monospace) */}
       {agent.lastLine ? (
-        <p className="mt-1 truncate font-mono text-[9px] text-neutral-400 dark:text-neutral-600">
+        <p className="mt-1 truncate font-mono text-[9px] text-primary-400 dark:text-primary-600">
           {agent.lastLine}
         </p>
       ) : (
-        <p className="mt-1 font-mono text-[9px] text-neutral-300 dark:text-neutral-700">
+        <p className="mt-1 font-mono text-[9px] text-primary-300 dark:text-primary-700">
           {agent.status === 'active' ? '// working…' : '// idle'}
         </p>
       )}
@@ -150,7 +168,7 @@ function AgentCard({
             'flex-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-colors',
             isSelected
               ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
-              : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700 dark:hover:text-neutral-200',
+              : 'bg-primary-100 text-primary-600 hover:bg-primary-200 hover:text-primary-900 dark:bg-primary-800 dark:text-primary-400 dark:hover:bg-primary-700 dark:hover:text-primary-200',
           )}
         >
           {isSelected ? '✓ Viewing' : 'View'}
@@ -164,7 +182,7 @@ function AgentCard({
               e.stopPropagation()
               setMenuOpen((p) => !p)
             }}
-            className="rounded-lg px-2 py-1 text-[13px] text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:text-neutral-600 dark:hover:bg-neutral-800 dark:hover:text-neutral-300"
+            className="rounded-lg px-2 py-1 text-[13px] text-primary-400 transition-colors hover:bg-primary-100 hover:text-primary-700 dark:text-primary-600 dark:hover:bg-primary-800 dark:hover:text-primary-300"
             aria-label="Agent options"
           >
             ⋯
@@ -177,7 +195,7 @@ function AgentCard({
                 aria-hidden
               />
               <div
-                className="absolute right-0 top-full z-20 mt-1 min-w-[140px] rounded-xl border border-neutral-200 bg-white py-1 shadow-xl dark:border-neutral-700 dark:bg-neutral-900"
+                className="absolute right-0 top-full z-20 mt-1 min-w-[140px] rounded-xl border border-primary-200 bg-white py-1 shadow-xl dark:border-primary-700 dark:bg-primary-900"
                 style={{ overflow: 'visible' }}
               >
                 <button
@@ -186,7 +204,7 @@ function AgentCard({
                     setMenuOpen(false)
                     onView()
                   }}
-                  className="block w-full px-3 py-1.5 text-left text-[11px] text-neutral-700 transition-colors hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                  className="block w-full px-3 py-1.5 text-left text-[11px] text-primary-700 transition-colors hover:bg-primary-100 dark:text-primary-300 dark:hover:bg-primary-800"
                 >
                   View Output
                 </button>
@@ -204,8 +222,8 @@ function AgentCard({
                 ) : null}
                 {agent.status !== 'none' && agent.status !== 'error' ? (
                   <>
-                    <div className="my-1 border-t border-neutral-100 dark:border-neutral-800" />
-                    <p className="px-3 pb-0.5 pt-1 text-[9px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-600">
+                    <div className="my-1 border-t border-primary-100 dark:border-primary-800" />
+                    <p className="px-3 pb-0.5 pt-1 text-[9px] font-bold uppercase tracking-wider text-primary-400 dark:text-primary-600">
                       Warden
                     </p>
                     <button
@@ -220,7 +238,7 @@ function AgentCard({
                         if (!directive || !directive.trim()) return
                         onSteer(directive.trim())
                       }}
-                      className="block w-full px-3 py-1.5 text-left text-[11px] text-neutral-600 transition-colors hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                      className="block w-full px-3 py-1.5 text-left text-[11px] text-primary-600 transition-colors hover:bg-primary-100 dark:text-primary-400 dark:hover:bg-primary-800"
                     >
                       Steer
                     </button>
@@ -230,13 +248,13 @@ function AgentCard({
                         setMenuOpen(false)
                         onPause?.(agent.status !== 'paused')
                       }}
-                      className="block w-full px-3 py-1.5 text-left text-[11px] text-neutral-600 transition-colors hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                      className="block w-full px-3 py-1.5 text-left text-[11px] text-primary-600 transition-colors hover:bg-primary-100 dark:text-primary-400 dark:hover:bg-primary-800"
                     >
                       {agent.status === 'paused' ? 'Resume' : 'Pause'}
                     </button>
                   </>
                 ) : null}
-                <div className="my-1 border-t border-neutral-100 dark:border-neutral-800" />
+                <div className="my-1 border-t border-primary-100 dark:border-primary-800" />
                 <button
                   type="button"
                   onClick={() => {
@@ -295,36 +313,40 @@ export function LiveActivityPanel({
   const sessionKey = selectedAgentId
     ? (sessionKeyByAgentId[selectedAgentId] ?? null)
     : null
-  const outputTasks = selectedAgentId ? (tasksByAgentId[selectedAgentId] ?? []) : []
+  const outputTasks = selectedAgentId
+    ? (tasksByAgentId[selectedAgentId] ?? [])
+    : []
 
   function countLabel() {
     if (activeCount > 0 && idleCount > 0) {
       return (
         <span className="font-mono text-[9px]">
           <span className="text-emerald-500">{activeCount} active</span>
-          <span className="text-neutral-400"> · </span>
-          <span className="text-neutral-500">{idleCount} idle</span>
+          <span className="text-primary-400"> · </span>
+          <span className="text-primary-500">{idleCount} idle</span>
         </span>
       )
     }
     if (activeCount > 0) {
       return (
-        <span className="font-mono text-[9px] text-emerald-500">{activeCount} active</span>
+        <span className="font-mono text-[9px] text-emerald-500">
+          {activeCount} active
+        </span>
       )
     }
     return (
-      <span className="font-mono text-[9px] text-neutral-500">
+      <span className="font-mono text-[9px] text-primary-500">
         {agents.length} agent{agents.length !== 1 ? 's' : ''}
       </span>
     )
   }
 
   return (
-    <div className="flex h-full flex-col border-l border-neutral-200 bg-white dark:border-white/10 dark:bg-neutral-950">
+    <div className="flex h-full flex-col border-l border-primary-200 bg-white dark:border-white/10 dark:bg-primary-950">
       {/* ── Panel header + tab switcher ──────────────────────────────────── */}
-      <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 bg-white/80 px-3 py-2 backdrop-blur dark:border-white/10 dark:bg-neutral-950/70">
+      <div className="flex shrink-0 items-center justify-between border-b border-primary-200 bg-white/80 px-3 py-2 backdrop-blur dark:border-white/10 dark:bg-primary-950/70">
         <div className="flex items-center gap-2">
-          <h3 className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+          <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary-500 dark:text-primary-400">
             Agents Working
           </h3>
           {missionRunning && activeCount > 0 ? (
@@ -337,15 +359,15 @@ export function LiveActivityPanel({
         </div>
 
         {/* Tab switcher */}
-        <div className="flex items-center rounded-lg border border-neutral-200 bg-neutral-100 p-0.5 dark:border-neutral-700 dark:bg-neutral-900">
+        <div className="flex items-center rounded-lg border border-primary-200 bg-primary-100 p-0.5 dark:border-primary-700 dark:bg-primary-900">
           <button
             type="button"
             onClick={() => setTab('activity')}
             className={cn(
               'rounded-md px-2.5 py-0.5 text-[10px] font-medium transition-colors',
               tab === 'activity'
-                ? 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-800 dark:text-neutral-100'
-                : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300',
+                ? 'bg-white text-primary-900 shadow-sm dark:bg-primary-800 dark:text-primary-100'
+                : 'text-primary-500 hover:text-primary-700 dark:text-primary-500 dark:hover:text-primary-300',
             )}
           >
             Activity
@@ -356,8 +378,8 @@ export function LiveActivityPanel({
             className={cn(
               'rounded-md px-2.5 py-0.5 text-[10px] font-medium transition-colors',
               tab === 'output'
-                ? 'bg-white text-neutral-900 shadow-sm dark:bg-neutral-800 dark:text-neutral-100'
-                : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-500 dark:hover:text-neutral-300',
+                ? 'bg-white text-primary-900 shadow-sm dark:bg-primary-800 dark:text-primary-100'
+                : 'text-primary-500 hover:text-primary-700 dark:text-primary-500 dark:hover:text-primary-300',
             )}
           >
             Output
@@ -375,10 +397,10 @@ export function LiveActivityPanel({
             <div className="flex h-full items-center justify-center py-12">
               <div className="text-center">
                 <p className="mb-1 text-2xl">🤖</p>
-                <p className="font-mono text-[10px] text-neutral-500 dark:text-neutral-600">
+                <p className="font-mono text-[10px] text-primary-500 dark:text-primary-600">
                   // no agents configured
                 </p>
-                <p className="mt-1 text-[10px] text-neutral-400 dark:text-neutral-600">
+                <p className="mt-1 text-[10px] text-primary-400 dark:text-primary-600">
                   Add agents in the Team tab
                 </p>
               </div>
@@ -408,16 +430,18 @@ export function LiveActivityPanel({
 
               {/* Status legend */}
               <div className="mt-1 flex flex-wrap items-center justify-end gap-3 px-1 pt-1">
-                <span className="flex items-center gap-1 text-[9px] text-neutral-400 dark:text-neutral-600">
-                  <span className="size-1.5 rounded-full bg-emerald-500" /> Active
+                <span className="flex items-center gap-1 text-[9px] text-primary-400 dark:text-primary-600">
+                  <span className="size-1.5 rounded-full bg-emerald-500" />{' '}
+                  Active
                 </span>
-                <span className="flex items-center gap-1 text-[9px] text-neutral-400 dark:text-neutral-600">
+                <span className="flex items-center gap-1 text-[9px] text-primary-400 dark:text-primary-600">
                   <span className="size-1.5 rounded-full bg-amber-500" /> Idle
                 </span>
-                <span className="flex items-center gap-1 text-[9px] text-neutral-400 dark:text-neutral-600">
-                  <span className="size-1.5 rounded-full bg-neutral-400" /> No session
+                <span className="flex items-center gap-1 text-[9px] text-primary-400 dark:text-primary-600">
+                  <span className="size-1.5 rounded-full bg-primary-400" /> No
+                  session
                 </span>
-                <span className="flex items-center gap-1 text-[9px] text-neutral-400 dark:text-neutral-600">
+                <span className="flex items-center gap-1 text-[9px] text-primary-400 dark:text-primary-600">
                   <span className="size-1.5 rounded-full bg-red-500" /> Error
                 </span>
               </div>
@@ -430,9 +454,9 @@ export function LiveActivityPanel({
       {tab === 'output' ? (
         <div className="flex min-h-0 flex-1 flex-col">
           {/* Output tab sub-header */}
-          <div className="flex shrink-0 items-center justify-between border-b border-neutral-200 px-3 py-2 dark:border-white/10">
+          <div className="flex shrink-0 items-center justify-between border-b border-primary-200 px-3 py-2 dark:border-white/10">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="truncate text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+              <span className="truncate text-xs font-semibold text-primary-700 dark:text-primary-300">
                 {selectedAgent ? selectedAgent.name : 'No agent selected'}
               </span>
               {selectedAgentId && (
@@ -445,12 +469,16 @@ export function LiveActivityPanel({
               <button
                 type="button"
                 onClick={() => setPinnedOutput((p) => !p)}
-                title={pinnedOutput ? 'Unpin output tab' : 'Pin output tab (stay here when closing)'}
+                title={
+                  pinnedOutput
+                    ? 'Unpin output tab'
+                    : 'Pin output tab (stay here when closing)'
+                }
                 className={cn(
                   'rounded p-1 text-[11px] transition-colors',
                   pinnedOutput
                     ? 'text-accent-500'
-                    : 'text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300',
+                    : 'text-primary-400 hover:text-primary-700 dark:hover:text-primary-300',
                 )}
               >
                 📌
@@ -458,7 +486,7 @@ export function LiveActivityPanel({
               <button
                 type="button"
                 onClick={handleCloseOutput}
-                className="rounded p-1 text-[11px] text-neutral-400 transition-colors hover:text-neutral-700 dark:hover:text-neutral-300"
+                className="rounded p-1 text-[11px] text-primary-400 transition-colors hover:text-primary-700 dark:hover:text-primary-300"
                 aria-label="Close output"
               >
                 ✕
@@ -471,9 +499,11 @@ export function LiveActivityPanel({
             <div className="flex flex-1 items-center justify-center p-6">
               <div className="text-center">
                 <p className="mb-2 text-2xl opacity-40">📡</p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-600">
+                <p className="text-xs text-primary-500 dark:text-primary-600">
                   Click{' '}
-                  <strong className="text-neutral-700 dark:text-neutral-400">View</strong>{' '}
+                  <strong className="text-primary-700 dark:text-primary-400">
+                    View
+                  </strong>{' '}
                   on an agent to stream their output here.
                 </p>
               </div>

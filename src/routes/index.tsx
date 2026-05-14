@@ -1,22 +1,14 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
+// Static redirect — server and client land on the same route to avoid the
+// SSR/CSR match divergence that broke TanStack Start's hydration (see
+// browser stack: ssr-client.ts:156, <AwaitInner>, setState undefined). The
+// mobile-specific routing and first-launch wizard nudge moved into
+// /dashboard itself, where window + localStorage are safe to read post-mount.
 export const Route = createFileRoute('/')({
   ssr: false,
-  beforeLoad: function redirectToWorkspace() {
-    // First launch: redirect to setup wizard if gateway not configured
-    if (typeof window !== 'undefined') {
-      const configured = localStorage.getItem('clawsuite-gateway-configured') === 'true'
-      if (!configured) {
-        throw redirect({ to: '/wizard' as string, replace: true })
-      }
-      const isMobile = window.innerWidth < 768
-      throw redirect({
-        to: (isMobile ? '/chat/main' : '/dashboard') as string,
-        replace: true,
-      })
-    }
-    // SSR: always redirect to wizard (safe default — client will re-check)
-    throw redirect({ to: '/wizard' as string, replace: true })
+  beforeLoad: function redirectToDashboard() {
+    throw redirect({ to: '/dashboard' as string, replace: true })
   },
   component: function IndexRoute() {
     return null

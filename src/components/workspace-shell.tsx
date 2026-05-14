@@ -328,7 +328,7 @@ export function WorkspaceShell() {
         {/* Electron: native-style title bar (absolute over the padding) */}
         {isElectron && (
           <div
-            className="absolute inset-x-0 top-0 flex h-10 items-center border-b border-primary-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 z-40"
+            className="absolute inset-x-0 top-0 flex h-10 items-center border-b border-primary-200 dark:border-primary-800 bg-primary-100 dark:bg-primary-900 z-40"
             style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
           >
             {/* Traffic light spacer (left ~78px for macOS buttons) */}

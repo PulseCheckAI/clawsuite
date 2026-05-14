@@ -162,9 +162,9 @@ export function ExecApprovalModal() {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-neutral-800 dark:bg-neutral-950">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-primary-200 bg-white shadow-2xl dark:border-primary-800 dark:bg-primary-950">
         {/* Progress bar */}
-        <div className="h-1 w-full bg-neutral-100 dark:bg-neutral-800">
+        <div className="h-1 w-full bg-primary-100 dark:bg-primary-800">
           <div
             className={cn(
               'h-full rounded-r-full transition-all duration-1000 ease-linear',
@@ -185,7 +185,7 @@ export function ExecApprovalModal() {
             <div className="flex items-center gap-2">
               <span className={cn(
                 'font-mono text-sm font-bold tabular-nums',
-                isUrgent ? 'text-red-500 animate-pulse' : 'text-neutral-500 dark:text-neutral-400',
+                isUrgent ? 'text-red-500 animate-pulse' : 'text-primary-500 dark:text-primary-400',
               )}>
                 {formatTime(remaining)}
               </span>
@@ -193,20 +193,20 @@ export function ExecApprovalModal() {
           </div>
 
           {/* Agent */}
-          <p className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+          <p className="mb-2 text-sm font-semibold text-primary-700 dark:text-primary-300">
             🤖 {agent}
           </p>
 
           {/* Command */}
-          <div className="mb-3 max-h-40 overflow-y-auto rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-800 dark:bg-neutral-900">
-            <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-neutral-900 dark:text-neutral-100">
+          <div className="mb-3 max-h-40 overflow-y-auto rounded-xl border border-primary-200 bg-primary-50 p-3 dark:border-primary-800 dark:bg-primary-900">
+            <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-primary-900 dark:text-primary-100">
               {command}
             </pre>
           </div>
 
           {/* Working directory */}
           {workDir && (
-            <p className="mb-3 flex items-center gap-1.5 font-mono text-xs text-neutral-500 dark:text-neutral-500">
+            <p className="mb-3 flex items-center gap-1.5 font-mono text-xs text-primary-500 dark:text-primary-500">
               <span>📁</span>
               <span className="truncate">{workDir}</span>
             </p>
@@ -225,12 +225,12 @@ export function ExecApprovalModal() {
                       'size-2 rounded-full transition-colors',
                       idx === activeIndex
                         ? 'bg-amber-500'
-                        : 'bg-neutral-300 hover:bg-neutral-400 dark:bg-neutral-700 dark:hover:bg-neutral-600',
+                        : 'bg-primary-300 hover:bg-primary-400 dark:bg-primary-700 dark:hover:bg-primary-600',
                     )}
                   />
                 ))}
               </div>
-              <span className="text-[11px] text-neutral-400">
+              <span className="text-[11px] text-primary-400">
                 {activeIndex + 1} of {visible.length} pending
               </span>
             </div>
@@ -254,7 +254,7 @@ export function ExecApprovalModal() {
               onClick={() => void handleResolve(current.id, 'deny')}
               disabled={Boolean(busy)}
               className={cn(
-                'flex-1 rounded-xl border-2 border-red-300 bg-white py-3 text-sm font-bold text-red-600 transition-all hover:bg-red-50 active:scale-[0.98] dark:border-red-800/50 dark:bg-neutral-900 dark:text-red-400 dark:hover:bg-red-950/20',
+                'flex-1 rounded-xl border-2 border-red-300 bg-white py-3 text-sm font-bold text-red-600 transition-all hover:bg-red-50 active:scale-[0.98] dark:border-red-800/50 dark:bg-primary-900 dark:text-red-400 dark:hover:bg-red-950/20',
                 busy && 'cursor-not-allowed opacity-60',
               )}
             >
@@ -263,7 +263,7 @@ export function ExecApprovalModal() {
           </div>
 
           {/* Auto-deny notice */}
-          <p className="mt-3 text-center text-[10px] text-neutral-400 dark:text-neutral-500">
+          <p className="mt-3 text-center text-[10px] text-primary-400 dark:text-primary-500">
             {isUrgent ? '⚠️ Auto-denying soon!' : 'Auto-denies on timeout'}
           </p>
         </div>

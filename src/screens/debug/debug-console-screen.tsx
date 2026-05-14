@@ -692,13 +692,13 @@ export function DebugConsoleScreen() {
   )
 
   return (
-    <main className="min-h-full bg-surface px-4 pt-5 pb-24 md:px-6 md:pt-8 text-primary-900 dark:text-neutral-100">
+    <main className="min-h-full bg-surface px-4 pt-5 pb-24 md:px-6 md:pt-8 text-primary-900 dark:text-primary-100">
       <div className="mx-auto w-full max-w-[1200px] space-y-4">
-        <header className="rounded-xl border border-primary-200 bg-primary-50/80 px-4 py-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/60">
-          <h1 className="text-base font-semibold text-primary-900 dark:text-neutral-100">
+        <header className="rounded-xl border border-primary-200 bg-primary-50/80 px-4 py-3 shadow-sm dark:border-primary-800 dark:bg-primary-900/60">
+          <h1 className="text-base font-semibold text-primary-900 dark:text-primary-100">
             Gateway Debug Console
           </h1>
-          <p className="mt-1 text-xs text-primary-500 text-pretty dark:text-neutral-400">
+          <p className="mt-1 text-xs text-primary-500 text-pretty dark:text-primary-400">
             Diagnose connection failures, inspect recent issues, and get safe
             troubleshooting suggestions without running commands automatically.
           </p>
@@ -861,7 +861,7 @@ export function DebugConsoleScreen() {
                     {healthRawExpanded ? 'Hide raw JSON' : 'Show raw JSON'}
                   </Button>
                   {healthRawExpanded ? (
-                    <pre className="mt-2 overflow-x-auto rounded-xl border border-primary-200 bg-primary-50 px-3 py-2 font-mono text-[11px] leading-relaxed text-primary-800 dark:bg-neutral-900 dark:text-neutral-300 dark:border-neutral-700">
+                    <pre className="mt-2 overflow-x-auto rounded-xl border border-primary-200 bg-primary-50 px-3 py-2 font-mono text-[11px] leading-relaxed text-primary-800 dark:bg-primary-900 dark:text-primary-300 dark:border-primary-700">
                       {JSON.stringify(health.raw, null, 2)}
                     </pre>
                   ) : null}

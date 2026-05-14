@@ -115,9 +115,9 @@ export function ExportMissionButton({ report }: { report: ExportableMissionRepor
         type="button"
         onClick={handleDownload}
         className={cn(
-          'flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700',
-          'px-2.5 py-1.5 text-xs font-medium text-neutral-600 dark:text-neutral-400',
-          'hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors',
+          'flex items-center gap-1.5 rounded-lg border border-primary-200 dark:border-primary-700',
+          'px-2.5 py-1.5 text-xs font-medium text-primary-600 dark:text-primary-400',
+          'hover:bg-primary-50 dark:hover:bg-primary-800 transition-colors',
         )}
       >
         📄 Export .md
@@ -126,11 +126,11 @@ export function ExportMissionButton({ report }: { report: ExportableMissionRepor
         type="button"
         onClick={() => void handleCopy()}
         className={cn(
-          'flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700',
+          'flex items-center gap-1.5 rounded-lg border border-primary-200 dark:border-primary-700',
           'px-2.5 py-1.5 text-xs font-medium transition-colors',
           copied
             ? 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400'
-            : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800',
+            : 'text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-800',
         )}
       >
         {copied ? '✓ Copied' : '📋 Copy MD'}

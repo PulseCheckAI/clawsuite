@@ -85,7 +85,7 @@ function ContextBarComponent({ compact: _compact }: { compact?: boolean }) {
   const barColor = isCritical
     ? 'bg-red-500'
     : isDanger
-      ? 'bg-orange-500'
+      ? 'bg-accent-500'
       : isWarning
         ? 'bg-yellow-400'
         : 'bg-emerald-500'
@@ -93,7 +93,7 @@ function ContextBarComponent({ compact: _compact }: { compact?: boolean }) {
   const barBg = isCritical
     ? 'bg-red-100'
     : isDanger
-      ? 'bg-orange-100'
+      ? 'bg-accent-100'
       : isWarning
         ? 'bg-yellow-100'
         : 'bg-emerald-100'
@@ -101,7 +101,7 @@ function ContextBarComponent({ compact: _compact }: { compact?: boolean }) {
   const textColor = isCritical
     ? 'text-red-600'
     : isDanger
-      ? 'text-orange-600'
+      ? 'text-accent-600'
       : isWarning
         ? 'text-yellow-600'
         : 'text-emerald-600'

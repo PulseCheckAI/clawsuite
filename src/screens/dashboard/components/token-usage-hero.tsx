@@ -13,7 +13,7 @@ type SparkPoint = { date: string; value: number }
 function MicroSparkBars({ data, accentClass }: { data: SparkPoint[]; accentClass: string }) {
   const slice = data.slice(-10)
   if (slice.length === 0) {
-    return <div className="h-8 rounded-md border border-primary-200 dark:border-neutral-800/70 bg-white dark:bg-neutral-900/40" />
+    return <div className="h-8 rounded-md border border-primary-200 dark:border-primary-800/70 bg-white dark:bg-primary-900/40" />
   }
 
   const maxVal = Math.max(...slice.map((p) => p.value), 1)
@@ -28,7 +28,7 @@ function MicroSparkBars({ data, accentClass }: { data: SparkPoint[]; accentClass
           <div
             key={`${point.date}-${index}`}
             className={cn(
-              'flex-1 rounded-[3px] bg-neutral-300 dark:bg-neutral-700 transition-[height] duration-300',
+              'flex-1 rounded-[3px] bg-primary-300 dark:bg-primary-700 transition-[height] duration-300',
               isLatest && accentClass,
               point.value === 0 && 'opacity-40',
             )}
@@ -91,7 +91,7 @@ export function TokenUsageHero({ data, className }: TokenUsageHeroProps) {
   return (
     <section
       className={cn(
-        'relative overflow-hidden rounded-xl border border-primary-200 bg-primary-50/95 p-4 text-primary-900 shadow-sm dark:border-neutral-800 dark:bg-[var(--theme-panel)] dark:text-neutral-100',
+        'relative overflow-hidden rounded-xl border border-primary-200 bg-primary-50/95 p-4 text-primary-900 shadow-sm dark:border-primary-800 dark:bg-[var(--theme-panel)] dark:text-primary-100',
         className,
       )}
     >
@@ -101,15 +101,15 @@ export function TokenUsageHero({ data, className }: TokenUsageHeroProps) {
       />
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-[11px] font-semibold tracking-[0.18em] text-primary-500 dark:text-neutral-400">TOKEN USAGE</p>
-          <p className="mt-2 font-mono text-3xl font-semibold leading-none tabular-nums text-primary-900 dark:text-neutral-50 md:text-4xl">
+          <p className="text-[11px] font-semibold tracking-[0.18em] text-primary-500 dark:text-primary-400">TOKEN USAGE</p>
+          <p className="mt-2 font-mono text-3xl font-semibold leading-none tabular-nums text-primary-900 dark:text-primary-50 md:text-4xl">
             {formatTokens(data.usage.tokens)}
           </p>
-          <p className="mt-1 text-xs text-primary-500 dark:text-neutral-400">tokens used today</p>
+          <p className="mt-1 text-xs text-primary-500 dark:text-primary-400">tokens used today</p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] uppercase tracking-[0.14em] text-primary-400 dark:text-neutral-500">Today</p>
-          <p className="mt-1 font-mono text-lg font-semibold tabular-nums text-primary-900 dark:text-neutral-50">
+          <p className="text-[10px] uppercase tracking-[0.14em] text-primary-400 dark:text-primary-500">Today</p>
+          <p className="mt-1 font-mono text-lg font-semibold tabular-nums text-primary-900 dark:text-primary-50">
             {formatMoney(totalCostToday)}
           </p>
           <p className="mt-0.5 text-[11px] text-emerald-400">{formatCostChangeLabel(data.timeseries.costByDay)}</p>
@@ -117,20 +117,20 @@ export function TokenUsageHero({ data, className }: TokenUsageHeroProps) {
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <div className="rounded-xl border bg-white p-3 shadow-sm dark:bg-neutral-900">
+        <div className="rounded-xl border bg-white p-3 shadow-sm dark:bg-primary-900">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold tracking-[0.14em] text-primary-500 dark:text-neutral-400">COST</p>
-            <p className="font-mono text-sm tabular-nums text-primary-900 dark:text-neutral-100">{formatMoney(totalCostToday)}</p>
+            <p className="text-[10px] font-semibold tracking-[0.14em] text-primary-500 dark:text-primary-400">COST</p>
+            <p className="font-mono text-sm tabular-nums text-primary-900 dark:text-primary-100">{formatMoney(totalCostToday)}</p>
           </div>
           <div className="mt-2">
             <MicroSparkBars data={costPoints} accentClass="bg-emerald-400" />
           </div>
         </div>
 
-        <div className="rounded-xl border bg-white p-3 shadow-sm dark:bg-neutral-900">
+        <div className="rounded-xl border bg-white p-3 shadow-sm dark:bg-primary-900">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-semibold tracking-[0.14em] text-primary-500 dark:text-neutral-400">ACTIVE SESSIONS</p>
-            <p className="font-mono text-sm tabular-nums text-primary-900 dark:text-neutral-100">{formatCompactInt(activeSessions)}</p>
+            <p className="text-[10px] font-semibold tracking-[0.14em] text-primary-500 dark:text-primary-400">ACTIVE SESSIONS</p>
+            <p className="font-mono text-sm tabular-nums text-primary-900 dark:text-primary-100">{formatCompactInt(activeSessions)}</p>
           </div>
           <div className="mt-2">
             <MicroSparkBars data={sessionPoints} accentClass="bg-blue-400" />
@@ -138,25 +138,25 @@ export function TokenUsageHero({ data, className }: TokenUsageHeroProps) {
         </div>
       </div>
 
-      <div className="mt-4 rounded-xl border bg-white p-3 shadow-sm dark:bg-neutral-900">
+      <div className="mt-4 rounded-xl border bg-white p-3 shadow-sm dark:bg-primary-900">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-[10px] font-semibold tracking-[0.14em] text-primary-500 dark:text-neutral-400">TOP MODELS</p>
-          <p className="text-[11px] text-primary-400 dark:text-neutral-500">sorted by cost</p>
+          <p className="text-[10px] font-semibold tracking-[0.14em] text-primary-500 dark:text-primary-400">TOP MODELS</p>
+          <p className="text-[11px] text-primary-400 dark:text-primary-500">sorted by cost</p>
         </div>
 
         {topModels.length === 0 ? (
-          <p className="mt-3 text-xs text-primary-400 dark:text-neutral-500">No model usage yet today.</p>
+          <p className="mt-3 text-xs text-primary-400 dark:text-primary-500">No model usage yet today.</p>
         ) : (
           <div className="mt-3 space-y-2.5">
             {topModels.map((model) => (
               <div key={model.model} className="space-y-1.5">
                 <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                  <p className="truncate text-sm font-medium text-primary-900 dark:text-neutral-100">{model.model}</p>
-                  <p className="font-mono text-[11px] tabular-nums text-primary-700 dark:text-neutral-300">
+                  <p className="truncate text-sm font-medium text-primary-900 dark:text-primary-100">{model.model}</p>
+                  <p className="font-mono text-[11px] tabular-nums text-primary-700 dark:text-primary-300">
                     {formatTokens(model.tokens)} · {formatMoney(model.cost)}
                   </p>
                 </div>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-primary-200 dark:bg-primary-800">
                   <div
                     className={cn('h-full rounded-full transition-[width] duration-500', model.barClass)}
                     style={{ width: `${model.widthPct}%` }}

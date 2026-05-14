@@ -36,7 +36,7 @@ const PRIORITY_LABELS: Record<TaskPriority, string> = {
 
 const PRIORITY_BADGES: Record<TaskPriority, string> = {
   urgent: 'bg-red-500/15 text-red-300 border-red-400/40',
-  high: 'bg-orange-500/15 text-orange-300 border-orange-400/40',
+  high: 'bg-accent-500/15 text-accent-300 border-accent-400/40',
   normal: 'bg-sky-500/15 text-sky-300 border-sky-400/40',
   low: 'bg-emerald-500/15 text-emerald-300 border-emerald-400/40',
 }
@@ -247,7 +247,7 @@ export function KanbanBoard({
                 className={cn(
                   'flex min-h-0 min-w-0 flex-col rounded-xl border border-[var(--theme-border)] bg-[var(--theme-card)]',
                   'max-h-[calc(100vh-15rem)] lg:max-h-[calc(100vh-13rem)]',
-                  dragOverColumn === column.key && 'border-orange-400/70 bg-[var(--theme-card2)]',
+                  dragOverColumn === column.key && 'border-accent-400/70 bg-[var(--theme-card2)]',
                 )}
               >
                 <header className="flex items-center justify-between border-b border-[var(--theme-border)] px-3 py-2.5">

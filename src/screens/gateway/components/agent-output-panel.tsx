@@ -458,7 +458,7 @@ export function AgentOutputPanel({
               <div className="flex items-center gap-2">
                 <span className={cn(
                   'size-1.5 rounded-full',
-                  task.status === 'done' ? 'bg-emerald-500' : task.status === 'in_progress' ? 'bg-blue-500 animate-pulse' : 'bg-neutral-500',
+                  task.status === 'done' ? 'bg-emerald-500' : task.status === 'in_progress' ? 'bg-blue-500 animate-pulse' : 'bg-primary-500',
                 )} />
                 <span className={cn('text-xs font-medium', compact ? 'text-[var(--theme-text)]' : 'text-[var(--theme-text)]')}>
                   {task.title}

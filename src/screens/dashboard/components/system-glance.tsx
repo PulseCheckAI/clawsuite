@@ -23,7 +23,7 @@ type SystemGlanceProps = {
 
 function ShimmerBlock() {
   return (
-    <div className="h-6 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
+    <div className="h-6 w-16 animate-pulse rounded bg-primary-200 dark:bg-primary-700" />
   )
 }
 
@@ -40,7 +40,7 @@ function SystemGlanceCompact({
   currentModel: _currentModel,
 }: SystemGlanceProps) {
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-primary-200 bg-primary-50/95 px-3 py-2 shadow-sm backdrop-blur-md dark:border-neutral-800 dark:bg-neutral-950/60">
+    <div className="flex items-center gap-2 rounded-xl border border-primary-200 bg-primary-50/95 px-3 py-2 shadow-sm backdrop-blur-md dark:border-primary-800 dark:bg-primary-950/60">
       {/* Health dot */}
       <span
         className={cn(
@@ -48,17 +48,17 @@ function SystemGlanceCompact({
           healthStatus === 'healthy' && 'animate-pulse bg-emerald-500',
           healthStatus === 'warning' && 'bg-amber-500',
           healthStatus === 'critical' && 'animate-pulse bg-red-500',
-          healthStatus === 'offline' && 'bg-neutral-400',
+          healthStatus === 'offline' && 'bg-primary-400',
         )}
       />
 
       {/* Stats — condensed for mobile */}
       <div className="flex flex-1 items-center justify-center gap-x-3">
-        <span className="text-sm font-bold tabular-nums text-neutral-900 dark:text-neutral-50">{costToday}</span>
-        <span className="text-neutral-300 dark:text-neutral-600">·</span>
-        <span className="text-xs font-medium text-neutral-600 dark:text-neutral-300">{sessions} sessions</span>
-        <span className="text-neutral-300 dark:text-neutral-600">·</span>
-        <span className="text-xs text-neutral-400">{uptimeFormatted}</span>
+        <span className="text-sm font-bold tabular-nums text-primary-900 dark:text-primary-50">{costToday}</span>
+        <span className="text-primary-300 dark:text-primary-600">·</span>
+        <span className="text-xs font-medium text-primary-600 dark:text-primary-300">{sessions} sessions</span>
+        <span className="text-primary-300 dark:text-primary-600">·</span>
+        <span className="text-xs text-primary-400">{uptimeFormatted}</span>
       </div>
     </div>
   )
@@ -88,11 +88,11 @@ export function SystemGlance(props: SystemGlanceProps) {
       {/* Row 1: Updated timestamp + model badge | Single merged status badge */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
+          <span className="text-[10px] text-primary-500 dark:text-primary-400">
             Updated {updatedAgo}
           </span>
           {currentModel && (
-            <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+            <span className="rounded bg-primary-100 px-1.5 py-0.5 text-[9px] font-semibold text-primary-600 dark:bg-primary-800 dark:text-primary-400">
               {currentModel}
             </span>
           )}
@@ -106,7 +106,7 @@ export function SystemGlance(props: SystemGlanceProps) {
 
       {/* Row 2: Bordered stat blocks — Memory ring | Cost | Model */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="flex flex-col items-center justify-center rounded-xl border border-primary-200 bg-primary-50/80 py-3 px-2 dark:border-neutral-700/60 dark:bg-neutral-800/40">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-primary-200 bg-primary-50/80 py-3 px-2 dark:border-primary-700/60 dark:bg-primary-800/40">
           <StatBlock
             label="MEMORY"
             value=""
@@ -114,10 +114,10 @@ export function SystemGlance(props: SystemGlanceProps) {
             sublabel="of context window"
           />
         </div>
-        <div className="flex flex-col items-center justify-center rounded-xl border border-primary-200 bg-primary-50/80 py-3 px-2 dark:border-neutral-700/60 dark:bg-neutral-800/40">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-primary-200 bg-primary-50/80 py-3 px-2 dark:border-primary-700/60 dark:bg-primary-800/40">
           {props.loading ? (
             <div className="flex flex-col items-center gap-1">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-400">COST</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-primary-400">COST</span>
               <ShimmerBlock />
             </div>
           ) : (
@@ -128,10 +128,10 @@ export function SystemGlance(props: SystemGlanceProps) {
             />
           )}
         </div>
-        <div className="flex flex-col items-center justify-center rounded-xl border border-primary-200 bg-primary-50/80 py-3 px-2 dark:border-neutral-700/60 dark:bg-neutral-800/40">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-primary-200 bg-primary-50/80 py-3 px-2 dark:border-primary-700/60 dark:bg-primary-800/40">
           {props.loading ? (
             <div className="flex flex-col items-center gap-1">
-              <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-400">MODEL</span>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-primary-400">MODEL</span>
               <ShimmerBlock />
             </div>
           ) : (
@@ -145,12 +145,12 @@ export function SystemGlance(props: SystemGlanceProps) {
       </div>
 
       {/* Row 3: Uptime bar — HealthBadge intentionally removed here (shown top-right) */}
-      <div className="rounded-xl border border-neutral-200/50 bg-neutral-50/50 p-3 dark:border-neutral-700/50 dark:bg-neutral-800/50">
+      <div className="rounded-xl border border-primary-200/50 bg-primary-50/50 p-3 dark:border-primary-700/50 dark:bg-primary-800/50">
         <div className="flex items-center justify-between">
-          <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-400">
+          <span className="text-[9px] font-bold uppercase tracking-widest text-primary-400">
             UPTIME
           </span>
-          <span className="text-lg font-bold tabular-nums text-neutral-900 dark:text-neutral-50">
+          <span className="text-lg font-bold tabular-nums text-primary-900 dark:text-primary-50">
             {uptimeFormatted}
           </span>
         </div>
@@ -158,7 +158,7 @@ export function SystemGlance(props: SystemGlanceProps) {
 
       {/* Row 4: Optional widget controls slot */}
       {actions ? (
-        <div className="flex items-center justify-end gap-2 border-t border-neutral-200/60 pt-3 dark:border-neutral-700/40">
+        <div className="flex items-center justify-end gap-2 border-t border-primary-200/60 pt-3 dark:border-primary-700/40">
           {actions}
         </div>
       ) : null}

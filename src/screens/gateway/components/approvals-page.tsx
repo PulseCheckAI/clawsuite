@@ -212,19 +212,19 @@ export function ApprovalsPage({ approvals, onApprove, onDeny }: ApprovalsPagePro
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-neutral-50/60 p-3 pb-20 dark:bg-[var(--theme-bg,#0b0e14)] sm:p-4">
+    <div className="flex h-full min-h-0 flex-col bg-primary-50/60 p-3 pb-20 dark:bg-[var(--theme-bg,#0b0e14)] sm:p-4">
       <div className="mx-auto flex h-full min-h-0 w-full max-w-[1280px] flex-col gap-3 sm:gap-4">
-        <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-3 shadow-sm dark:border-neutral-800 dark:bg-[var(--theme-panel,#111520)]">
+        <div className="rounded-2xl border border-primary-200 bg-white px-4 py-3 shadow-sm dark:border-primary-800 dark:bg-[var(--theme-panel,#111520)]">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">Approvals</h2>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Live gateway queue with local approval history</p>
+              <h2 className="text-sm font-semibold text-primary-900 dark:text-white">Approvals</h2>
+              <p className="text-xs text-primary-500 dark:text-primary-400">Live gateway queue with local approval history</p>
             </div>
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
                 {pendingRows.length} pending
               </span>
-              <span className="rounded-full border border-neutral-200 bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+              <span className="rounded-full border border-primary-200 bg-primary-100 px-2 py-0.5 text-[10px] font-medium text-primary-600 dark:border-primary-700 dark:bg-primary-800 dark:text-primary-300">
                 Polling 2s
               </span>
             </div>
@@ -237,21 +237,21 @@ export function ApprovalsPage({ approvals, onApprove, onDeny }: ApprovalsPagePro
         </div>
 
         <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[minmax(0,1.5fr)_minmax(300px,1fr)]">
-          <section className="min-h-0 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-[var(--theme-panel,#111520)]">
-            <div className="border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Pending Queue</h3>
+          <section className="min-h-0 overflow-hidden rounded-2xl border border-primary-200 bg-white shadow-sm dark:border-primary-800 dark:bg-[var(--theme-panel,#111520)]">
+            <div className="border-b border-primary-200 px-4 py-3 dark:border-primary-800">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-primary-500 dark:text-primary-400">Pending Queue</h3>
             </div>
 
             <div className="h-full max-h-full overflow-y-auto p-3 sm:p-4">
               {loading && pendingRows.length === 0 ? (
-                <p className="py-10 text-center text-sm text-neutral-500">Loading approvals...</p>
+                <p className="py-10 text-center text-sm text-primary-500">Loading approvals...</p>
               ) : null}
 
               {!loading && pendingRows.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-14 text-center">
                   <span className="text-3xl">✅</span>
-                  <p className="mt-2 text-sm font-medium text-neutral-700 dark:text-neutral-200">No pending approvals</p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">Agents can continue without intervention</p>
+                  <p className="mt-2 text-sm font-medium text-primary-700 dark:text-primary-200">No pending approvals</p>
+                  <p className="text-xs text-primary-500 dark:text-primary-400">Agents can continue without intervention</p>
                 </div>
               ) : null}
 
@@ -275,20 +275,20 @@ export function ApprovalsPage({ approvals, onApprove, onDeny }: ApprovalsPagePro
                         <div className="flex flex-wrap items-start justify-between gap-2">
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-1.5">
-                              <span className="rounded-md bg-neutral-900 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-white dark:bg-neutral-100 dark:text-neutral-900">
+                              <span className="rounded-md bg-primary-900 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-white dark:bg-primary-100 dark:text-primary-900">
                                 {row.toolName}
                               </span>
                               <span className={cn('rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase', riskBadgeClass(row.risk))}>
                                 {row.risk} risk
                               </span>
-                              <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+                              <span className="rounded-full bg-primary-100 px-1.5 py-0.5 text-[10px] text-primary-600 dark:bg-primary-800 dark:text-primary-300">
                                 {row.source}
                               </span>
                             </div>
-                            <p className="mt-2 line-clamp-3 font-mono text-[11px] text-neutral-700 dark:text-neutral-300">
+                            <p className="mt-2 line-clamp-3 font-mono text-[11px] text-primary-700 dark:text-primary-300">
                               {row.commandPreview}
                             </p>
-                            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-400">
+                            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-primary-500 dark:text-primary-400">
                               <span>{row.agentName}</span>
                               <span>•</span>
                               <span>{timeAgo(row.requestedAt)}</span>
@@ -308,7 +308,7 @@ export function ApprovalsPage({ approvals, onApprove, onDeny }: ApprovalsPagePro
                               type="button"
                               onClick={() => void handleResolve(row, 'deny')}
                               disabled={isBusy}
-                              className="min-h-10 flex-1 rounded-lg border border-red-300 bg-white px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-800/70 dark:bg-neutral-900 dark:text-red-400 dark:hover:bg-red-950/20 sm:flex-initial"
+                              className="min-h-10 flex-1 rounded-lg border border-red-300 bg-white px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-800/70 dark:bg-primary-900 dark:text-red-400 dark:hover:bg-red-950/20 sm:flex-initial"
                             >
                               {resolvingAction === 'deny' ? 'Denying...' : 'Deny'}
                             </button>
@@ -322,15 +322,15 @@ export function ApprovalsPage({ approvals, onApprove, onDeny }: ApprovalsPagePro
             </div>
           </section>
 
-          <section className="min-h-0 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-[var(--theme-panel,#111520)]">
-            <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3 dark:border-neutral-800">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">History</h3>
-              <span className="text-[10px] text-neutral-400">From approvals store</span>
+          <section className="min-h-0 overflow-hidden rounded-2xl border border-primary-200 bg-white shadow-sm dark:border-primary-800 dark:bg-[var(--theme-panel,#111520)]">
+            <div className="flex items-center justify-between border-b border-primary-200 px-4 py-3 dark:border-primary-800">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-primary-500 dark:text-primary-400">History</h3>
+              <span className="text-[10px] text-primary-400">From approvals store</span>
             </div>
 
             <div className="h-full max-h-full overflow-y-auto p-3 sm:p-4">
               {historyRows.length === 0 ? (
-                <p className="py-10 text-center text-xs text-neutral-500">No approvals resolved yet</p>
+                <p className="py-10 text-center text-xs text-primary-500">No approvals resolved yet</p>
               ) : (
                 <div className="space-y-2">
                   {historyRows.map((entry) => {
@@ -338,10 +338,10 @@ export function ApprovalsPage({ approvals, onApprove, onDeny }: ApprovalsPagePro
                     return (
                       <div
                         key={`${entry.id}:${resolvedAt}`}
-                        className="rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 dark:border-neutral-800 dark:bg-neutral-900"
+                        className="rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 dark:border-primary-800 dark:bg-primary-900"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <p className="truncate text-xs font-medium text-neutral-800 dark:text-neutral-200">{entry.agentName}</p>
+                          <p className="truncate text-xs font-medium text-primary-800 dark:text-primary-200">{entry.agentName}</p>
                           <span
                             className={cn(
                               'rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase',
@@ -353,8 +353,8 @@ export function ApprovalsPage({ approvals, onApprove, onDeny }: ApprovalsPagePro
                             {entry.status}
                           </span>
                         </div>
-                        <p className="mt-1 line-clamp-2 text-[11px] text-neutral-600 dark:text-neutral-400">{entry.action}</p>
-                        <p className="mt-1 text-[10px] text-neutral-400">{timeAgo(resolvedAt)}</p>
+                        <p className="mt-1 line-clamp-2 text-[11px] text-primary-600 dark:text-primary-400">{entry.action}</p>
+                        <p className="mt-1 text-[10px] text-primary-400">{timeAgo(resolvedAt)}</p>
                       </div>
                     )
                   })}

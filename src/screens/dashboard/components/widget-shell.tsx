@@ -92,7 +92,7 @@ export function WidgetShell({
       className={cn(
         // Base glass card — C3: near-neutral dark, consistent card treatment
         'group relative flex flex-col overflow-hidden rounded-xl',
-        'border border-primary-200 dark:border-neutral-800',
+        'border border-primary-200 dark:border-primary-800',
         'bg-primary-50/95 dark:bg-[var(--theme-panel)] backdrop-blur-md',
         'shadow-sm transition-shadow',
         // Size
@@ -127,12 +127,12 @@ export function WidgetShell({
               icon={icon}
               size={size === 'small' ? 13 : 15}
               strokeWidth={1.5}
-              className="shrink-0 text-neutral-600 dark:text-neutral-300"
+              className="shrink-0 text-primary-600 dark:text-primary-300"
             />
           ) : null}
           <h2
             className={cn(
-              'truncate font-semibold text-neutral-900 dark:text-neutral-100',
+              'truncate font-semibold text-primary-900 dark:text-primary-100',
               TITLE_SIZE[size],
             )}
           >
@@ -191,14 +191,14 @@ function WidgetSkeleton({ size }: { size: WidgetSize }) {
     <div className="flex h-full flex-col gap-2 pt-1">
       <div
         className={cn(
-          'animate-shimmer rounded-lg bg-neutral-200/65 dark:bg-neutral-700/50',
+          'animate-shimmer rounded-lg bg-primary-200/65 dark:bg-primary-700/50',
           size === 'small' ? 'h-8' : 'h-10',
         )}
       />
       {size !== 'small' ? (
         <>
-          <div className="h-3 w-3/4 animate-shimmer rounded bg-neutral-200/55 dark:bg-neutral-700/45" />
-          <div className="h-3 w-1/2 animate-shimmer rounded bg-neutral-200/45 dark:bg-neutral-700/35" />
+          <div className="h-3 w-3/4 animate-shimmer rounded bg-primary-200/55 dark:bg-primary-700/45" />
+          <div className="h-3 w-1/2 animate-shimmer rounded bg-primary-200/45 dark:bg-primary-700/35" />
         </>
       ) : null}
     </div>

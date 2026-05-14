@@ -56,7 +56,7 @@ export function PercentRing({
           className={cn('transition-all duration-700 ease-out', getRingColor(clamped))}
         />
       </svg>
-      <span className="absolute text-sm font-bold tabular-nums text-neutral-900 dark:text-neutral-50">
+      <span className="absolute text-sm font-bold tabular-nums text-primary-900 dark:text-primary-50">
         {Math.round(clamped)}%
       </span>
     </div>
@@ -70,7 +70,7 @@ const HEALTH_STYLES: Record<HealthStatus, string> = {
   healthy: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
   warning: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30',
   critical: 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30',
-  offline: 'bg-neutral-500/15 text-neutral-500 border-neutral-500/30',
+  offline: 'bg-primary-500/15 text-primary-500 border-primary-500/30',
 }
 
 const HEALTH_LABELS: Record<HealthStatus, string> = {
@@ -94,7 +94,7 @@ export function HealthBadge({ status, syncing }: { status: HealthStatus; syncing
           status === 'healthy' && 'bg-emerald-500 animate-pulse',
           status === 'warning' && 'bg-amber-500',
           status === 'critical' && 'bg-red-500 animate-pulse',
-          status === 'offline' && 'bg-neutral-400',
+          status === 'offline' && 'bg-primary-400',
         )}
       />
       {syncing ? 'Syncing' : HEALTH_LABELS[status]}
@@ -128,8 +128,8 @@ export function ProviderPill({ name, active, onClick }: ProviderPillProps) {
       className={cn(
         'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-semibold transition-all',
         active
-          ? 'border-neutral-700 bg-neutral-800 text-white dark:border-neutral-500 dark:bg-neutral-700'
-          : 'border-neutral-200 bg-white/60 text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/10 dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-400 dark:hover:bg-neutral-700',
+          ? 'border-primary-700 bg-primary-800 text-white dark:border-primary-500 dark:bg-primary-700'
+          : 'border-primary-200 bg-white/60 text-primary-600 hover:bg-primary-100 dark:hover:bg-white/10 dark:border-primary-700 dark:bg-primary-800/60 dark:text-primary-400 dark:hover:bg-primary-700',
       )}
     >
       <span className="text-[9px]">{icon}</span>
@@ -151,7 +151,7 @@ export function StatBlock({ label, value, percent, badge, sublabel }: StatBlockP
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div className="flex items-center gap-1.5">
-        <span className="text-[9px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">
+        <span className="text-[9px] font-bold uppercase tracking-widest text-primary-400 dark:text-primary-500">
           {label}
         </span>
         {badge && <HealthBadge status={badge} />}
@@ -159,12 +159,12 @@ export function StatBlock({ label, value, percent, badge, sublabel }: StatBlockP
       {typeof percent === 'number' ? (
         <PercentRing percent={percent} size={56} stroke={4} />
       ) : (
-        <p className="text-2xl font-bold tabular-nums text-neutral-900 dark:text-neutral-50">
+        <p className="text-2xl font-bold tabular-nums text-primary-900 dark:text-primary-50">
           {typeof value === 'number' ? value.toLocaleString() : value}
         </p>
       )}
       {sublabel && (
-        <p className="max-w-[100px] truncate text-[9px] text-neutral-400 dark:text-neutral-500">
+        <p className="max-w-[100px] truncate text-[9px] text-primary-400 dark:text-primary-500">
           {sublabel}
         </p>
       )}
@@ -182,7 +182,7 @@ export function GlanceCard({ children, className }: GlanceCardProps) {
   return (
     <div
       className={cn(
-        'relative rounded-2xl border border-primary-200 bg-primary-50/95 p-4 shadow-sm dark:border-neutral-800 dark:bg-[var(--theme-panel)]',
+        'relative rounded-2xl border border-primary-200 bg-primary-50/95 p-4 shadow-sm dark:border-primary-800 dark:bg-[var(--theme-panel)]',
         className,
       )}
     >

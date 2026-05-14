@@ -258,7 +258,7 @@ function ProviderRestartConfirmDialog({
       />
 
       {/* Panel */}
-      <div className="relative z-10 w-[min(420px,92vw)] rounded-2xl border border-primary-200 bg-primary-50 p-5 shadow-xl dark:border-neutral-700 dark:bg-neutral-900">
+      <div className="relative z-10 w-[min(420px,92vw)] rounded-2xl border border-primary-200 bg-primary-50 p-5 shadow-xl dark:border-primary-700 dark:bg-primary-900">
         <div className="flex items-start gap-3">
           <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/30">
             <HugeiconsIcon
@@ -271,13 +271,13 @@ function ProviderRestartConfirmDialog({
           <div className="flex-1 min-w-0">
             <h2
               id="provider-restart-title"
-              className="text-sm font-semibold text-primary-900 dark:text-neutral-100"
+              className="text-sm font-semibold text-primary-900 dark:text-primary-100"
             >
               Gateway restart required
             </h2>
             <p
               id="provider-restart-desc"
-              className="mt-1 text-sm text-primary-600 text-pretty dark:text-neutral-400"
+              className="mt-1 text-sm text-primary-600 text-pretty dark:text-primary-400"
             >
               Adding or removing a provider requires a gateway restart. Active
               sessions will be paused briefly. Continue?
@@ -328,7 +328,7 @@ function GatewayRestartOverlayView({
             : 'Gateway restart failed'
       }
     >
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-primary-200/60 bg-primary-50/95 px-8 py-8 shadow-2xl backdrop-blur-xl dark:border-neutral-700/60 dark:bg-neutral-900/95">
+      <div className="flex flex-col items-center gap-4 rounded-2xl border border-primary-200/60 bg-primary-50/95 px-8 py-8 shadow-2xl backdrop-blur-xl dark:border-primary-700/60 dark:bg-primary-900/95">
         {phase === 'restarting' ? (
           <>
             <BrailleSpinner
@@ -338,10 +338,10 @@ function GatewayRestartOverlayView({
               label="Gateway restarting"
             />
             <div className="text-center">
-              <p className="text-base font-semibold text-primary-900 dark:text-neutral-100">
+              <p className="text-base font-semibold text-primary-900 dark:text-primary-100">
                 Gateway restarting…
               </p>
-              <p className="mt-1 text-sm text-primary-500 dark:text-neutral-400">
+              <p className="mt-1 text-sm text-primary-500 dark:text-primary-400">
                 Applying provider changes. Active sessions are paused.
               </p>
             </div>
@@ -358,10 +358,10 @@ function GatewayRestartOverlayView({
               />
             </span>
             <div className="text-center">
-              <p className="text-base font-semibold text-primary-900 dark:text-neutral-100">
+              <p className="text-base font-semibold text-primary-900 dark:text-primary-100">
                 Gateway ready ✓
               </p>
-              <p className="mt-1 text-sm text-primary-500 dark:text-neutral-400">
+              <p className="mt-1 text-sm text-primary-500 dark:text-primary-400">
                 Provider changes applied. Resuming…
               </p>
             </div>
@@ -377,10 +377,10 @@ function GatewayRestartOverlayView({
               />
             </span>
             <div className="text-center">
-              <p className="text-base font-semibold text-primary-900 dark:text-neutral-100">
+              <p className="text-base font-semibold text-primary-900 dark:text-primary-100">
                 Gateway restart failed
               </p>
-              <p className="mt-1 text-sm text-primary-500 dark:text-neutral-400 text-pretty">
+              <p className="mt-1 text-sm text-primary-500 dark:text-primary-400 text-pretty">
                 {errorMsg || 'Gateway did not come back in time.'}
               </p>
             </div>
@@ -407,9 +407,9 @@ function GatewayRestartOverlayView({
 // Small "Reconnecting..." badge shown in overlay during restart
 function ReconnectingBadge() {
   return (
-    <div className="flex items-center gap-1.5 rounded-full border border-primary-200 bg-primary-100 px-3 py-1 dark:border-neutral-700 dark:bg-neutral-800">
+    <div className="flex items-center gap-1.5 rounded-full border border-primary-200 bg-primary-100 px-3 py-1 dark:border-primary-700 dark:bg-primary-800">
       <span className="size-1.5 animate-pulse rounded-full bg-accent-500" />
-      <span className="text-xs font-medium text-primary-600 dark:text-neutral-400">
+      <span className="text-xs font-medium text-primary-600 dark:text-primary-400">
         Reconnecting…
       </span>
     </div>

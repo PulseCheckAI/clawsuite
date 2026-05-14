@@ -56,7 +56,7 @@ export function ChatEmptyState({
           <OpenClawStudioIcon className="mb-3 size-10 rounded-xl overflow-hidden opacity-60 md:mb-4 md:size-12" />
         </motion.div>
 
-        <h2 className="mb-4 text-sm font-semibold text-neutral-300">
+        <h2 className="mb-4 text-sm font-semibold text-primary-300">
           Start a conversation
         </h2>
 

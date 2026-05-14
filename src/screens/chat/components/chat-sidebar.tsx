@@ -80,7 +80,7 @@ function ThemeToggleMini() {
         applyTheme(nextTheme)
         updateSettings({ theme: nextTheme })
       }}
-      className="shrink-0 rounded-lg p-1.5 text-primary-400 hover:bg-primary-200 dark:hover:bg-neutral-800 hover:text-primary-600 dark:hover:text-neutral-300 transition-colors"
+      className="shrink-0 rounded-lg p-1.5 text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800 hover:text-primary-600 dark:hover:text-primary-300 transition-colors"
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
       <HugeiconsIcon icon={isDark ? Sun02Icon : Moon02Icon} size={16} strokeWidth={1.5} />
@@ -359,7 +359,7 @@ function SectionLabel({
   if (isCollapsed) return null
 
   const labelContent = (
-    <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-500 dark:text-neutral-400 select-none">
+    <span className="text-[10px] font-semibold uppercase tracking-wider text-primary-500 dark:text-primary-400 select-none">
       {label}
     </span>
   )
@@ -401,7 +401,7 @@ function SectionLabel({
       {navigateTo ? (
         <Link
           to={navigateTo}
-          className="text-[10px] font-semibold uppercase tracking-wider text-primary-500 dark:text-neutral-400 hover:text-primary-700 dark:hover:text-neutral-200 select-none transition-colors"
+          className="text-[10px] font-semibold uppercase tracking-wider text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-200 select-none transition-colors"
         >
           {label}
         </Link>
@@ -1183,7 +1183,7 @@ function ChatSidebarComponent({
             <MenuTrigger
               data-tour="settings"
               className={cn(
-                'flex items-center gap-2.5 rounded-lg py-1 transition-colors hover:bg-primary-200 dark:hover:bg-neutral-800 flex-1 min-w-0',
+                'flex items-center gap-2.5 rounded-lg py-1 transition-colors hover:bg-primary-200 dark:hover:bg-primary-800 flex-1 min-w-0',
                 isVisuallyCollapsed ? 'justify-center px-0' : 'px-1.5',
               )}
             >
@@ -1201,7 +1201,7 @@ function ChatSidebarComponent({
                     transition={transition}
                     className="flex-1 min-w-0 flex items-center gap-1.5"
                   >
-                    <span className="block truncate text-sm font-medium text-primary-900 dark:text-neutral-100">
+                    <span className="block truncate text-sm font-medium text-primary-900 dark:text-primary-100">
                       {profileDisplayName}
                     </span>
                     <GatewayStatusDot />
@@ -1224,7 +1224,7 @@ function ChatSidebarComponent({
                   />
                   Settings
                 </span>
-                <kbd className="ml-auto text-[10px] text-primary-500 dark:text-neutral-400 font-mono">
+                <kbd className="ml-auto text-[10px] text-primary-500 dark:text-primary-400 font-mono">
                   {mod},
                 </kbd>
               </MenuItem>
@@ -1238,7 +1238,7 @@ function ChatSidebarComponent({
                   <HugeiconsIcon icon={ApiIcon} size={20} strokeWidth={1.5} />
                   Providers
                 </span>
-                <kbd className="ml-auto text-[10px] text-primary-500 dark:text-neutral-400 font-mono">
+                <kbd className="ml-auto text-[10px] text-primary-500 dark:text-primary-400 font-mono">
                   {mod}P
                 </kbd>
               </MenuItem>
@@ -1251,7 +1251,7 @@ function ChatSidebarComponent({
               <button
                 type="button"
                 onClick={() => setSettingsOpen(true)}
-                className="shrink-0 rounded-lg p-1.5 text-primary-400 hover:bg-primary-200 dark:hover:bg-neutral-800 hover:text-primary-600 dark:hover:text-neutral-300 transition-colors"
+                className="shrink-0 rounded-lg p-1.5 text-primary-400 hover:bg-primary-200 dark:hover:bg-primary-800 hover:text-primary-600 dark:hover:text-primary-300 transition-colors"
                 aria-label="Settings"
               >
                 <HugeiconsIcon icon={Settings01Icon} size={16} strokeWidth={1.5} />

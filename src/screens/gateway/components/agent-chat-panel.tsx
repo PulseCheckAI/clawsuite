@@ -217,19 +217,19 @@ export function AgentChatPanel({
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Header ──────────────────────────────────────────────────────── */}
-        <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3 dark:border-neutral-700">
+        <div className="flex items-center justify-between border-b border-primary-200 px-4 py-3 dark:border-primary-700">
           <div className="flex items-center gap-3">
             <div
               className={cn(
                 'size-2.5 rounded-full',
-                isRunning ? 'bg-emerald-500 animate-pulse' : 'bg-neutral-400',
+                isRunning ? 'bg-emerald-500 animate-pulse' : 'bg-primary-400',
               )}
             />
             <div>
-              <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+              <p className="text-sm font-semibold text-primary-900 dark:text-white">
                 Chat with {agentName}
               </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="text-xs text-primary-500 dark:text-primary-400">
                 {isRunning ? 'Running — messages sent as directives' : 'Idle — direct conversation'}
                 {sessionKey ? ` · ${sessionKey.slice(0, 24)}…` : ' · No session'}
               </p>
@@ -240,14 +240,14 @@ export function AgentChatPanel({
               type="button"
               onClick={() => void loadHistory()}
               disabled={loading}
-              className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+              className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-primary-600 transition-colors hover:bg-primary-100 dark:text-primary-400 dark:hover:bg-primary-800"
             >
               {loading ? '↻' : '↻ Refresh'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex size-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+              className="flex size-8 items-center justify-center rounded-full text-primary-400 transition-colors hover:bg-primary-100 hover:text-primary-700 dark:hover:bg-primary-800 dark:hover:text-primary-200"
             >
               ✕
             </button>
@@ -260,19 +260,19 @@ export function AgentChatPanel({
           className="flex-1 overflow-y-auto px-4 py-3 space-y-3"
         >
           {!sessionKey && (
-            <div className="flex items-center justify-center py-12 text-sm text-neutral-500">
+            <div className="flex items-center justify-center py-12 text-sm text-primary-500">
               No active session for this agent. Start a mission first.
             </div>
           )}
 
           {sessionKey && messages.length === 0 && !loading && (
-            <div className="flex items-center justify-center py-12 text-sm text-neutral-500">
+            <div className="flex items-center justify-center py-12 text-sm text-primary-500">
               No messages yet. Send one to start a conversation.
             </div>
           )}
 
           {loading && messages.length === 0 && (
-            <div className="flex items-center justify-center py-12 text-sm text-neutral-500">
+            <div className="flex items-center justify-center py-12 text-sm text-primary-500">
               Loading conversation…
             </div>
           )}
@@ -298,7 +298,7 @@ export function AgentChatPanel({
                     ? 'bg-accent-500 text-white rounded-br-md'
                     : msg.role === 'system'
                       ? 'bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 text-xs italic'
-                      : 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100 rounded-bl-md',
+                      : 'bg-primary-100 text-primary-900 dark:bg-primary-800 dark:text-primary-100 rounded-bl-md',
                 )}
               >
                 {msg.role === 'assistant' ? (
@@ -317,7 +317,7 @@ export function AgentChatPanel({
         </div>
 
         {/* ── Input ───────────────────────────────────────────────────────── */}
-        <div className="border-t border-neutral-200 px-4 py-3 dark:border-neutral-700">
+        <div className="border-t border-primary-200 px-4 py-3 dark:border-primary-700">
           <div className="flex items-end gap-2">
             <textarea
               ref={textareaRef}
@@ -331,7 +331,7 @@ export function AgentChatPanel({
                     : 'Send a message…'
               }
               disabled={!sessionKey || sending}
-              className="flex-1 resize-none rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 outline-none transition-colors placeholder:text-neutral-400 focus:ring-1 focus:ring-accent-400 disabled:opacity-50 dark:border-neutral-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-neutral-500"
+              className="flex-1 resize-none rounded-xl border border-primary-200 bg-white px-3 py-2.5 text-sm text-primary-900 outline-none transition-colors placeholder:text-primary-400 focus:ring-1 focus:ring-accent-400 disabled:opacity-50 dark:border-primary-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-primary-500"
               rows={2}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
@@ -352,7 +352,7 @@ export function AgentChatPanel({
               {sending ? '…' : isRunning ? 'Steer ⌘↵' : 'Send ⌘↵'}
             </button>
           </div>
-          <p className="mt-1.5 text-[10px] text-neutral-400">
+          <p className="mt-1.5 text-[10px] text-primary-400">
             {isRunning
               ? 'Agent is running. Messages are sent as steering directives.'
               : 'Agent is idle. Messages start a new conversation turn.'}

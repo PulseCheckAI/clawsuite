@@ -3,19 +3,17 @@ import { json } from '@tanstack/react-start'
 import { gatewayRpc } from '../../server/gateway'
 import { isAuthenticated } from '@/server/auth-middleware'
 
-const SESSION_STATUS_METHODS = [
-  'sessions.usage',
-  'session.status',
-  'sessions.status',
-]
+// OpenClaw 2026.5.7 only exposes `sessions.usage` (no `session.status` or
+// `sessions.status`), and `sessions.usage` rejects an unknown `sessionKey`
+// param. Call it without params; the response covers all sessions and the
+// caller filters client-side if needed.
+const SESSION_STATUS_METHODS = ['sessions.usage']
 
-async function trySessionStatus(sessionKey?: string): Promise<unknown> {
+async function trySessionStatus(_sessionKey?: string): Promise<unknown> {
   let lastError: unknown = null
-  const params: Record<string, unknown> = {}
-  if (sessionKey) params.sessionKey = sessionKey
   for (const method of SESSION_STATUS_METHODS) {
     try {
-      return await gatewayRpc(method, params)
+      return await gatewayRpc(method, {})
     } catch (error) {
       lastError = error
     }
@@ -86,7 +84,10 @@ export const Route = createFileRoute('/api/session-status')({
           if (mainUsage?.usage) {
             const u = mainUsage.usage
             const model = mainUsage.model ?? mainUsage.modelOverride ?? ''
-            const maxTokens = mainUsage.contextTokens ?? mainUsage.contextWindow ?? getContextWindow(model)
+            const maxTokens =
+              mainUsage.contextTokens ??
+              mainUsage.contextWindow ??
+              getContextWindow(model)
 
             // Calculate context % from cache data
             const cacheRead = u.cacheRead ?? 0
@@ -130,7 +131,9 @@ export const Route = createFileRoute('/api/session-status')({
           }
 
           // Include all sessions for dashboard aggregation (dailyModelUsage, dailyBreakdown, etc.)
-          const allSessions = Array.isArray(usageData?.sessions) ? usageData.sessions : []
+          const allSessions = Array.isArray(usageData?.sessions)
+            ? usageData.sessions
+            : []
           enriched.sessions = allSessions.map((s: any) => ({
             key: s.key,
             agentId: s.agentId ?? s.key,

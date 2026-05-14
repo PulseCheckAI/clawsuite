@@ -27,7 +27,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
     description:
       "Your intelligent workspace for AI-powered automation. Let's take a quick tour of what you can do.",
     icon: Home01Icon,
-    iconBg: 'bg-orange-500',
+    iconBg: 'bg-accent-500',
   },
   {
     id: 'chat',

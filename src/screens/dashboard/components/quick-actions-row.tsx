@@ -36,14 +36,14 @@ export function QuickActionsRow({ className }: QuickActionsRowProps) {
             onClick={() => void navigate({ to: action.to as any })}
             className={cn(
               'flex flex-1 flex-col items-center gap-1 rounded-xl px-1 py-2 transition-colors',
-              'text-neutral-600 hover:bg-neutral-100 dark:hover:bg-white/10 active:bg-neutral-200',
-              'dark:text-neutral-400 dark:hover:bg-neutral-800 dark:active:bg-neutral-700',
+              'text-primary-600 hover:bg-primary-100 dark:hover:bg-white/10 active:bg-primary-200',
+              'dark:text-primary-400 dark:hover:bg-primary-800 dark:active:bg-primary-700',
             )}
           >
             <div
               className={cn(
                 'flex size-9 items-center justify-center rounded-full',
-                'bg-neutral-100 dark:bg-neutral-800',
+                'bg-primary-100 dark:bg-primary-800',
               )}
             >
               <HugeiconsIcon icon={action.icon} size={18} strokeWidth={1.7} />

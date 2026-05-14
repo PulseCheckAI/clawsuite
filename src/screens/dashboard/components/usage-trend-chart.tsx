@@ -61,11 +61,11 @@ export function UsageTrendChart({ data, className }: UsageTrendChartProps) {
 
   if (chartData.length === 0) {
     return (
-      <div className={cn('rounded-2xl border border-primary-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/60 p-5', className)}>
+      <div className={cn('rounded-2xl border border-primary-200 dark:border-primary-800 bg-white dark:bg-primary-900/60 p-5', className)}>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-primary-900 dark:text-white">Usage Trend</h3>
         </div>
-        <div className="flex h-[200px] items-center justify-center text-sm text-neutral-400">
+        <div className="flex h-[200px] items-center justify-center text-sm text-primary-400">
           No usage data yet
         </div>
       </div>
@@ -75,18 +75,18 @@ export function UsageTrendChart({ data, className }: UsageTrendChartProps) {
   const isTokenView = view === 'tokens'
 
   return (
-    <div className={cn('rounded-2xl border border-primary-200 dark:border-neutral-800 bg-white dark:bg-neutral-900/60 p-5', className)}>
+    <div className={cn('rounded-2xl border border-primary-200 dark:border-primary-800 bg-white dark:bg-primary-900/60 p-5', className)}>
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-primary-900 dark:text-white">Usage Trend</h3>
-        <div className="flex items-center gap-1 rounded-lg border border-primary-200 dark:border-neutral-700 p-0.5">
+        <div className="flex items-center gap-1 rounded-lg border border-primary-200 dark:border-primary-700 p-0.5">
           <button
             type="button"
             onClick={() => setView('tokens')}
             className={cn(
               'rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors',
               view === 'tokens'
-                ? 'bg-primary-100 dark:bg-neutral-700 text-primary-900 dark:text-white'
-                : 'text-neutral-500 hover:text-primary-700 dark:hover:text-neutral-300',
+                ? 'bg-primary-100 dark:bg-primary-700 text-primary-900 dark:text-white'
+                : 'text-primary-500 hover:text-primary-700 dark:hover:text-primary-300',
             )}
           >
             Tokens
@@ -97,8 +97,8 @@ export function UsageTrendChart({ data, className }: UsageTrendChartProps) {
             className={cn(
               'rounded-md px-2.5 py-1 text-[11px] font-medium transition-colors',
               view === 'cost'
-                ? 'bg-primary-100 dark:bg-neutral-700 text-primary-900 dark:text-white'
-                : 'text-neutral-500 hover:text-primary-700 dark:hover:text-neutral-300',
+                ? 'bg-primary-100 dark:bg-primary-700 text-primary-900 dark:text-white'
+                : 'text-primary-500 hover:text-primary-700 dark:hover:text-primary-300',
             )}
           >
             Cost
@@ -106,13 +106,13 @@ export function UsageTrendChart({ data, className }: UsageTrendChartProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-4 mb-3 text-[10px] text-neutral-500 dark:text-neutral-400">
+      <div className="flex items-center gap-4 mb-3 text-[10px] text-primary-500 dark:text-primary-400">
         <span className="flex items-center gap-1">
           <span className="inline-block h-2 w-2 rounded-full bg-blue-500" />
           Input
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-orange-500" />
+          <span className="inline-block h-2 w-2 rounded-full bg-accent-500" />
           Output
         </span>
         <span className="flex items-center gap-1">
@@ -137,24 +137,24 @@ export function UsageTrendChart({ data, className }: UsageTrendChartProps) {
               <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-neutral-200, #e5e7eb)" opacity={0.5} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-primary-200, #e5e7eb)" opacity={0.5} />
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 10, fill: 'var(--color-neutral-500, #6b7280)' }}
+            tick={{ fontSize: 10, fill: 'var(--color-primary-500, #6b7280)' }}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
             tickFormatter={isTokenView ? formatTokenAxis : formatCostAxis}
-            tick={{ fontSize: 10, fill: 'var(--color-neutral-500, #6b7280)' }}
+            tick={{ fontSize: 10, fill: 'var(--color-primary-500, #6b7280)' }}
             tickLine={false}
             axisLine={false}
             width={50}
           />
           <Tooltip
             contentStyle={{
-              background: 'var(--color-neutral-900, #1a1a2e)',
-              border: '1px solid var(--color-neutral-700, #374151)',
+              background: 'var(--color-primary-900, #1a1a2e)',
+              border: '1px solid var(--color-primary-700, #374151)',
               borderRadius: '8px',
               color: '#fff',
               fontSize: '11px',

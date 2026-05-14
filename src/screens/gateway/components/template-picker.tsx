@@ -87,15 +87,15 @@ export function TemplatePicker({ onSelect, onClose }: TemplatePickerProps) {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-lg rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-neutral-700 dark:bg-neutral-900">
-        <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-4 dark:border-neutral-700">
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+      <div className="w-full max-w-lg rounded-2xl border border-primary-200 bg-white shadow-2xl dark:border-primary-700 dark:bg-primary-900">
+        <div className="flex items-center justify-between border-b border-primary-200 px-5 py-4 dark:border-primary-700">
+          <h2 className="text-base font-semibold text-primary-900 dark:text-white">
             Mission Templates
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="flex size-8 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-neutral-800"
+            className="flex size-8 items-center justify-center rounded-lg text-primary-400 transition-colors hover:bg-primary-100 hover:text-primary-600 dark:hover:bg-primary-800"
           >
             ✕
           </button>
@@ -107,7 +107,7 @@ export function TemplatePicker({ onSelect, onClose }: TemplatePickerProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search templates..."
-            className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white"
+            className="w-full rounded-lg border border-primary-200 bg-primary-50 px-3 py-2 text-sm text-primary-900 placeholder:text-primary-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 dark:border-primary-700 dark:bg-primary-800 dark:text-white"
             autoFocus
           />
         </div>
@@ -115,7 +115,7 @@ export function TemplatePicker({ onSelect, onClose }: TemplatePickerProps) {
         <div className="max-h-[400px] overflow-y-auto px-5 py-4">
           {builtIn.length > 0 && (
             <>
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-neutral-400">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-primary-400">
                 Built-in
               </p>
               <div className="grid gap-2">
@@ -132,7 +132,7 @@ export function TemplatePicker({ onSelect, onClose }: TemplatePickerProps) {
 
           {custom.length > 0 && (
             <>
-              <p className="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-wide text-neutral-400">
+              <p className="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-wide text-primary-400">
                 Custom
               </p>
               <div className="grid gap-2">
@@ -152,7 +152,7 @@ export function TemplatePicker({ onSelect, onClose }: TemplatePickerProps) {
           )}
 
           {filtered.length === 0 && (
-            <p className="py-8 text-center text-sm text-neutral-400">
+            <p className="py-8 text-center text-sm text-primary-400">
               No templates found
             </p>
           )}
@@ -177,24 +177,24 @@ function TemplateCard({
       onClick={() => onSelect(template)}
       className={cn(
         'group w-full rounded-xl border p-3 text-left transition-all',
-        'border-neutral-200 bg-neutral-50 hover:border-sky-300 hover:bg-sky-50/50',
-        'dark:border-neutral-700 dark:bg-neutral-800/50 dark:hover:border-sky-700 dark:hover:bg-sky-950/30',
+        'border-primary-200 bg-primary-50 hover:border-sky-300 hover:bg-sky-50/50',
+        'dark:border-primary-700 dark:bg-primary-800/50 dark:hover:border-sky-700 dark:hover:bg-sky-950/30',
       )}
     >
       <div className="flex items-start gap-2.5">
         <span className="mt-0.5 text-xl">{template.icon}</span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+            <span className="text-sm font-semibold text-primary-900 dark:text-white">
               {template.name}
             </span>
             {template.tasks.length > 0 && (
-              <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-medium text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">
+              <span className="rounded-full bg-primary-200 px-1.5 py-0.5 text-[9px] font-medium text-primary-600 dark:bg-primary-700 dark:text-primary-400">
                 {template.tasks.length} tasks
               </span>
             )}
           </div>
-          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="mt-0.5 text-xs text-primary-500 dark:text-primary-400">
             {template.description}
           </p>
         </div>
@@ -205,7 +205,7 @@ function TemplateCard({
               e.stopPropagation()
               onDelete()
             }}
-            className="shrink-0 rounded p-1 text-xs text-neutral-400 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
+            className="shrink-0 rounded p-1 text-xs text-primary-400 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
           >
             🗑
           </button>

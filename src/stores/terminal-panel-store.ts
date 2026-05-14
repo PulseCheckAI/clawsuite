@@ -138,6 +138,7 @@ export const useTerminalPanelStore = create<TerminalPanelState>()(
     }),
     {
       name: 'terminal-panel-state',
+      skipHydration: true,
       partialize: function partialize(state) {
         return {
           isPanelOpen: state.isPanelOpen,

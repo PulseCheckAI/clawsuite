@@ -99,7 +99,7 @@ export function ApprovalsBell({ approvals, onApprove, onDeny }: ApprovalsBellPro
             ? open
               ? 'border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
               : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-800/60 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/30'
-            : 'border-neutral-200 text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200',
+            : 'border-primary-200 text-primary-500 hover:bg-primary-50 hover:text-primary-700 dark:border-primary-700 dark:text-primary-400 dark:hover:bg-primary-800 dark:hover:text-primary-200',
           pulse && 'ring-2 ring-amber-400/50',
         )}
         aria-label={`Approvals${count > 0 ? ` — ${count} pending` : ''}`}
@@ -120,13 +120,13 @@ export function ApprovalsBell({ approvals, onApprove, onDeny }: ApprovalsBellPro
       {open ? (
         <div
           className={cn(
-            'absolute right-0 top-full z-50 mt-2 flex w-[360px] max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-xl border border-neutral-200 bg-white',
-            'shadow-[0_8px_30px_rgba(0,0,0,0.15)] dark:border-neutral-700 dark:bg-neutral-900 dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)]',
+            'absolute right-0 top-full z-50 mt-2 flex w-[360px] max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-xl border border-primary-200 bg-white',
+            'shadow-[0_8px_30px_rgba(0,0,0,0.15)] dark:border-primary-700 dark:bg-primary-900 dark:shadow-[0_8px_30px_rgba(0,0,0,0.5)]',
           )}
           role="dialog"
           aria-label="Pending approvals"
         >
-          <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3 dark:border-neutral-700">
+          <div className="flex items-center justify-between border-b border-primary-200 px-4 py-3 dark:border-primary-700">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-[var(--theme-text)]">Approvals</span>
               <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
@@ -136,7 +136,7 @@ export function ApprovalsBell({ approvals, onApprove, onDeny }: ApprovalsBellPro
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-md p-0.5 text-neutral-400 transition-colors hover:text-neutral-600 dark:hover:text-neutral-200"
+              className="rounded-md p-0.5 text-primary-400 transition-colors hover:text-primary-600 dark:hover:text-primary-200"
               aria-label="Close"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
@@ -149,8 +149,8 @@ export function ApprovalsBell({ approvals, onApprove, onDeny }: ApprovalsBellPro
             {latestThree.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-center">
                 <span className="mb-2 text-2xl">🛡️</span>
-                <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">All clear</p>
-                <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">No pending approvals</p>
+                <p className="text-sm font-medium text-primary-600 dark:text-primary-400">All clear</p>
+                <p className="mt-0.5 text-xs text-primary-400 dark:text-primary-500">No pending approvals</p>
               </div>
             ) : (
               latestThree.map((approval) => {
@@ -166,10 +166,10 @@ export function ApprovalsBell({ approvals, onApprove, onDeny }: ApprovalsBellPro
                     )}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-xs font-semibold text-neutral-800 dark:text-neutral-100">{approval.agentName}</p>
-                      <span className="shrink-0 text-[10px] text-neutral-400">{timeAgo(approval.requestedAt)}</span>
+                      <p className="truncate text-xs font-semibold text-primary-800 dark:text-primary-100">{approval.agentName}</p>
+                      <span className="shrink-0 text-[10px] text-primary-400">{timeAgo(approval.requestedAt)}</span>
                     </div>
-                    <p className="mt-1 line-clamp-2 text-[11px] text-neutral-700 dark:text-neutral-300">{approval.action}</p>
+                    <p className="mt-1 line-clamp-2 text-[11px] text-primary-700 dark:text-primary-300">{approval.action}</p>
                     <div className="mt-2 flex items-center gap-1.5">
                       <button
                         type="button"
@@ -183,7 +183,7 @@ export function ApprovalsBell({ approvals, onApprove, onDeny }: ApprovalsBellPro
                         type="button"
                         onClick={() => void handleQuickAction(approval.id, 'deny')}
                         disabled={Boolean(busy)}
-                        className="flex-1 rounded-lg border border-red-200 bg-white py-1.5 text-[11px] font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-800/50 dark:bg-neutral-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                        className="flex-1 rounded-lg border border-red-200 bg-white py-1.5 text-[11px] font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-800/50 dark:bg-primary-800 dark:text-red-400 dark:hover:bg-red-900/20"
                       >
                         {busy === 'deny' ? 'Denying...' : 'Deny'}
                       </button>
@@ -195,7 +195,7 @@ export function ApprovalsBell({ approvals, onApprove, onDeny }: ApprovalsBellPro
           </div>
 
           {count > latestThree.length ? (
-            <div className="border-t border-neutral-200 px-4 py-2 text-[10px] text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
+            <div className="border-t border-primary-200 px-4 py-2 text-[10px] text-primary-500 dark:border-primary-700 dark:text-primary-400">
               +{count - latestThree.length} more pending in Approvals tab
             </div>
           ) : null}

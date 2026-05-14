@@ -638,7 +638,7 @@ function ToolCallPill({ toolCall }: { toolCall: StreamToolCall }) {
           ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400'
           : isError
             ? 'border-red-200 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950/40 dark:text-red-400'
-            : 'border-neutral-200 bg-neutral-50 text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400',
+            : 'border-primary-200 bg-primary-50 text-primary-600 dark:border-primary-700 dark:bg-primary-800 dark:text-primary-400',
       )}
     >
       <span className="shrink-0">{icon}</span>
@@ -657,7 +657,7 @@ function ToolCallPill({ toolCall }: { toolCall: StreamToolCall }) {
         <summary className="list-none cursor-pointer [&::-webkit-details-marker]:hidden">
           {pill}
         </summary>
-        <pre className="mt-1 max-h-40 overflow-y-auto rounded-md bg-neutral-900 px-2 py-1.5 text-xs font-mono text-neutral-200 whitespace-pre-wrap break-words">
+        <pre className="mt-1 max-h-40 overflow-y-auto rounded-md bg-primary-900 px-2 py-1.5 text-xs font-mono text-primary-200 whitespace-pre-wrap break-words">
           {toolCall.result}
         </pre>
       </details>
@@ -761,7 +761,7 @@ function renderInlineToolSection(
         'data-panel-open:bg-primary-50/60 dark:data-panel-open:bg-primary-800/40',
         isError
           ? 'text-red-500 dark:text-red-400'
-          : 'text-neutral-500 dark:text-neutral-400',
+          : 'text-primary-500 dark:text-primary-400',
       )}>
         <span className="shrink-0 transition-transform duration-150 group-data-panel-open:rotate-90">▶</span>
         <span className="shrink-0">{icon} {toolDisplayLabel}</span>
@@ -776,7 +776,7 @@ function renderInlineToolSection(
       <CollapsiblePanel>
         <div className="mt-0.5 ml-2 flex flex-col gap-1.5 pb-1">
           {toolSection.type === 'exec' && headerArg ? (
-            <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded bg-neutral-800 px-2 py-1 text-[11px] font-mono text-amber-300 dark:bg-neutral-950">
+            <pre className="overflow-x-auto whitespace-pre-wrap break-words rounded bg-primary-800 px-2 py-1 text-[11px] font-mono text-amber-300 dark:bg-primary-950">
               $ {headerArg}
             </pre>
           ) : null}
@@ -785,13 +785,13 @@ function renderInlineToolSection(
               {toolSection.errorText}
             </pre>
           ) : toolSection.outputText ? (
-            <pre className="max-h-64 overflow-x-auto whitespace-pre-wrap break-words rounded bg-neutral-900 p-2 text-xs font-mono text-neutral-200 dark:bg-neutral-950">
+            <pre className="max-h-64 overflow-x-auto whitespace-pre-wrap break-words rounded bg-primary-900 p-2 text-xs font-mono text-primary-200 dark:bg-primary-950">
               {toolSection.outputText}
             </pre>
           ) : toolSection.state === 'input-available' ? (
-            <span className="text-xs italic text-neutral-400">running…</span>
+            <span className="text-xs italic text-primary-400">running…</span>
           ) : (
-            <span className="text-xs italic text-neutral-400">no output</span>
+            <span className="text-xs italic text-primary-400">no output</span>
           )}
         </div>
       </CollapsiblePanel>
@@ -1218,7 +1218,7 @@ function MessageItemComponent({
             : undefined
         }
         className={cn(
-          'text-xs text-neutral-500 italic text-center py-1',
+          'text-xs text-primary-500 italic text-center py-1',
           wrapperClassName,
         )}
       >
@@ -1441,7 +1441,7 @@ function MessageItemComponent({
                   ))}
                 </div>
               ) : effectiveIsStreaming && !hasRevealedText ? (
-                <div className="mb-2 flex items-center gap-2 text-xs text-neutral-400">
+                <div className="mb-2 flex items-center gap-2 text-xs text-primary-400">
                   <span className="animate-pulse">⚡</span>
                   <span>Working...</span>
                 </div>

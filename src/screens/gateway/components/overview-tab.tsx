@@ -62,17 +62,17 @@ export function OverviewTab({
   onViewAgentOutput,
 }: OverviewTabProps) {
   return (
-    <div className="h-full overflow-y-auto bg-neutral-50 p-4">
+    <div className="h-full overflow-y-auto bg-primary-50 p-4">
       <div className="space-y-4">
-        <section className="rounded-xl border border-neutral-200 bg-white px-4 py-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+        <section className="rounded-xl border border-primary-200 bg-white px-4 py-3 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
           {missionActive ? (
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-neutral-900">Mission Status</p>
-                <p className="mt-1 truncate text-sm text-neutral-700">
+                <p className="text-xs font-semibold text-primary-900">Mission Status</p>
+                <p className="mt-1 truncate text-sm text-primary-700">
                   {truncateMissionGoal(activeMissionGoal || missionGoal || 'Active mission')}
                 </p>
-                <p className="mt-1 text-[11px] text-neutral-500">
+                <p className="mt-1 text-[11px] text-primary-500">
                   {activeCount} active agent{activeCount === 1 ? '' : 's'}
                   {' · '}
                   {totalTasks > 0 ? `${doneTasks}/${totalTasks} tasks done` : 'No tasks yet'}
@@ -82,7 +82,7 @@ export function OverviewTab({
                 <button
                   type="button"
                   onClick={onViewMission}
-                  className="rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50"
+                  className="rounded-lg border border-primary-200 bg-white px-3 py-1.5 text-xs font-semibold text-primary-700 shadow-sm transition-colors hover:bg-primary-50"
                 >
                   View Mission
                 </button>
@@ -98,8 +98,8 @@ export function OverviewTab({
           ) : (
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-semibold text-neutral-900">No active mission</p>
-                <p className="mt-1 text-[11px] text-neutral-500">
+                <p className="text-xs font-semibold text-primary-900">No active mission</p>
+                <p className="mt-1 text-[11px] text-primary-500">
                   Configure your team and launch a mission when ready.
                 </p>
               </div>
@@ -123,19 +123,19 @@ export function OverviewTab({
           ].map((stat) => (
             <div
               key={stat.label}
-              className="flex h-full min-h-[92px] flex-col justify-between rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+              className="flex h-full min-h-[92px] flex-col justify-between rounded-xl border border-primary-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
             >
-              <p className="text-[11px] font-medium text-neutral-500">{stat.label}</p>
-              <p className="mt-1 text-lg font-semibold tracking-tight text-neutral-900">{stat.value}</p>
-              <p className="mt-1 text-[11px] text-neutral-500">{stat.sub}</p>
+              <p className="text-[11px] font-medium text-primary-500">{stat.label}</p>
+              <p className="mt-1 text-lg font-semibold tracking-tight text-primary-900">{stat.value}</p>
+              <p className="mt-1 text-[11px] text-primary-500">{stat.sub}</p>
             </div>
           ))}
         </section>
 
-        <section className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+        <section className="rounded-xl border border-primary-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex min-w-0 flex-wrap items-center gap-3">
-              <h2 className="text-sm font-semibold text-neutral-900">Agents</h2>
+              <h2 className="text-sm font-semibold text-primary-900">Agents</h2>
               {agentWorkingRows.length > 0 ? (
                 <div className="flex -space-x-2">
                   {agentWorkingRows.slice(0, 5).map((agent, index) => {
@@ -156,7 +156,7 @@ export function OverviewTab({
                 </div>
               ) : null}
               {agentWorkingRows.length > 0 ? (
-                <div className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-100 p-0.5 align-middle">
+                <div className="inline-flex items-center rounded-full border border-primary-200 bg-primary-100 p-0.5 align-middle">
                   <div className="flex items-center gap-0.5">
                     {(['cards', 'live'] as const).map((mode) => (
                       <button
@@ -166,8 +166,8 @@ export function OverviewTab({
                         className={cn(
                           'rounded-full px-2.5 py-1 text-[10px] font-semibold transition-colors',
                           overviewAgentsView === mode
-                            ? 'bg-white text-neutral-900 shadow-sm'
-                            : 'text-neutral-500 hover:text-neutral-700',
+                            ? 'bg-white text-primary-900 shadow-sm'
+                            : 'text-primary-500 hover:text-primary-700',
                         )}
                       >
                         {mode === 'cards' ? 'Cards' : 'Live'}
@@ -186,10 +186,10 @@ export function OverviewTab({
             </button>
           </div>
           {agentWorkingRows.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50 px-4 py-6 text-center">
+            <div className="rounded-xl border border-dashed border-primary-200 bg-primary-50 px-4 py-6 text-center">
               <p className="text-2xl" aria-hidden>🤖</p>
-              <p className="mt-1 text-sm font-medium text-neutral-700">No agents configured yet</p>
-              <p className="mt-1 text-xs text-neutral-500">Open Configure to add your first agent.</p>
+              <p className="mt-1 text-sm font-medium text-primary-700">No agents configured yet</p>
+              <p className="mt-1 text-xs text-primary-500">Open Configure to add your first agent.</p>
             </div>
           ) : overviewAgentsView === 'live' ? (
             <OfficeView
@@ -215,7 +215,7 @@ export function OverviewTab({
                 return (
                   <div
                     key={agent.id}
-                    className="relative flex h-full min-h-[220px] flex-col overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                    className="relative flex h-full min-h-[220px] flex-col overflow-hidden rounded-xl border border-primary-200 bg-primary-50 p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                   >
                     <div className={cn('absolute inset-y-0 left-0 w-[3px]', accent.bar)} />
                     <div className="flex items-start justify-between gap-2">
@@ -229,8 +229,8 @@ export function OverviewTab({
                           <AgentAvatar index={resolveAgentAvatarIndex(teamById.get(agent.id), index)} color={accent.hex} size={24} />
                         </div>
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-neutral-900">{agent.name}</p>
-                          <p className="truncate text-[11px] text-neutral-500">
+                          <p className="truncate text-sm font-semibold text-primary-900">{agent.name}</p>
+                          <p className="truncate text-[11px] text-primary-500">
                             {agent.roleDescription || 'No role description'}
                           </p>
                         </div>
@@ -238,7 +238,7 @@ export function OverviewTab({
                       <span
                         className={cn(
                           'rounded-full px-2 py-0.5 text-[10px] font-semibold',
-                          isBusy ? 'bg-accent-100 text-accent-700' : 'bg-neutral-200 text-neutral-700',
+                          isBusy ? 'bg-accent-100 text-accent-700' : 'bg-primary-200 text-primary-700',
                         )}
                       >
                         {getOfficeModelLabel(agent.modelId)}
@@ -257,7 +257,7 @@ export function OverviewTab({
                       {agent.taskCount > 0 ? <span>· {agent.taskCount} tasks</span> : null}
                     </div>
                     {agent.lastLine ? (
-                      <p className="mt-2 line-clamp-2 min-h-[2.2rem] font-mono text-[11px] text-neutral-500">
+                      <p className="mt-2 line-clamp-2 min-h-[2.2rem] font-mono text-[11px] text-primary-500">
                         {agent.lastLine}
                       </p>
                     ) : (
@@ -272,7 +272,7 @@ export function OverviewTab({
                         className={cn(
                           'flex-1 rounded-lg border bg-white px-2 py-1.5 text-[11px] font-medium transition-colors',
                           isRunning
-                            ? 'border-neutral-200 text-neutral-700 hover:bg-neutral-50'
+                            ? 'border-primary-200 text-primary-700 hover:bg-primary-50'
                             : 'border-accent-200 text-accent-600 hover:bg-accent-50',
                         )}
                       >
@@ -285,7 +285,7 @@ export function OverviewTab({
                           'flex-1 rounded-lg border px-2 py-1.5 text-[11px] font-semibold transition-colors',
                           isRunning
                             ? 'border-accent-500 bg-accent-500 text-white hover:bg-accent-600'
-                            : 'border-neutral-200 bg-white text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50',
+                            : 'border-primary-200 bg-white text-primary-700 hover:border-primary-300 hover:bg-primary-50',
                         )}
                       >
                         View Output
@@ -298,16 +298,16 @@ export function OverviewTab({
           )}
         </section>
 
-        <section className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
-          <h2 className="text-sm font-semibold text-neutral-900">Recent Activity</h2>
+        <section className="rounded-xl border border-primary-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+          <h2 className="text-sm font-semibold text-primary-900">Recent Activity</h2>
           {recentActivityItems.length === 0 ? (
-            <p className="mt-2 text-xs text-neutral-500">📝 No recent activity yet.</p>
+            <p className="mt-2 text-xs text-primary-500">📝 No recent activity yet.</p>
           ) : (
             <ul className="mt-2 space-y-2">
               {recentActivityItems.map((item, index) => (
                 <li key={`${index}-${item}`} className="flex items-start gap-2 text-xs">
                   <span className="mt-1 size-1.5 rounded-full bg-accent-500" />
-                  <span className="text-neutral-700">{item}</span>
+                  <span className="text-primary-700">{item}</span>
                 </li>
               ))}
             </ul>

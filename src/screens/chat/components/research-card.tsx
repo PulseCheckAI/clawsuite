@@ -43,7 +43,7 @@ export function ResearchCard({
         animate={{ height: 'auto', opacity: 1 }}
         exit={{ height: 0, opacity: 0 }}
         transition={{ duration: 0.22, ease: 'easeOut' }}
-        className="overflow-hidden border-t border-primary-200/80 dark:border-neutral-800"
+        className="overflow-hidden border-t border-primary-200/80 dark:border-primary-800"
       >
         <div className="space-y-3 px-4 py-3">
           {steps.map((step, index) => (
@@ -51,7 +51,7 @@ export function ResearchCard({
               <div className="flex flex-col items-center">
                 <span
                   className={cn(
-                    'flex size-6 items-center justify-center rounded-full bg-white text-sm shadow-sm dark:bg-neutral-800',
+                    'flex size-6 items-center justify-center rounded-full bg-white text-sm shadow-sm dark:bg-primary-800',
                     step.status === 'running' && 'animate-spin',
                   )}
                   aria-hidden="true"
@@ -59,30 +59,30 @@ export function ResearchCard({
                   {getStepIcon(step)}
                 </span>
                 {index < steps.length - 1 ? (
-                  <span className="mt-1 h-full w-px bg-primary-200 dark:bg-neutral-700" />
+                  <span className="mt-1 h-full w-px bg-primary-200 dark:bg-primary-700" />
                 ) : null}
               </div>
               <div className="min-w-0 flex-1 pb-2">
                 <div className="flex items-start justify-between gap-3">
-                  <p className="text-sm font-medium text-primary-900 dark:text-neutral-100">
+                  <p className="text-sm font-medium text-primary-900 dark:text-primary-100">
                     {step.label}
                   </p>
-                  <span className="shrink-0 text-[11px] text-primary-500 dark:text-neutral-400">
+                  <span className="shrink-0 text-[11px] text-primary-500 dark:text-primary-400">
                     {getStepMeta(step)}
                   </span>
                 </div>
-                <p className="mt-0.5 text-[11px] font-mono text-primary-400 dark:text-neutral-500">
+                <p className="mt-0.5 text-[11px] font-mono text-primary-400 dark:text-primary-500">
                   {step.toolName}
                 </p>
               </div>
             </div>
           ))}
 
-          <div className="flex items-center justify-between border-t border-primary-200/80 pt-3 text-xs dark:border-neutral-800">
-            <span className="text-primary-500 dark:text-neutral-400">
+          <div className="flex items-center justify-between border-t border-primary-200/80 pt-3 text-xs dark:border-primary-800">
+            <span className="text-primary-500 dark:text-primary-400">
               {steps.length} tools · {formatDuration(totalDurationMs)}
             </span>
-            <span className="font-semibold text-primary-800 dark:text-neutral-200">
+            <span className="font-semibold text-primary-800 dark:text-primary-200">
               {isActive ? 'In progress' : 'Done ✓'}
             </span>
           </div>

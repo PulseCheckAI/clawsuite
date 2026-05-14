@@ -329,11 +329,11 @@ function ChatHeaderComponent({
             )}
             {sessionPopoverOpen && (
               <div className="absolute left-0 top-[calc(100%+6px)] z-50 w-80 rounded-xl border border-primary-200 bg-surface shadow-lg overflow-hidden">
-                <div className="flex items-center gap-2 border-b border-neutral-100 px-3 py-2">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-400 shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <div className="flex items-center gap-2 border-b border-primary-100 px-3 py-2">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary-400 shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                   <input autoFocus type="text" placeholder="Search sessions..." value={sessionSearch}
                     onChange={(e) => setSessionSearch(e.target.value)}
-                    className="flex-1 bg-transparent text-sm outline-none text-neutral-700 placeholder-neutral-400 dark:text-neutral-200" />
+                    className="flex-1 bg-transparent text-sm outline-none text-primary-700 placeholder-primary-400 dark:text-primary-200" />
                 </div>
                 <div className="max-h-60 overflow-y-auto p-1">
                   {sessions.filter((s) => {
@@ -346,13 +346,13 @@ function ChatHeaderComponent({
                     return (
                       <button key={s.key || s.friendlyId} type="button"
                         onClick={() => { setSessionPopoverOpen(false); setSessionSearch(''); onSelectSession?.(s.key || s.friendlyId || '') }}
-                        className={cn('flex w-full items-center gap-2 px-3 py-2 text-sm text-left border-b border-neutral-100 last:border-0 hover:bg-neutral-50 dark:hover:bg-white/10 transition-colors', isActive && 'bg-neutral-50 font-medium text-neutral-900')}>
-                        <span className="flex-1 min-w-0 truncate text-neutral-700 dark:text-neutral-200">{label}</span>
+                        className={cn('flex w-full items-center gap-2 px-3 py-2 text-sm text-left border-b border-primary-100 last:border-0 hover:bg-primary-50 dark:hover:bg-white/10 transition-colors', isActive && 'bg-primary-50 font-medium text-primary-900')}>
+                        <span className="flex-1 min-w-0 truncate text-primary-700 dark:text-primary-200">{label}</span>
                         {isActive && <span className="size-1.5 rounded-full bg-accent-500 shrink-0" />}
                       </button>
                     )
                   })}
-                  {sessions.length === 0 && <p className="px-3 py-4 text-sm text-neutral-400">No sessions</p>}
+                  {sessions.length === 0 && <p className="px-3 py-4 text-sm text-primary-400">No sessions</p>}
                 </div>
               </div>
             )}

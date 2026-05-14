@@ -16,7 +16,7 @@ export const Route = createFileRoute('/costs')({
         <Suspense
           fallback={
             <div className="flex h-full items-center justify-center">
-              <div className="text-sm text-neutral-400">Loading cost analytics…</div>
+              <div className="text-sm text-primary-400">Loading cost analytics…</div>
             </div>
           }
         >

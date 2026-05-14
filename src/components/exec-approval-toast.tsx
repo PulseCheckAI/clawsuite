@@ -213,8 +213,8 @@ export function ExecApprovalToast() {
             className={cn(
               'pointer-events-auto overflow-hidden rounded-2xl border shadow-2xl backdrop-blur transition-all duration-300',
               isTop
-                ? 'border-amber-300 bg-white/98 dark:border-amber-800/60 dark:bg-neutral-950/98'
-                : 'border-neutral-200 bg-white/90 opacity-80 dark:border-neutral-800 dark:bg-neutral-950/90',
+                ? 'border-amber-300 bg-white/98 dark:border-amber-800/60 dark:bg-primary-950/98'
+                : 'border-primary-200 bg-white/90 opacity-80 dark:border-primary-800 dark:bg-primary-950/90',
               isUrgent && isTop && 'ring-2 ring-red-400/50 border-red-300 dark:border-red-800/60',
             )}
             style={{
@@ -223,7 +223,7 @@ export function ExecApprovalToast() {
             }}
           >
             {/* Countdown progress bar */}
-            <div className="h-[3px] w-full bg-neutral-100 dark:bg-neutral-800">
+            <div className="h-[3px] w-full bg-primary-100 dark:bg-primary-800">
               <div
                 className={cn(
                   'h-full transition-all duration-1000 ease-linear rounded-r-full',
@@ -247,12 +247,12 @@ export function ExecApprovalToast() {
                 <div className="flex items-center gap-2">
                   <span className={cn(
                     'font-mono text-[11px] font-bold tabular-nums',
-                    isUrgent ? 'text-red-500 animate-pulse' : 'text-neutral-500 dark:text-neutral-400',
+                    isUrgent ? 'text-red-500 animate-pulse' : 'text-primary-500 dark:text-primary-400',
                   )}>
                     {countdown}
                   </span>
                   {pendingCount > 1 && (
-                    <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-[9px] font-bold text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
+                    <span className="rounded-full bg-primary-100 px-1.5 py-0.5 text-[9px] font-bold text-primary-600 dark:bg-primary-800 dark:text-primary-400">
                       {pendingCount}
                     </span>
                   )}
@@ -260,18 +260,18 @@ export function ExecApprovalToast() {
               </div>
 
               {/* Agent name */}
-              <p className="mb-1 text-[11px] font-semibold text-neutral-600 dark:text-neutral-400">
+              <p className="mb-1 text-[11px] font-semibold text-primary-600 dark:text-primary-400">
                 {agent}
               </p>
 
               {/* Command text */}
-              <p className="line-clamp-3 font-mono text-xs font-semibold leading-relaxed text-neutral-900 dark:text-neutral-100">
+              <p className="line-clamp-3 font-mono text-xs font-semibold leading-relaxed text-primary-900 dark:text-primary-100">
                 {text}
               </p>
 
               {/* Working directory / context */}
               {context && (
-                <p className="mt-1 line-clamp-1 font-mono text-[10px] text-neutral-500 dark:text-neutral-500">
+                <p className="mt-1 line-clamp-1 font-mono text-[10px] text-primary-500 dark:text-primary-500">
                   📁 {context}
                 </p>
               )}
@@ -301,7 +301,7 @@ export function ExecApprovalToast() {
                   onClick={() => void handleResolve(approval.id, 'deny')}
                   disabled={Boolean(busy)}
                   className={cn(
-                    'flex-1 rounded-lg border border-red-300 bg-white py-2 text-xs font-bold text-red-600 transition-all hover:bg-red-50 active:scale-[0.98] dark:border-red-800/50 dark:bg-neutral-900 dark:text-red-400 dark:hover:bg-red-950/30',
+                    'flex-1 rounded-lg border border-red-300 bg-white py-2 text-xs font-bold text-red-600 transition-all hover:bg-red-50 active:scale-[0.98] dark:border-red-800/50 dark:bg-primary-900 dark:text-red-400 dark:hover:bg-red-950/30',
                     busy && 'cursor-not-allowed opacity-60',
                   )}
                 >

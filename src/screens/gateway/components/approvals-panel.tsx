@@ -34,7 +34,7 @@ function timeAgo(ms?: number): string {
 const AGENT_BADGE_COLORS = [
   'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
   'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
-  'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  'bg-accent-100 text-accent-700 dark:bg-accent-900/30 dark:text-accent-300',
   'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
   'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
   'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
@@ -185,9 +185,9 @@ export function ApprovalsPanel({
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {/* Header */}
-      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-neutral-200 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950">
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-primary-200 bg-white px-4 py-3 dark:border-primary-800 dark:bg-primary-950">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-primary-400">
             Approvals
           </span>
           {pendingCount > 0 ? (
@@ -195,7 +195,7 @@ export function ApprovalsPanel({
               {pendingCount} pending
             </span>
           ) : (
-            <span className="rounded-full border border-neutral-200 bg-neutral-100 px-1.5 py-0.5 text-[10px] font-medium text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">
+            <span className="rounded-full border border-primary-200 bg-primary-100 px-1.5 py-0.5 text-[10px] font-medium text-primary-500 dark:border-primary-700 dark:bg-primary-800 dark:text-primary-400">
               All clear
             </span>
           )}
@@ -216,20 +216,20 @@ export function ApprovalsPanel({
         <div className="min-h-0 flex-1 overflow-y-auto">
           {loading && pending.length === 0 ? (
             <div className="flex h-full items-center justify-center p-8">
-              <p className="text-sm text-neutral-500">Loading approvals...</p>
+              <p className="text-sm text-primary-500">Loading approvals...</p>
             </div>
           ) : null}
 
           {!loading && pending.length === 0 ? (
           <div className="flex h-full items-center justify-center p-8">
             <div className="text-center">
-              <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-neutral-100 dark:bg-neutral-800">
+              <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-primary-100 dark:bg-primary-800">
                 <span className="text-2xl">✅</span>
               </div>
-              <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              <p className="text-sm font-medium text-primary-700 dark:text-primary-300">
                 No pending approvals
               </p>
-              <p className="mt-1 text-xs text-neutral-400">
+              <p className="mt-1 text-xs text-primary-400">
                 Agents are running autonomously
               </p>
             </div>
@@ -251,18 +251,18 @@ export function ApprovalsPanel({
           ) : null}
         </div>
 
-        <div className="min-h-0 max-h-64 shrink-0 border-t border-neutral-200 bg-neutral-50/70 dark:border-neutral-800 dark:bg-neutral-900/40">
+        <div className="min-h-0 max-h-64 shrink-0 border-t border-primary-200 bg-primary-50/70 dark:border-primary-800 dark:bg-primary-900/40">
           <div className="flex items-center justify-between px-4 py-2">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-500">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-primary-500">
               History
             </p>
-            <span className="text-[10px] text-neutral-400">
+            <span className="text-[10px] text-primary-400">
               {mergedHistory.length} recent
             </span>
           </div>
           <div className="max-h-52 overflow-y-auto px-4 pb-3">
             {mergedHistory.length === 0 ? (
-              <p className="py-4 text-center text-xs text-neutral-400">
+              <p className="py-4 text-center text-xs text-primary-400">
                 No approval history yet
               </p>
             ) : (
@@ -270,10 +270,10 @@ export function ApprovalsPanel({
                 {mergedHistory.map((entry) => (
                   <div
                     key={`${entry.id}-${entry.timestamp}`}
-                    className="rounded-lg border border-neutral-200 bg-white px-2.5 py-2 dark:border-neutral-800 dark:bg-neutral-900"
+                    className="rounded-lg border border-primary-200 bg-white px-2.5 py-2 dark:border-primary-800 dark:bg-primary-900"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-[11px] font-medium text-neutral-800 dark:text-neutral-200">
+                      <p className="truncate text-[11px] font-medium text-primary-800 dark:text-primary-200">
                         {entry.agentName}
                       </p>
                       <span
@@ -289,10 +289,10 @@ export function ApprovalsPanel({
                         {entry.status}
                       </span>
                     </div>
-                    <p className="mt-0.5 line-clamp-1 text-[10px] text-neutral-600 dark:text-neutral-400">
+                    <p className="mt-0.5 line-clamp-1 text-[10px] text-primary-600 dark:text-primary-400">
                       {entry.action}
                     </p>
-                    <p className="mt-0.5 text-[10px] text-neutral-400">
+                    <p className="mt-0.5 text-[10px] text-primary-400">
                       {timeAgo(entry.timestamp)}
                     </p>
                   </div>
@@ -328,7 +328,7 @@ function ApprovalCard({
         'overflow-hidden rounded-xl border transition-all duration-200',
         isPending
           ? 'border border-l-4 border-amber-200 border-l-amber-500 bg-amber-50/30 shadow-sm dark:border-amber-800/40 dark:border-l-amber-500 dark:bg-amber-950/10'
-          : 'border-neutral-200 bg-neutral-50 opacity-60 dark:border-neutral-800 dark:bg-neutral-900',
+          : 'border-primary-200 bg-primary-50 opacity-60 dark:border-primary-800 dark:bg-primary-900',
       )}
     >
       <div className="p-4">
@@ -342,18 +342,18 @@ function ApprovalCard({
           >
             {agentName}
           </span>
-          <span className="shrink-0 font-mono text-[10px] text-neutral-400">
+          <span className="shrink-0 font-mono text-[10px] text-primary-400">
             {timeAgo(approval.requestedAt)}
           </span>
         </div>
 
         {/* Action — monospace */}
-        <p className="mb-1.5 font-mono text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+        <p className="mb-1.5 font-mono text-xs font-semibold text-primary-900 dark:text-primary-100">
           {action}
         </p>
 
         {/* Context snippet */}
-        <p className="mb-3 line-clamp-2 text-[11px] text-neutral-500 dark:text-neutral-400">
+        <p className="mb-3 line-clamp-2 text-[11px] text-primary-500 dark:text-primary-400">
           {context}
         </p>
 

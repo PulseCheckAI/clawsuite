@@ -35,21 +35,21 @@ const METRIC_COLOR_CLASSES: Record<
   NonNullable<MetricsWidgetProps['accent']>,
   string
 > = {
-  cyan: 'border-primary-200 dark:border-neutral-800 bg-white dark:bg-neutral-900',
-  orange: 'border-primary-200 dark:border-neutral-800 bg-white dark:bg-neutral-900',
-  emerald: 'border-primary-200 dark:border-neutral-800 bg-white dark:bg-neutral-900',
-  violet: 'border-primary-200 dark:border-neutral-800 bg-white dark:bg-neutral-900',
-  purple: 'border-primary-200 dark:border-neutral-800 bg-white dark:bg-neutral-900',
-  red: 'border-primary-200 dark:border-neutral-800 bg-white dark:bg-neutral-900',
+  cyan: 'border-primary-200 dark:border-primary-800 bg-white dark:bg-primary-900',
+  orange: 'border-primary-200 dark:border-primary-800 bg-white dark:bg-primary-900',
+  emerald: 'border-primary-200 dark:border-primary-800 bg-white dark:bg-primary-900',
+  violet: 'border-primary-200 dark:border-primary-800 bg-white dark:bg-primary-900',
+  purple: 'border-primary-200 dark:border-primary-800 bg-white dark:bg-primary-900',
+  red: 'border-primary-200 dark:border-primary-800 bg-white dark:bg-primary-900',
 }
 
 const MOBILE_ACCENT_BORDER: Record<MetricAccent, string> = {
-  cyan: 'border-primary-200 dark:border-neutral-800',
-  orange: 'border-primary-200 dark:border-neutral-800',
-  emerald: 'border-primary-200 dark:border-neutral-800',
-  violet: 'border-primary-200 dark:border-neutral-800',
-  purple: 'border-primary-200 dark:border-neutral-800',
-  red: 'border-primary-200 dark:border-neutral-800',
+  cyan: 'border-primary-200 dark:border-primary-800',
+  orange: 'border-primary-200 dark:border-primary-800',
+  emerald: 'border-primary-200 dark:border-primary-800',
+  violet: 'border-primary-200 dark:border-primary-800',
+  purple: 'border-primary-200 dark:border-primary-800',
+  red: 'border-primary-200 dark:border-primary-800',
 }
 
 const CHART_ACCENT_DEFAULTS: Record<MetricAccent, string> = {
@@ -81,7 +81,7 @@ function getTrendUi(
   if (rounded <= 0) {
     return {
       label: '0%',
-      className: 'text-primary-500 dark:text-neutral-400',
+      className: 'text-primary-500 dark:text-primary-400',
     }
   }
 
@@ -123,7 +123,7 @@ function MicroBarChart({ data, days, accentClass }: MicroBarChartProps) {
               'flex-1 rounded-sm transition-[height] duration-300',
               isLatest
                 ? accentClass
-                : 'bg-neutral-300 dark:bg-neutral-700',
+                : 'bg-primary-300 dark:bg-primary-700',
               point.value === 0 && 'opacity-40',
             )}
             style={{ height: `${heightPx}px` }}
@@ -153,8 +153,8 @@ function TimeRangePills({ value, onChange }: TimeRangePillsProps) {
           className={cn(
             'rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase transition-colors',
             value === r
-              ? 'bg-primary-100 dark:bg-neutral-800 text-primary-900 dark:text-neutral-100'
-              : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300',
+              ? 'bg-primary-100 dark:bg-primary-800 text-primary-900 dark:text-primary-100'
+              : 'text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300',
           )}
         >
           {r.toUpperCase()}
@@ -205,20 +205,20 @@ function MetricCard({
       ref={anchorRef}
       onClick={onPress}
       className={cn(
-        'relative flex min-h-[92px] w-full flex-col justify-between rounded-xl border bg-white dark:bg-neutral-900 p-4 text-left shadow-sm transition-transform duration-150 active:scale-[0.97]',
+        'relative flex min-h-[92px] w-full flex-col justify-between rounded-xl border bg-white dark:bg-primary-900 p-4 text-left shadow-sm transition-transform duration-150 active:scale-[0.97]',
         MOBILE_ACCENT_BORDER[accent],
       )}
       aria-label={`${label} details`}
       aria-description={`${description}${rawValue ? ` Raw value: ${rawValue}` : ''}`}
     >
-      <p className="text-[11px] font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+      <p className="text-[11px] font-medium uppercase tracking-wider text-primary-500 dark:text-primary-400">
         {label}
       </p>
 
       {loading ? (
-        <div className="mt-2 h-7 w-20 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
+        <div className="mt-2 h-7 w-20 animate-pulse rounded bg-primary-200 dark:bg-primary-700" />
       ) : (
-      <p className="mt-1 truncate font-mono text-2xl sm:text-3xl font-semibold leading-none tabular-nums text-primary-900 dark:text-neutral-100">
+      <p className="mt-1 truncate font-mono text-2xl sm:text-3xl font-semibold leading-none tabular-nums text-primary-900 dark:text-primary-100">
         {formatMetricValue(value)}
       </p>
       )}
@@ -239,7 +239,7 @@ function MetricCard({
               {trendLabel ? ` ${trendLabel}` : ''}
             </p>
           ) : null}
-          <span className="ml-auto text-lg leading-none text-neutral-500 dark:text-neutral-400">
+          <span className="ml-auto text-lg leading-none text-primary-500 dark:text-primary-400">
             ›
           </span>
         </div>
@@ -339,24 +339,24 @@ export function MetricsWidget({
               aria-label={`Close ${title} details`}
             />
             <div
-              className="fixed left-4 right-4 top-24 z-50 rounded-xl border border-primary-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 shadow-lg md:hidden"
+              className="fixed left-4 right-4 top-24 z-50 rounded-xl border border-primary-200 dark:border-primary-800 bg-white dark:bg-primary-900 p-4 shadow-lg md:hidden"
               style={{ top: `${popoverTop}px` }}
             >
               <button
                 type="button"
                 onClick={closeMobilePopover}
-                className="absolute right-3 top-2 text-xl leading-none text-neutral-500 dark:text-neutral-400"
+                className="absolute right-3 top-2 text-xl leading-none text-primary-500 dark:text-primary-400"
                 aria-label={`Dismiss ${title} details`}
               >
                 ×
               </button>
-              <p className="pr-8 text-sm font-semibold text-primary-900 dark:text-neutral-100">
+              <p className="pr-8 text-sm font-semibold text-primary-900 dark:text-primary-100">
                 {title}
               </p>
-              <p className="mt-1 text-sm text-primary-500 dark:text-neutral-400">
+              <p className="mt-1 text-sm text-primary-500 dark:text-primary-400">
                 {metricDescription}
               </p>
-              <p className="mt-3 text-sm text-primary-700 dark:text-neutral-300">
+              <p className="mt-3 text-sm text-primary-700 dark:text-primary-300">
                 Raw value: <span className="font-mono font-medium tabular-nums">{rawMetricValue}</span>
               </p>
               {isError && onRetry ? (
@@ -383,7 +383,7 @@ export function MetricsWidget({
         title={title}
         icon={icon}
         className={cn(
-          'hidden h-full rounded-xl border border-neutral-200 dark:border-neutral-700 border-l-4 border-l-blue-500 bg-white dark:bg-neutral-900 p-4 sm:p-5 md:flex [&_svg]:text-blue-500',
+          'hidden h-full rounded-xl border border-primary-200 dark:border-primary-700 border-l-4 border-l-blue-500 bg-white dark:bg-primary-900 p-4 sm:p-5 md:flex [&_svg]:text-blue-500',
           METRIC_COLOR_CLASSES[accent],
           className,
         )}
@@ -410,20 +410,20 @@ export function MetricsWidget({
           <div>
             {loading ? (
               <>
-                <div className="h-7 w-20 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
-                <div className="mt-2 h-3 w-28 animate-pulse rounded bg-neutral-200 dark:bg-neutral-700" />
+                <div className="h-7 w-20 animate-pulse rounded bg-primary-200 dark:bg-primary-700" />
+                <div className="mt-2 h-3 w-28 animate-pulse rounded bg-primary-200 dark:bg-primary-700" />
               </>
             ) : (
             <>
             <p
               className={cn(
                 'truncate font-mono text-2xl font-semibold leading-none tabular-nums',
-                isError ? 'text-neutral-500 dark:text-neutral-400' : 'text-primary-900 dark:text-neutral-100',
+                isError ? 'text-primary-500 dark:text-primary-400' : 'text-primary-900 dark:text-primary-100',
               )}
             >
               {isError ? '—' : value}
             </p>
-            <p className="mt-1 text-[11px] leading-tight text-primary-500 dark:text-neutral-400">
+            <p className="mt-1 text-[11px] leading-tight text-primary-500 dark:text-primary-400">
               {isError ? value : subtitle}
             </p>
             {trend && !chartData ? (

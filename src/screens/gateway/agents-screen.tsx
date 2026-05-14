@@ -1257,14 +1257,14 @@ export function AgentsScreen({ variant = 'mission-control' }: AgentsScreenProps)
             style={agentHubPullIndicatorStyle}
             aria-hidden
           >
-            <div className="flex items-center gap-1.5 rounded-full border border-primary-200 bg-white/90 px-3 py-1.5 shadow-md backdrop-blur-sm dark:border-neutral-700 dark:bg-neutral-900/90">
+            <div className="flex items-center gap-1.5 rounded-full border border-primary-200 bg-white/90 px-3 py-1.5 shadow-md backdrop-blur-sm dark:border-primary-700 dark:bg-primary-900/90">
               <span
                 className={[
                   'size-3 rounded-full border-2 border-accent-500',
                   agentHubPullDistance >= agentHubThreshold ? 'border-t-transparent animate-spin' : 'opacity-50',
                 ].join(' ')}
               />
-              <span className="text-xs font-medium text-neutral-600 dark:text-neutral-300">
+              <span className="text-xs font-medium text-primary-600 dark:text-primary-300">
                 {agentHubPullDistance >= agentHubThreshold ? 'Release to refresh' : 'Pull to refresh'}
               </span>
             </div>
@@ -1283,14 +1283,14 @@ export function AgentsScreen({ variant = 'mission-control' }: AgentsScreenProps)
   }
 
   return (
-    <div className="min-h-full bg-surface px-4 pb-24 pt-5 text-primary-900 dark:text-neutral-100 md:px-6 md:pb-4 md:pt-8">
+    <div className="min-h-full bg-surface px-4 pb-24 pt-5 text-primary-900 dark:text-primary-100 md:px-6 md:pb-4 md:pt-8">
       <div className="mx-auto w-full max-w-[1200px]">
-        <header className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-primary-200 bg-primary-50/80 px-4 py-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/60">
+        <header className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-primary-200 bg-primary-50/80 px-4 py-3 shadow-sm dark:border-primary-800 dark:bg-primary-900/60">
           <div>
-            <h1 className="text-lg font-bold text-primary-900 dark:text-neutral-100 md:text-xl">
+            <h1 className="text-lg font-bold text-primary-900 dark:text-primary-100 md:text-xl">
               Gateway Agents
             </h1>
-            <p className="text-xs text-primary-500 dark:text-neutral-400">
+            <p className="text-xs text-primary-500 dark:text-primary-400">
               Registered agents and their status
             </p>
           </div>
@@ -1326,11 +1326,11 @@ export function AgentsScreen({ variant = 'mission-control' }: AgentsScreenProps)
               </div>
             </div>
           ) : registryDefinitions.length === 0 ? (
-            <div className="rounded-2xl border border-white/30 bg-white/60 p-5 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-neutral-900/50">
-              <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            <div className="rounded-2xl border border-white/30 bg-white/60 p-5 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-primary-900/50">
+              <h2 className="text-base font-semibold text-primary-900 dark:text-primary-100">
                 Add your first agent
               </h2>
-              <ul className="mt-3 space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
+              <ul className="mt-3 space-y-2 text-sm text-primary-600 dark:text-primary-300">
                 <li>Create an agent profile</li>
                 <li>Connect a gateway</li>
                 <li>Spawn your first session</li>
@@ -1350,10 +1350,10 @@ export function AgentsScreen({ variant = 'mission-control' }: AgentsScreenProps)
               {groupedSections.map((section) => (
                 <section key={section.category} className="space-y-2">
                   <div className="flex items-center justify-between px-1">
-                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-primary-500 dark:text-primary-400">
                       {section.category}
                     </h2>
-                    <span className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+                    <span className="text-[11px] font-medium text-primary-500 dark:text-primary-400">
                       {section.agents.length}
                     </span>
                   </div>
@@ -1875,14 +1875,14 @@ export function AgentsScreen({ variant = 'mission-control' }: AgentsScreenProps)
             onClick={() => setHistoryAgentId(null)}
           />
 
-          <div className="absolute inset-x-4 top-[12vh] rounded-2xl border border-white/30 bg-white/90 p-4 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-neutral-900/90">
+          <div className="absolute inset-x-4 top-[12vh] rounded-2xl border border-white/30 bg-white/90 p-4 shadow-lg backdrop-blur-md dark:border-white/10 dark:bg-primary-900/90">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="truncate pr-2 text-base font-bold text-neutral-900 dark:text-neutral-100">
+              <h3 className="truncate pr-2 text-base font-bold text-primary-900 dark:text-primary-100">
                 {selectedHistoryAgent.name} history
               </h3>
               <button
                 type="button"
-                className="min-h-11 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 sm:px-4 sm:py-2 sm:text-sm"
+                className="min-h-11 rounded-lg border border-primary-200 bg-white px-3 py-1.5 text-xs font-semibold text-primary-700 transition-colors hover:bg-primary-50 dark:border-primary-700 dark:bg-primary-800 dark:text-primary-300 dark:hover:bg-primary-700 sm:px-4 sm:py-2 sm:text-sm"
                 onClick={() => setHistoryAgentId(null)}
               >
                 Close
@@ -1890,7 +1890,7 @@ export function AgentsScreen({ variant = 'mission-control' }: AgentsScreenProps)
             </div>
 
             {selectedHistoryAgent.matchedSessions.length === 0 ? (
-              <p className="text-xs text-neutral-600 dark:text-neutral-300">
+              <p className="text-xs text-primary-600 dark:text-primary-300">
                 No recent sessions for this agent yet.
               </p>
             ) : (
@@ -1901,19 +1901,19 @@ export function AgentsScreen({ variant = 'mission-control' }: AgentsScreenProps)
                   return (
                     <div
                       key={`${readString(session.key)}-${readString(session.friendlyId)}-${index}`}
-                      className="rounded-xl border border-white/30 bg-white/60 p-2.5 dark:border-white/10 dark:bg-neutral-900/40"
+                      className="rounded-xl border border-white/30 bg-white/60 p-2.5 dark:border-white/10 dark:bg-primary-900/40"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <p className="truncate text-xs font-medium text-neutral-900 dark:text-neutral-100">
+                        <p className="truncate text-xs font-medium text-primary-900 dark:text-primary-100">
                           {getSessionTitle(session)}
                         </p>
-                        <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                        <span className="text-[10px] text-primary-500 dark:text-primary-400">
                           {formatRelativeTime(session.updatedAt)}
                         </span>
                       </div>
 
                       <div className="mt-1 flex items-center justify-between">
-                        <span className="text-[10px] font-medium text-neutral-600 dark:text-neutral-300">
+                        <span className="text-[10px] font-medium text-primary-600 dark:text-primary-300">
                           {sessionModel
                             ? `${readString(session.status) || 'unknown'} · ${formatModelName(sessionModel)}`
                             : readString(session.status) || 'unknown'}
@@ -1928,7 +1928,7 @@ export function AgentsScreen({ variant = 'mission-control' }: AgentsScreenProps)
                                 params: { sessionKey: friendlyId },
                               })
                             }}
-                            className="min-h-11 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-accent-700 transition-colors hover:bg-accent-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-accent-300 dark:hover:bg-accent-950/30 sm:px-4 sm:py-2 sm:text-sm"
+                            className="min-h-11 rounded-lg border border-primary-200 bg-white px-3 py-1.5 text-xs font-semibold text-accent-700 transition-colors hover:bg-accent-50 dark:border-primary-700 dark:bg-primary-800 dark:text-accent-300 dark:hover:bg-accent-950/30 sm:px-4 sm:py-2 sm:text-sm"
                           >
                             Open Chat
                           </button>

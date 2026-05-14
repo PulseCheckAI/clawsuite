@@ -213,15 +213,15 @@ export function ActivityScreen() {
   )
 
   return (
-    <main className="min-h-full bg-surface px-4 pt-5 pb-24 md:px-6 md:pt-8 text-primary-900 dark:text-neutral-100">
+    <main className="min-h-full bg-surface px-4 pt-5 pb-24 md:px-6 md:pt-8 text-primary-900 dark:text-primary-100">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col">
-        <header className="mb-4 flex flex-wrap items-center gap-2.5 rounded-xl border border-primary-200 bg-primary-50/80 px-4 py-3 shadow-sm dark:border-neutral-800 dark:bg-neutral-900/60">
+        <header className="mb-4 flex flex-wrap items-center gap-2.5 rounded-xl border border-primary-200 bg-primary-50/80 px-4 py-3 shadow-sm dark:border-primary-800 dark:bg-primary-900/60">
           <HugeiconsIcon icon={Activity01Icon} size={20} strokeWidth={1.5} />
           <div>
-            <h1 className="text-base font-semibold text-primary-900 dark:text-neutral-100">
+            <h1 className="text-base font-semibold text-primary-900 dark:text-primary-100">
               Activity Log
             </h1>
-            <p className="text-xs text-primary-500 dark:text-neutral-400">
+            <p className="text-xs text-primary-500 dark:text-primary-400">
               Live system events and diagnostics stream
             </p>
           </div>

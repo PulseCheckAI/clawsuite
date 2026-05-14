@@ -84,10 +84,10 @@ function SectionHeader({
       <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary-500">
         Settings
       </p>
-      <h3 className="text-base font-semibold text-primary-900 dark:text-neutral-100">
+      <h3 className="text-base font-semibold text-primary-900 dark:text-primary-100">
         {title}
       </h3>
-      <p className="text-xs text-primary-500 dark:text-neutral-400">
+      <p className="text-xs text-primary-500 dark:text-primary-400">
         {description}
       </p>
     </div>
@@ -106,11 +106,11 @@ function Row({
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 py-1.5">
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-primary-900 dark:text-neutral-100">
+        <p className="text-sm font-medium text-primary-900 dark:text-primary-100">
           {label}
         </p>
         {description && (
-          <p className="text-xs text-primary-500 dark:text-neutral-400">
+          <p className="text-xs text-primary-500 dark:text-primary-400">
             {description}
           </p>
         )}
@@ -199,10 +199,10 @@ function ProfileContent() {
         <div className="flex items-center gap-3">
           <UserAvatar size={44} src={cs.avatarDataUrl} alt={displayName} />
           <div>
-            <p className="text-sm font-medium text-primary-900 dark:text-neutral-100">
+            <p className="text-sm font-medium text-primary-900 dark:text-primary-100">
               {displayName}
             </p>
-            <p className="text-xs text-primary-500 dark:text-neutral-400">
+            <p className="text-xs text-primary-500 dark:text-primary-400">
               No email connected
             </p>
           </div>
@@ -237,7 +237,7 @@ function ProfileContent() {
                 onChange={handleAvatarUpload}
                 disabled={processing}
                 aria-label="Upload profile picture"
-                className="block max-w-[13rem] cursor-pointer text-xs text-primary-700 dark:text-neutral-300 file:mr-2 file:cursor-pointer file:rounded-lg file:border file:border-primary-200 file:bg-primary-100 file:px-2.5 file:py-1.5 file:text-xs file:font-medium file:text-primary-900 file:transition-colors hover:file:bg-primary-200 disabled:cursor-not-allowed disabled:opacity-50"
+                className="block max-w-[13rem] cursor-pointer text-xs text-primary-700 dark:text-primary-300 file:mr-2 file:cursor-pointer file:rounded-lg file:border file:border-primary-200 file:bg-primary-100 file:px-2.5 file:py-1.5 file:text-xs file:font-medium file:text-primary-900 file:transition-colors hover:file:bg-primary-200 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </label>
             <Button
@@ -292,7 +292,7 @@ function AppearanceContent() {
   }
 
   function badgeClass(color: AccentColor): string {
-    if (color === 'orange') return 'bg-orange-500'
+    if (color === 'orange') return 'bg-accent-500'
     if (color === 'purple') return 'bg-purple-500'
     if (color === 'blue') return 'bg-blue-500'
     return 'bg-green-500'
@@ -386,7 +386,7 @@ function AppearanceContent() {
           <select
             value={settings.mobileChatNavMode ?? 'dock'}
             onChange={(e) => updateSettings({ mobileChatNavMode: e.target.value as 'dock' | 'integrated' | 'scroll-hide' })}
-            className="rounded-lg border border-primary-200 bg-white px-3 py-1.5 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+            className="rounded-lg border border-primary-200 bg-white px-3 py-1.5 text-sm dark:border-primary-700 dark:bg-primary-800 dark:text-primary-200"
           >
             <option value="dock">Dock (iMessage)</option>
             <option value="scroll-hide">Scroll-hide (B)</option>
@@ -496,12 +496,12 @@ function EnterpriseThemePicker() {
             <ThemeSwatch colors={t.preview} />
             <div className="flex items-center gap-1">
               <span className="text-xs">{t.icon}</span>
-              <span className="text-xs font-semibold text-primary-900 dark:text-neutral-100">{t.label}</span>
+              <span className="text-xs font-semibold text-primary-900 dark:text-primary-100">{t.label}</span>
               {isActive && (
                 <span className="ml-auto text-[9px] font-bold text-accent-600 uppercase tracking-wide">Active</span>
               )}
             </div>
-            <p className="text-[10px] text-primary-500 dark:text-neutral-400 leading-tight">{t.desc}</p>
+            <p className="text-[10px] text-primary-500 dark:text-primary-400 leading-tight">{t.desc}</p>
           </button>
         )
       })}
@@ -648,7 +648,7 @@ function NotificationsContent() {
               aria-valuemax={100}
               aria-valuenow={settings.usageThreshold}
             />
-            <span className="w-10 text-right text-sm tabular-nums text-primary-700 dark:text-neutral-300">
+            <span className="w-10 text-right text-sm tabular-nums text-primary-700 dark:text-primary-300">
               {settings.usageThreshold}%
             </span>
           </div>
@@ -835,7 +835,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         <div className="flex h-full min-h-0 flex-col">
           <div className="flex items-center justify-between border-b border-primary-200 bg-primary-50/80 px-4 py-4 md:rounded-t-2xl md:px-5">
             <div>
-              <DialogTitle className="text-base font-semibold text-primary-900 dark:text-neutral-100">
+              <DialogTitle className="text-base font-semibold text-primary-900 dark:text-primary-100">
                 Settings
               </DialogTitle>
               <DialogDescription className="sr-only">
@@ -847,7 +847,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 <Button
                   size="icon-sm"
                   variant="ghost"
-                  className="rounded-full text-primary-500 hover:bg-primary-100 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                  className="rounded-full text-primary-500 hover:bg-primary-100 dark:text-primary-400 dark:hover:bg-primary-800"
                   aria-label="Close"
                 >
                   <HugeiconsIcon
@@ -912,7 +912,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
             </div>
           </SettingsErrorBoundary>
 
-          <div className="sticky bottom-0 z-10 border-t border-primary-200 bg-primary-50/60 px-4 py-3 text-xs text-primary-500 dark:text-neutral-400 md:rounded-b-2xl md:px-5">
+          <div className="sticky bottom-0 z-10 border-t border-primary-200 bg-primary-50/60 px-4 py-3 text-xs text-primary-500 dark:text-primary-400 md:rounded-b-2xl md:px-5">
             Changes saved automatically.
           </div>
         </div>

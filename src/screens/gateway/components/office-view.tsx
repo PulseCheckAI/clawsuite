@@ -34,8 +34,8 @@ export type OfficeViewProps = {
 }
 
 export const OFFICE_MODEL_BADGE: Record<ModelPresetId, string> = {
-  auto: 'rounded-full border border-neutral-200 bg-neutral-100 text-neutral-600',
-  opus: 'border border-orange-200 bg-orange-50 text-orange-700',
+  auto: 'rounded-full border border-primary-200 bg-primary-100 text-primary-600',
+  opus: 'border border-accent-200 bg-accent-50 text-accent-700',
   sonnet: 'border border-blue-200 bg-blue-50 text-blue-700',
   codex: 'border border-emerald-200 bg-emerald-50 text-emerald-700',
   flash: 'border border-violet-200 bg-violet-50 text-violet-700',
@@ -57,7 +57,7 @@ export const OFFICE_MODEL_LABEL: Record<ModelPresetId, string> = {
   'pc1-critic': 'PC1 Critic',
 }
 
-const DEFAULT_OFFICE_MODEL_BADGE = 'border border-neutral-200 bg-neutral-50 text-neutral-700'
+const DEFAULT_OFFICE_MODEL_BADGE = 'border border-primary-200 bg-primary-50 text-primary-700'
 type OfficeLayoutTemplate = 'grid' | 'roundtable' | 'warroom'
 type SocialSpotType = 'coffee' | 'water' | 'plant' | 'snack'
 type SocialSpot = { x: number; y: number; type: SocialSpotType }
@@ -80,12 +80,12 @@ export function getAgentStatusMeta(status: AgentWorkingStatus): {
   switch (status) {
     case 'active': return { label: 'Active', className: 'text-emerald-600', dotClassName: 'bg-emerald-500', pulse: true }
     case 'ready':
-    case 'idle': return { label: 'Idle', className: 'text-neutral-600', dotClassName: 'bg-neutral-400' }
+    case 'idle': return { label: 'Idle', className: 'text-primary-600', dotClassName: 'bg-primary-400' }
     case 'error': return { label: 'Error', className: 'text-red-600', dotClassName: 'bg-red-500' }
-    case 'none': return { label: 'Offline', className: 'text-neutral-400', dotClassName: 'bg-neutral-400' }
+    case 'none': return { label: 'Offline', className: 'text-primary-400', dotClassName: 'bg-primary-400' }
     case 'spawning': return { label: 'Starting', className: 'text-blue-600', dotClassName: 'bg-blue-500', pulse: true }
     case 'paused': return { label: 'Paused', className: 'text-amber-700', dotClassName: 'bg-amber-500' }
-    default: return { label: String(status), className: 'text-neutral-600', dotClassName: 'bg-neutral-400' }
+    default: return { label: String(status), className: 'text-primary-600', dotClassName: 'bg-primary-400' }
   }
 }
 
@@ -175,11 +175,11 @@ function getSpeechLine(agent: AgentWorkingRow, phase: number): string {
 function getStatusDotClass(status: AgentWorkingStatus): string {
   switch (status) {
     case 'active': return 'bg-emerald-500'
-    case 'idle': case 'ready': case 'none': return 'bg-neutral-400'
+    case 'idle': case 'ready': case 'none': return 'bg-primary-400'
     case 'spawning': return 'bg-blue-500'
     case 'paused': return 'bg-amber-500'
     case 'error': return 'bg-red-500'
-    default: return 'bg-neutral-400'
+    default: return 'bg-primary-400'
   }
 }
 
@@ -359,7 +359,7 @@ function RemoteSessionCard({ session, onClick }: { session: RemoteSession; onCli
   const statusColor = session.status === 'active'
     ? 'bg-emerald-400 animate-pulse'
     : session.status === 'done'
-      ? 'bg-neutral-300 dark:bg-neutral-600'
+      ? 'bg-primary-300 dark:bg-primary-600'
       : 'bg-amber-400'
 
   const badgeColorClass = session.kind === 'main'
@@ -382,24 +382,24 @@ function RemoteSessionCard({ session, onClick }: { session: RemoteSession; onCli
     <button
       type="button"
       onClick={onClick}
-      className="group flex min-h-11 flex-col items-center gap-1.5 rounded-xl border border-neutral-200 bg-white p-3 text-center transition-all hover:border-accent-500 hover:shadow-sm dark:border-neutral-700 dark:bg-neutral-800"
+      className="group flex min-h-11 flex-col items-center gap-1.5 rounded-xl border border-primary-200 bg-white p-3 text-center transition-all hover:border-accent-500 hover:shadow-sm dark:border-primary-700 dark:bg-primary-800"
     >
       <div className="relative">
-        <div className="h-8 w-8 rounded-full bg-neutral-100 dark:bg-neutral-700 flex items-center justify-center text-lg">
+        <div className="h-8 w-8 rounded-full bg-primary-100 dark:bg-primary-700 flex items-center justify-center text-lg">
           🤖
         </div>
-        <span className={cn('absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-neutral-800', statusColor)} />
+        <span className={cn('absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white dark:border-primary-800', statusColor)} />
       </div>
-      <span className="w-full truncate text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+      <span className="w-full truncate text-sm font-semibold text-primary-800 dark:text-primary-200">
         {session.label}
       </span>
       {modelDisplay ? (
-        <span className="w-full truncate text-xs text-neutral-400">
+        <span className="w-full truncate text-xs text-primary-400">
           {modelDisplay}
         </span>
       ) : null}
       {lastMessageSnippet ? (
-        <span className="w-full truncate text-xs italic text-neutral-500 dark:text-neutral-400">
+        <span className="w-full truncate text-xs italic text-primary-500 dark:text-primary-400">
           {lastMessageSnippet}
         </span>
       ) : null}
@@ -408,7 +408,7 @@ function RemoteSessionCard({ session, onClick }: { session: RemoteSession; onCli
           {kindLabel(session.kind)}
         </span>
         {session.startedAt ? (
-          <span className="text-xs text-neutral-400 tabular-nums">
+          <span className="text-xs text-primary-400 tabular-nums">
             {formatRuntime(session.startedAt, session.tokenCount)}
           </span>
         ) : null}
@@ -486,8 +486,8 @@ export function OfficeView({
       <div className={cn('flex items-center justify-center p-8', compact ? 'h-full' : 'min-h-[320px]')}>
         <div className="text-center">
           <p className="mb-3 text-4xl">🏢</p>
-          <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">Empty office</p>
-          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Add agents in Configure to fill the office.</p>
+          <p className="text-sm font-semibold text-primary-600 dark:text-primary-300">Empty office</p>
+          <p className="mt-1 text-xs text-primary-500 dark:text-primary-400">Add agents in Configure to fill the office.</p>
         </div>
       </div>
     )
@@ -543,13 +543,13 @@ export function OfficeView({
   })
 
   return (
-    <div className={cn('flex flex-col bg-gradient-to-b from-slate-50 to-neutral-100 dark:from-slate-900 dark:to-slate-800', compact ? 'h-full' : 'min-h-[480px]')}>
+    <div className={cn('flex flex-col bg-gradient-to-b from-slate-50 to-primary-100 dark:from-slate-900 dark:to-slate-800', compact ? 'h-full' : 'min-h-[480px]')}>
       {/* Header bar */}
-      {hideHeader ? null : <div className="flex shrink-0 flex-wrap items-start justify-between gap-2 border-b border-neutral-200 bg-white/80 px-5 py-3 backdrop-blur dark:border-slate-700 dark:bg-slate-800/80">
+      {hideHeader ? null : <div className="flex shrink-0 flex-wrap items-start justify-between gap-2 border-b border-primary-200 bg-white/80 px-5 py-3 backdrop-blur dark:border-slate-700 dark:bg-slate-800/80">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="text-base font-bold text-neutral-900 dark:text-white">ClawSuite Office</span>
+          <span className="text-base font-bold text-primary-900 dark:text-white">ClawSuite Office</span>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 text-[10px] font-medium text-neutral-600 dark:text-neutral-400 tabular-nums">{agentRows.length} agents</span>
+            <span className="rounded-full bg-primary-100 dark:bg-primary-800 px-2 py-0.5 text-[10px] font-medium text-primary-600 dark:text-primary-400 tabular-nums">{agentRows.length} agents</span>
             <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400 tabular-nums">{activeCount} working</span>
             <span className="rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:text-blue-400 tabular-nums">{sessionCount} sessions</span>
           </div>
@@ -586,7 +586,7 @@ export function OfficeView({
                 key={`${agent.id}-mobile`}
                 type="button"
                 onClick={() => onViewOutput(agent.id)}
-                className="flex min-h-11 w-full items-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-left shadow-sm dark:border-slate-700 dark:bg-slate-900/70"
+                className="flex min-h-11 w-full items-center gap-3 rounded-xl border border-primary-200 bg-white px-3 py-2 text-left shadow-sm dark:border-slate-700 dark:bg-slate-900/70"
               >
                 <div className={cn('flex size-9 shrink-0 items-center justify-center rounded-full', accent.avatar)}>
                   {emoji ? (
@@ -596,8 +596,8 @@ export function OfficeView({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">{agent.name}</p>
-                  <p className="truncate text-xs text-neutral-500 dark:text-slate-400">{getOfficeModelLabel(agent.modelId)}</p>
+                  <p className="truncate text-sm font-semibold text-primary-900 dark:text-white">{agent.name}</p>
+                  <p className="truncate text-xs text-primary-500 dark:text-slate-400">{getOfficeModelLabel(agent.modelId)}</p>
                 </div>
                 <span className={cn('shrink-0 text-xs font-semibold', statusMeta.className)}>{statusMeta.label}</span>
               </button>
@@ -612,23 +612,23 @@ export function OfficeView({
           <button
             type="button"
             onClick={() => setLayoutPickerOpen((v) => !v)}
-            className="inline-flex min-h-11 items-center rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-slate-700 dark:bg-slate-800 dark:text-neutral-300 dark:hover:bg-slate-700 sm:px-4 sm:py-2 sm:text-sm"
+            className="inline-flex min-h-11 items-center rounded-lg border border-primary-200 bg-white px-3 py-1.5 text-xs font-semibold text-primary-700 transition-colors hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-800 dark:text-primary-300 dark:hover:bg-slate-700 sm:px-4 sm:py-2 sm:text-sm"
             title="Change office layout"
           >
             <span>✏️</span>
           </button>
           {layoutPickerOpen && (
-            <div className="absolute right-0 top-full z-50 mt-1 min-w-[120px] overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
+            <div className="absolute right-0 top-full z-50 mt-1 min-w-[120px] overflow-hidden rounded-xl border border-primary-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
               {LAYOUT_TEMPLATE_OPTIONS.map((opt) => (
                 <button
                   key={opt.key}
                   type="button"
                   onClick={() => { changeLayout(opt.key); setLayoutPickerOpen(false) }}
                   className={cn(
-                    'w-full px-3 py-2 text-left text-[12px] transition-colors hover:bg-neutral-50 dark:hover:bg-slate-800',
+                    'w-full px-3 py-2 text-left text-[12px] transition-colors hover:bg-primary-50 dark:hover:bg-slate-800',
                     layoutTemplate === opt.key
                       ? 'font-medium text-accent-600'
-                      : 'text-neutral-700 dark:text-slate-300',
+                      : 'text-primary-700 dark:text-slate-300',
                   )}
                 >
                   {opt.label}
@@ -748,8 +748,8 @@ export function OfficeView({
 
         {/* Office whiteboard */}
         <div className="pointer-events-none absolute left-1/2 top-3 z-20 -translate-x-1/2">
-          <div className="rounded-md border border-neutral-300/90 bg-[#fdfdf8] px-4 py-2 shadow-[0_2px_8px_rgba(15,23,42,0.15)]">
-            <span className="block whitespace-nowrap text-center text-sm font-bold tracking-wide text-neutral-800 [font-family:'Bradley_Hand','Marker_Felt','Comic_Sans_MS',cursive]">
+          <div className="rounded-md border border-primary-300/90 bg-[#fdfdf8] px-4 py-2 shadow-[0_2px_8px_rgba(15,23,42,0.15)]">
+            <span className="block whitespace-nowrap text-center text-sm font-bold tracking-wide text-primary-800 [font-family:'Bradley_Hand','Marker_Felt','Comic_Sans_MS',cursive]">
               {companyName}
             </span>
           </div>
@@ -787,7 +787,7 @@ export function OfficeView({
             >
               {/* Speech bubble */}
               {showSpeech ? (
-                <span className="pointer-events-none relative mb-2 max-w-[180px] rounded-lg bg-white px-3 py-1.5 text-xs leading-snug text-neutral-700 shadow-lg dark:bg-slate-800 dark:text-slate-200">
+                <span className="pointer-events-none relative mb-2 max-w-[180px] rounded-lg bg-white px-3 py-1.5 text-xs leading-snug text-primary-700 shadow-lg dark:bg-slate-800 dark:text-slate-200">
                   <span className="block truncate">{speechLine}</span>
                   <span className="absolute left-1/2 top-full h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-white dark:bg-slate-800" />
                 </span>
@@ -842,24 +842,24 @@ export function OfficeView({
               ) : null}
 
               {/* Name + model */}
-              <span className="mt-1 max-w-full truncate text-[10px] font-semibold text-neutral-800 dark:text-white">{agent.name}</span>
-              <span className="max-w-full truncate text-xs text-neutral-500 dark:text-slate-400">{getOfficeModelLabel(agent.modelId)}</span>
+              <span className="mt-1 max-w-full truncate text-[10px] font-semibold text-primary-800 dark:text-white">{agent.name}</span>
+              <span className="max-w-full truncate text-xs text-primary-500 dark:text-slate-400">{getOfficeModelLabel(agent.modelId)}</span>
             </button>
           )
         })}
       </div>
 
       {remoteSessions.length > 0 ? (
-        <div className="border-t border-neutral-200 dark:border-neutral-700 p-3">
+        <div className="border-t border-primary-200 dark:border-primary-700 p-3">
           <button
             type="button"
             onClick={() => setRemoteCollapsed((prev) => !prev)}
             className="mb-2 flex w-full items-center justify-between px-1 text-left"
           >
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-primary-400">
               Remote Sessions
             </p>
-            <span className="text-[10px] text-neutral-400">{remoteCollapsed ? 'Show' : 'Hide'}</span>
+            <span className="text-[10px] text-primary-400">{remoteCollapsed ? 'Show' : 'Hide'}</span>
           </button>
           {!remoteCollapsed ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -877,13 +877,13 @@ export function OfficeView({
 
       {/* Footer — hidden in compact mode */}
       {!compact ? (
-        <div className="hidden items-center justify-between border-t border-neutral-200 bg-white/80 px-4 py-2 text-xs text-neutral-500 backdrop-blur dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-400 md:flex">
+        <div className="hidden items-center justify-between border-t border-primary-200 bg-white/80 px-4 py-2 text-xs text-primary-500 backdrop-blur dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-400 md:flex">
           <span>{agentRows.length}/{deskPositions.length} desks occupied</span>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-emerald-500" /> Working</span>
-            <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-neutral-400" /> Idle</span>
+            <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-primary-400" /> Idle</span>
             <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-red-500" /> Error</span>
-            <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-neutral-400" /> Empty</span>
+            <span className="flex items-center gap-1"><span className="size-2 rounded-full bg-primary-400" /> Empty</span>
           </div>
         </div>
       ) : null}

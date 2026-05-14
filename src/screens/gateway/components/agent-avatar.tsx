@@ -301,7 +301,7 @@ export function AgentAvatar({
 }
 
 export const AGENT_ACCENT_COLORS: AgentAccentColor[] = [
-  { bar: 'bg-orange-500', border: 'border-orange-500', avatar: 'bg-orange-100', text: 'text-orange-600', ring: 'ring-orange-500/20' },
+  { bar: 'bg-accent-500', border: 'border-accent-500', avatar: 'bg-accent-100', text: 'text-accent-600', ring: 'ring-accent-500/20' },
   { bar: 'bg-blue-500', border: 'border-blue-500', avatar: 'bg-blue-100', text: 'text-blue-600', ring: 'ring-blue-500/20' },
   { bar: 'bg-violet-500', border: 'border-violet-500', avatar: 'bg-violet-100', text: 'text-violet-600', ring: 'ring-violet-500/20' },
   { bar: 'bg-emerald-500', border: 'border-emerald-500', avatar: 'bg-emerald-100', text: 'text-emerald-600', ring: 'ring-emerald-500/20' },

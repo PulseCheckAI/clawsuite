@@ -19,6 +19,10 @@ import { GatewayRestartProvider } from '@/components/gateway-restart-overlay'
 import { ExecApprovalToast } from '@/components/exec-approval-toast'
 import { GatewayStatusToast } from '@/components/gateway-status-toast'
 import { initializeSettingsAppearance } from '@/hooks/use-settings'
+import { useWorkspaceStore } from '@/stores/workspace-store'
+import { useTerminalPanelStore } from '@/stores/terminal-panel-store'
+import { useTaskStore } from '@/stores/task-store'
+import { useMissionStore } from '@/stores/mission-store'
 
 const APP_CSP = [
   "default-src 'self'",
@@ -160,6 +164,10 @@ const themeColorScript = `
 `
 
 export const Route = createRootRoute({
+  // Pure SPA mode — SSR is broken on this stack today (TanStack Start
+  // hydration: <AwaitInner> -> setState undefined). Disable SSR root-wide;
+  // every route inherits this until upstream #53 is properly fixed.
+  ssr: false,
   head: () => ({
     meta: [
       {
@@ -264,6 +272,15 @@ function RootLayout() {
   // Unregister any existing service workers — they cause stale asset issues
   // after Docker image updates and behind reverse proxies (Pangolin, Cloudflare, etc.)
   useEffect(() => {
+    // Rehydrate zustand persist stores client-side. Stores use skipHydration:true
+    // to avoid SSR localStorage access (which throws and trips TanStack's
+    // <AwaitInner> -> setState undefined hydration crash). Manual rehydrate
+    // here loads localStorage state after mount.
+    void useWorkspaceStore.persist.rehydrate()
+    void useTerminalPanelStore.persist.rehydrate()
+    void useTaskStore.persist.rehydrate()
+    void useMissionStore.persist.rehydrate()
+
     initializeSettingsAppearance()
 
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
@@ -286,21 +303,21 @@ function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <GatewayRestartProvider>
-      <CompactionNotifier />
-      <FallbackBanner />
-      <GlobalShortcutListener />
-      <TerminalShortcutListener />
-      <TaskReminderRunner />
-      <UpdateNotifier />
-      <OpenClawUpdateNotifier />
-      <MobilePromptTrigger />
-      <Toaster />
-      <ExecApprovalToast />
-      <GatewayStatusToast />
-      <WorkspaceShell />
-      <SearchModal />
-      <OnboardingTour />
-      <KeyboardShortcutsModal />
+        <CompactionNotifier />
+        <FallbackBanner />
+        <GlobalShortcutListener />
+        <TerminalShortcutListener />
+        <TaskReminderRunner />
+        <UpdateNotifier />
+        <OpenClawUpdateNotifier />
+        <MobilePromptTrigger />
+        <Toaster />
+        <ExecApprovalToast />
+        <GatewayStatusToast />
+        <WorkspaceShell />
+        <SearchModal />
+        <OnboardingTour />
+        <KeyboardShortcutsModal />
       </GatewayRestartProvider>
     </QueryClientProvider>
   )
@@ -316,7 +333,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: themeColorScript }} />
       </head>
       <body>
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
           (function(){
             if (document.getElementById('splash-screen')) return;
             var bg = '#f8fafc', txt = '#0f172a', muted = '#64748b';
@@ -400,10 +419,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               }
             } catch(e) {}
           })()
-        `}} />
+        `,
+          }}
+        />
         <div className="root">{children}</div>
         <Scripts />
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
           (function(){
             var start = Date.now();
             function check() {
@@ -414,7 +437,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             }
             setTimeout(check, 2500);
           })()
-        `}} />
+        `,
+          }}
+        />
       </body>
     </html>
   )
