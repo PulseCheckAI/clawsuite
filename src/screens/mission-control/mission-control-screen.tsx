@@ -10,6 +10,7 @@ import {
   type TrackerCell,
   type BarListItem,
 } from '@/components/mission-control'
+import { getSupabaseClient } from '@/lib/supabase-client'
 
 type Todo = {
   id: string
@@ -91,7 +92,12 @@ export function MissionControlScreen() {
     return () => clearInterval(tick)
   }, [])
 
+  // Initial cold-start fetch (REST) + Realtime postgres_changes subscription
+  // for todos + agent_logs. The REST fetch hydrates state on mount; the
+  // realtime channel keeps it live afterward — INSERT prepends, UPDATE
+  // replaces by id, DELETE filters by id. No more 30s polling.
   useEffect(() => {
+    let cancelled = false
     Promise.all([
       supabaseGet<Todo>('todos?select=*&order=created_at.desc&limit=200'),
       supabaseGet<AgentLog>(
@@ -99,10 +105,65 @@ export function MissionControlScreen() {
       ),
     ])
       .then(([t, l]) => {
+        if (cancelled) return
         setTodos(t)
         setLogs(l)
       })
-      .catch((e) => setLoadErr(e.message))
+      .catch((e) => {
+        if (!cancelled) setLoadErr(e.message)
+      })
+
+    const supabase = getSupabaseClient()
+    const channel = supabase
+      .channel('mission-control-live')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'command_center', table: 'todos' },
+        (payload) => {
+          if (cancelled) return
+          if (payload.eventType === 'INSERT') {
+            setTodos((prev) => [payload.new as Todo, ...prev].slice(0, 200))
+          } else if (payload.eventType === 'UPDATE') {
+            setTodos((prev) =>
+              prev.map((t) =>
+                t.id === (payload.new as Todo).id ? (payload.new as Todo) : t,
+              ),
+            )
+          } else if (payload.eventType === 'DELETE') {
+            setTodos((prev) =>
+              prev.filter((t) => t.id !== (payload.old as Todo).id),
+            )
+          }
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'command_center', table: 'agent_logs' },
+        (payload) => {
+          if (cancelled) return
+          if (payload.eventType === 'INSERT') {
+            setLogs((prev) => [payload.new as AgentLog, ...prev].slice(0, 200))
+          } else if (payload.eventType === 'UPDATE') {
+            setLogs((prev) =>
+              prev.map((l) =>
+                l.id === (payload.new as AgentLog).id
+                  ? (payload.new as AgentLog)
+                  : l,
+              ),
+            )
+          } else if (payload.eventType === 'DELETE') {
+            setLogs((prev) =>
+              prev.filter((l) => l.id !== (payload.old as AgentLog).id),
+            )
+          }
+        },
+      )
+      .subscribe()
+
+    return () => {
+      cancelled = true
+      void supabase.removeChannel(channel)
+    }
   }, [])
 
   useEffect(() => {
