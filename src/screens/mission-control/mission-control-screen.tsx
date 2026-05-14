@@ -429,7 +429,7 @@ export function MissionControlScreen() {
               {actionItems.map((item, i) => (
                 <li
                   key={i}
-                  className="flex items-start gap-3 px-3 py-2 rounded-md bg-primary-100/40 dark:bg-primary-200/40"
+                  className="flex items-start gap-3 px-3 py-2 rounded-md bg-[rgba(255,255,255,0.04)]"
                 >
                   <StatusDot
                     tone={
@@ -836,7 +836,7 @@ export function MissionControlScreen() {
               {recentActivity.map((l) => (
                 <li
                   key={l.id}
-                  className="flex items-center gap-3 px-3 py-2 rounded-md bg-primary-100 dark:bg-primary-200 hover:bg-primary-200 dark:hover:bg-primary-300 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 rounded-md bg-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.08)] transition-colors"
                 >
                   <StatusDot
                     tone={

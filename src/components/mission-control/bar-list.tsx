@@ -44,7 +44,7 @@ export function BarList({
         return (
           <li
             key={i}
-            className="relative h-8 rounded-md overflow-hidden bg-primary-100 dark:bg-primary-200"
+            className="relative h-8 rounded-md overflow-hidden bg-[rgba(255,255,255,0.04)]"
           >
             {item.href ? (
               <a href={item.href} className="block h-full">

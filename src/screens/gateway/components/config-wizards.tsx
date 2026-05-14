@@ -1555,9 +1555,9 @@ export function AddTeamModal({
                       className={cn(
                         'ml-auto shrink-0 rounded-full px-1.5 py-0.5 text-[8px] font-semibold',
                         tpl.tier === 'budget'
-                          ? 'bg-green-100 text-green-700'
+                          ? 'bg-emerald-500/10 text-emerald-400'
                           : tpl.tier === 'balanced'
-                            ? 'bg-blue-100 text-blue-700'
+                            ? 'bg-blue-500/10 text-blue-400'
                             : 'bg-amber-500/10 text-amber-300',
                       )}
                     >
