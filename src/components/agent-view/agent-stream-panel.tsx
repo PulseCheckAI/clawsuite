@@ -24,7 +24,7 @@ const AGENT_COLOR_DOT_CLASS: Record<string, string> = {
 const ROLE_BADGE_CLASS: Record<string, string> = {
   user: 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-200',
   assistant:
-    'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200',
+    'bg-emerald-500/10 text-emerald-400 dark:bg-emerald-950/40 dark:text-emerald-200',
   system:
     'bg-primary-200 text-primary-700 dark:bg-primary-800 dark:text-primary-300',
   tool: 'bg-purple-100 text-purple-700 dark:bg-purple-950/40 dark:text-purple-200',
@@ -272,7 +272,7 @@ export function AgentStreamPanel({
                   <h3 className="truncate text-sm font-semibold text-primary-900 dark:text-primary-100">
                     {agentName}
                   </h3>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400 dark:bg-emerald-950/40 dark:text-emerald-200">
                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
                     Live
                   </span>
@@ -379,7 +379,7 @@ export function AgentStreamPanel({
                       type="button"
                       onClick={() => void onKill()}
                       disabled={killPending}
-                      className="flex w-full rounded-md px-2 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 disabled:opacity-60 dark:text-red-300 dark:hover:bg-red-950/40"
+                      className="flex w-full rounded-md px-2 py-1.5 text-left text-xs text-red-400 hover:bg-red-50 disabled:opacity-60 dark:text-red-300 dark:hover:bg-red-950/40"
                     >
                       {killPending ? 'Terminating...' : 'Kill'}
                     </button>

@@ -18,6 +18,7 @@ import {
 } from '@hugeicons/core-free-icons'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
+import { cn } from '@/lib/utils'
 
 type Totals = {
   totalCost?: number
@@ -311,14 +312,20 @@ function buildDateRange(
     } satisfies DateRange
   }
 
-  const parsedFrom = customFrom ? startOfDay(new Date(`${customFrom}T00:00:00`)) : today
+  const parsedFrom = customFrom
+    ? startOfDay(new Date(`${customFrom}T00:00:00`))
+    : today
   const parsedTo = customTo ? endOfDay(new Date(`${customTo}T00:00:00`)) : now
   const safeFrom = Number.isNaN(parsedFrom.getTime()) ? today : parsedFrom
   const safeTo = Number.isNaN(parsedTo.getTime()) ? now : parsedTo
   const from = safeFrom.getTime() <= safeTo.getTime() ? safeFrom : safeTo
   const to = safeTo.getTime() >= safeFrom.getTime() ? safeTo : safeFrom
-  const days =
-    Math.max(1, Math.ceil((endOfDay(to).getTime() - startOfDay(from).getTime()) / 86_400_000))
+  const days = Math.max(
+    1,
+    Math.ceil(
+      (endOfDay(to).getTime() - startOfDay(from).getTime()) / 86_400_000,
+    ),
+  )
 
   return {
     fromMs: from.getTime(),
@@ -366,7 +373,9 @@ function getToolCallNames(message: HistoryMessage) {
 function isToolError(message: HistoryMessage) {
   if (message.isError === true) return true
   const content = Array.isArray(message.content) ? message.content : []
-  return content.some((part) => part?.type === 'toolResult' && part?.isError === true)
+  return content.some(
+    (part) => part?.type === 'toolResult' && part?.isError === true,
+  )
 }
 
 function deriveDashboardStats(
@@ -375,7 +384,10 @@ function deriveDashboardStats(
   range: DateRange,
 ) {
   const activeSessionKeys = new Set<string>()
-  const modelMap = new Map<string, { tokens: number; cost: number; count: number }>()
+  const modelMap = new Map<
+    string,
+    { tokens: number; cost: number; count: number }
+  >()
 
   let totalCost = 0
   let inputTokens = 0
@@ -407,7 +419,10 @@ function deriveDashboardStats(
         readNumber(entry.totalTokens) ||
         readNumber(entry.tokens) ||
         entryInput + entryOutput
-      const inferredCacheRead = Math.max(0, entryTotal - entryInput - entryOutput)
+      const inferredCacheRead = Math.max(
+        0,
+        entryTotal - entryInput - entryOutput,
+      )
 
       inputTokens += entryInput
       outputTokens += entryOutput
@@ -438,7 +453,10 @@ function deriveDashboardStats(
       sessionActiveInRange = true
       const provider = readString(entry.provider)
       const modelName = readString(entry.model)
-      const label = provider && modelName ? `${provider}/${modelName}` : modelName || provider || 'unknown'
+      const label =
+        provider && modelName
+          ? `${provider}/${modelName}`
+          : modelName || provider || 'unknown'
       const current = modelMap.get(label) ?? { tokens: 0, cost: 0, count: 0 }
       current.tokens += readNumber(entry.tokens)
       current.cost += readNumber(entry.cost)
@@ -454,7 +472,11 @@ function deriveDashboardStats(
   if (activeSessionKeys.size === 0) {
     for (const session of analyticsSessions) {
       if (!session.lastActiveAt) continue
-      if (session.lastActiveAt < range.fromMs || session.lastActiveAt > range.toMs) continue
+      if (
+        session.lastActiveAt < range.fromMs ||
+        session.lastActiveAt > range.toMs
+      )
+        continue
       activeSessionKeys.add(session.sessionKey)
       totalCost += session.costUsd
       inputTokens += session.inputTokens
@@ -496,10 +518,8 @@ function deriveDashboardStats(
     uniqueTools: 0,
     errors: 0,
     errorRate: null,
-    avgTokensPerMessage:
-      messagesTotal > 0 ? totalTokens / messagesTotal : null,
-    avgCostPerMessage:
-      messagesTotal > 0 ? totalCost / messagesTotal : null,
+    avgTokensPerMessage: messagesTotal > 0 ? totalTokens / messagesTotal : null,
+    avgCostPerMessage: messagesTotal > 0 ? totalCost / messagesTotal : null,
     totalCost,
     sessions: activeSessionKeys.size,
     cacheHitRate,
@@ -527,7 +547,10 @@ function deriveToolInsights(
     const messages = Array.isArray(history.messages) ? history.messages : []
     for (const message of messages) {
       const timestamp = getMessageTimestamp(message)
-      if (timestamp !== null && (timestamp < range.fromMs || timestamp > range.toMs)) {
+      if (
+        timestamp !== null &&
+        (timestamp < range.fromMs || timestamp > range.toMs)
+      ) {
         continue
       }
 
@@ -561,28 +584,63 @@ function deriveToolInsights(
   } satisfies ToolInsights
 }
 
+type StatTone =
+  | 'positive' // green   — good outcome (no errors, high cache hit)
+  | 'negative' // red     — bad outcome (errors present)
+  | 'cost' //     orange  — spend / brand emphasis
+  | 'volume' //   blue    — counts / throughput
+  | 'neutral' //  white   — default
+const STAT_TONE_CLASS: Record<StatTone, string> = {
+  positive: 'text-emerald-400',
+  negative: 'text-red-400',
+  cost: 'text-[#ff9f1c]',
+  volume: 'text-sky-300',
+  neutral: 'text-white',
+}
+const STAT_TONE_ICON_CLASS: Record<StatTone, string> = {
+  positive: 'text-emerald-400',
+  negative: 'text-red-400',
+  cost: 'text-[#ff9f1c]',
+  volume: 'text-sky-300',
+  neutral: 'text-white/70',
+}
+
 function StatCard({
   icon,
   label,
   value,
   sub,
+  tone = 'neutral',
 }: {
   icon: typeof Message01Icon
   label: string
   value: string
   sub?: string
+  tone?: StatTone
 }) {
   return (
-    <div className="rounded-xl border border-primary-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary-500">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] opacity-70">
             {label}
           </p>
-          <p className="text-2xl font-semibold text-primary-900">{value}</p>
-          {sub ? <p className="text-sm text-primary-600">{sub}</p> : null}
+          <p
+            className={cn(
+              'font-display text-2xl font-bold tracking-tight',
+              STAT_TONE_CLASS[tone],
+            )}
+          >
+            {value}
+          </p>
+          {sub ? <p className="text-sm opacity-65">{sub}</p> : null}
         </div>
-        <div className="flex size-10 items-center justify-center rounded-xl border border-primary-200 bg-primary-50 text-primary-700">
+        <div
+          className={cn(
+            'flex size-10 items-center justify-center rounded-xl border',
+            STAT_TONE_ICON_CLASS[tone],
+          )}
+        >
           <HugeiconsIcon icon={icon} size={18} strokeWidth={1.6} />
         </div>
       </div>
@@ -665,7 +723,7 @@ function ErrorState({
 }) {
   return (
     <div className="flex min-h-[260px] flex-col items-center justify-center gap-4 rounded-xl border border-primary-200 bg-white px-6 text-center shadow-sm">
-      <div className="flex size-12 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-500">
+      <div className="flex size-12 items-center justify-center rounded-xl border border-red-500/30 bg-red-50 text-red-500">
         <HugeiconsIcon icon={AlertDiamondIcon} size={22} strokeWidth={1.6} />
       </div>
       <div className="space-y-1">
@@ -675,7 +733,11 @@ function ErrorState({
         <p className="max-w-lg text-sm text-primary-600">{message}</p>
       </div>
       <Button variant="outline" onClick={onRetry}>
-        <HugeiconsIcon icon={ArrowTurnBackwardIcon} size={16} strokeWidth={1.6} />
+        <HugeiconsIcon
+          icon={ArrowTurnBackwardIcon}
+          size={16}
+          strokeWidth={1.6}
+        />
         Retry
       </Button>
     </div>
@@ -776,7 +838,8 @@ export function UsageScreen() {
       return responses
     },
     enabled:
-      sessionStatusQuery.isSuccess && dashboardStats.activeSessionKeys.length > 0,
+      sessionStatusQuery.isSuccess &&
+      dashboardStats.activeSessionKeys.length > 0,
     staleTime: 60_000,
     refetchInterval: 120_000,
     retry: 1,
@@ -811,7 +874,10 @@ export function UsageScreen() {
   const exportPayload = useMemo(() => {
     const filteredSessions = analyticsSessions.filter((session) => {
       if (!session.lastActiveAt) return false
-      return session.lastActiveAt >= range.fromMs && session.lastActiveAt <= range.toMs
+      return (
+        session.lastActiveAt >= range.fromMs &&
+        session.lastActiveAt <= range.toMs
+      )
     })
 
     return {
@@ -849,7 +915,13 @@ export function UsageScreen() {
       sessions: filteredSessions,
       gatewayTotals: gatewayUsageQuery.data?.usage?.totals ?? null,
     }
-  }, [analyticsSessions, gatewayUsageQuery.data?.usage?.totals, mergedStats, preset, range])
+  }, [
+    analyticsSessions,
+    gatewayUsageQuery.data?.usage?.totals,
+    mergedStats,
+    preset,
+    range,
+  ])
 
   const isInitialLoading =
     gatewayUsageQuery.isPending ||
@@ -929,7 +1001,11 @@ export function UsageScreen() {
               </div>
             ) : null}
             <Button variant="outline" onClick={handleExport}>
-              <HugeiconsIcon icon={FileExportIcon} size={16} strokeWidth={1.6} />
+              <HugeiconsIcon
+                icon={FileExportIcon}
+                size={16}
+                strokeWidth={1.6}
+              />
               Export JSON
             </Button>
           </div>
@@ -938,12 +1014,14 @@ export function UsageScreen() {
         <section className="rounded-xl border border-primary-200 bg-white p-4 shadow-sm">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-wrap gap-2">
-              {([
-                ['today', 'Today'],
-                ['7d', '7d'],
-                ['30d', '30d'],
-                ['custom', 'Custom'],
-              ] as const).map(([value, label]) => {
+              {(
+                [
+                  ['today', 'Today'],
+                  ['7d', '7d'],
+                  ['30d', '30d'],
+                  ['custom', 'Custom'],
+                ] as const
+              ).map(([value, label]) => {
                 const isActive = preset === value
                 return (
                   <button
@@ -966,7 +1044,11 @@ export function UsageScreen() {
               {preset === 'custom' ? (
                 <>
                   <label className="flex items-center gap-2 rounded-xl border border-primary-200 bg-primary-50/60 px-3 py-2 text-sm text-primary-600">
-                    <HugeiconsIcon icon={Calendar03Icon} size={16} strokeWidth={1.6} />
+                    <HugeiconsIcon
+                      icon={Calendar03Icon}
+                      size={16}
+                      strokeWidth={1.6}
+                    />
                     <input
                       type="date"
                       value={customFrom}
@@ -975,7 +1057,11 @@ export function UsageScreen() {
                     />
                   </label>
                   <label className="flex items-center gap-2 rounded-xl border border-primary-200 bg-primary-50/60 px-3 py-2 text-sm text-primary-600">
-                    <HugeiconsIcon icon={ArrowDown01Icon} size={16} strokeWidth={1.6} />
+                    <HugeiconsIcon
+                      icon={ArrowDown01Icon}
+                      size={16}
+                      strokeWidth={1.6}
+                    />
                     <input
                       type="date"
                       value={customTo}
@@ -1014,48 +1100,67 @@ export function UsageScreen() {
                 label="Messages"
                 value={formatCompactNumber(mergedStats.messagesTotal)}
                 sub={`${formatCompactNumber(mergedStats.userMessages)} user · ${formatCompactNumber(mergedStats.assistantMessages)} assistant`}
+                tone="volume"
               />
               <StatCard
                 icon={ToolsIcon}
                 label="Tool Calls"
                 value={formatCompactNumber(mergedStats.toolCalls)}
                 sub={`${formatCompactNumber(mergedStats.uniqueTools)} unique tools`}
+                tone="volume"
               />
               <StatCard
                 icon={AlertDiamondIcon}
                 label="Errors"
                 value={formatCompactNumber(mergedStats.errors)}
                 sub={`${formatPercent(mergedStats.errorRate)} error rate`}
+                tone={mergedStats.errors > 0 ? 'negative' : 'positive'}
               />
               <StatCard
                 icon={SearchList01Icon}
                 label="Avg Tokens / Msg"
-                value={formatCompactNumber(mergedStats.avgTokensPerMessage ?? undefined)}
+                value={formatCompactNumber(
+                  mergedStats.avgTokensPerMessage ?? undefined,
+                )}
                 sub={`${formatTokens(mergedStats.totalTokens)} total tokens`}
+                tone="volume"
               />
               <StatCard
                 icon={DollarCircleIcon}
                 label="Avg Cost / Msg"
                 value={formatCost(mergedStats.avgCostPerMessage ?? undefined)}
                 sub={`${formatCost(mergedStats.totalCost)} total cost`}
+                tone="cost"
               />
               <StatCard
                 icon={FolderDetailsIcon}
                 label="Sessions"
                 value={formatCompactNumber(mergedStats.sessions)}
                 sub="Sessions active in range"
+                tone="volume"
               />
               <StatCard
                 icon={ServerStackIcon}
                 label="Cache Hit Rate"
                 value={formatPercent(mergedStats.cacheHitRate)}
                 sub={`${formatTokens(mergedStats.cacheReadTokens)} cached prompt tokens`}
+                tone={
+                  (mergedStats.cacheHitRate ?? 0) >= 0.5
+                    ? 'positive'
+                    : (mergedStats.cacheHitRate ?? 0) >= 0.2
+                      ? 'neutral'
+                      : 'negative'
+                }
               />
               <StatCard
                 icon={SpeedTrain01Icon}
                 label="Throughput"
-                value={formatRate(mergedStats.throughputTokensPerMinute, 'tok/min')}
+                value={formatRate(
+                  mergedStats.throughputTokensPerMinute,
+                  'tok/min',
+                )}
                 sub={`${range.days} day window`}
+                tone="positive"
               />
             </section>
 
@@ -1086,7 +1191,11 @@ export function UsageScreen() {
                   </h2>
                   <p className="text-xs text-primary-500">
                     Preserved from the existing screen. Totals reflect gateway
-                    usage for {gatewayPeriod ? gatewayPeriod : 'the current billing window'}.
+                    usage for{' '}
+                    {gatewayPeriod
+                      ? gatewayPeriod
+                      : 'the current billing window'}
+                    .
                   </p>
                 </div>
                 {gatewayPeriod ? (

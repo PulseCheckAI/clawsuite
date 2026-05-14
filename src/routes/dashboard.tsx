@@ -6,7 +6,7 @@ import { usePageTitle } from '@/hooks/use-page-title'
 export const Route = createFileRoute('/dashboard')({
   ssr: false,
   component: function DashboardRoute() {
-    usePageTitle('Mission Control')
+    usePageTitle('Command Center')
     return <MissionControlScreen />
   },
   errorComponent: function DashboardError({ error }) {

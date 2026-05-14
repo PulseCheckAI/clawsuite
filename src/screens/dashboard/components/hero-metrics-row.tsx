@@ -81,7 +81,7 @@ export function HeroMetricsRow({
                 <p className="text-xl md:text-2xl font-extrabold font-mono tabular-nums leading-none text-primary-500 dark:text-primary-200">
                   —
                 </p>
-                <p className="mt-0.5 md:mt-1 text-[10px] md:text-xs font-medium text-red-600 dark:text-red-500">
+                <p className="mt-0.5 md:mt-1 text-[10px] md:text-xs font-medium text-red-400 dark:text-red-500">
                   {m.value}
                 </p>
               </>
@@ -100,7 +100,7 @@ export function HeroMetricsRow({
             <button
               type="button"
               onClick={m.onRetry}
-              className="shrink-0 inline-flex size-6 items-center justify-center rounded-md text-red-600 dark:text-red-500 transition-colors hover:bg-red-100 dark:hover:bg-red-900/20"
+              className="shrink-0 inline-flex size-6 items-center justify-center rounded-md text-red-400 dark:text-red-500 transition-colors hover:bg-red-500/10 dark:hover:bg-red-900/20"
               aria-label="Retry"
               title="Retry loading cost data"
             >

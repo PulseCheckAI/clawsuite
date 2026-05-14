@@ -70,46 +70,42 @@ export const ActivityEventRow = memo(function ActivityEventRow({
   return (
     <article
       className={cn(
-        'rounded-lg border border-primary-200 border-l-2 bg-primary-50/80 px-2.5 py-2',
+        'rounded-md border-l-2 px-3 py-1.5 transition-colors hover:bg-[rgba(255,255,255,0.04)]',
         getLevelBorderClass(event.level),
       )}
     >
-      <div className="flex items-start gap-2.5">
+      <div className="flex items-center gap-2 min-w-0">
         <span
           className={cn(
-            'mt-1.5 inline-flex size-2 shrink-0 rounded-full',
+            'inline-flex size-1.5 shrink-0 rounded-full',
             getLevelDotClass(event.level),
           )}
         />
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <HugeiconsIcon
-              icon={getEventIcon(event.type)}
-              size={20}
-              strokeWidth={1.5}
-            />
-            <span className="rounded-md border border-primary-200 bg-primary-100/70 px-1.5 py-0.5 text-[11px] text-primary-700 tabular-nums">
-              {getTypeLabel(event.type)}
-            </span>
-            <span className="text-[11px] text-primary-600 tabular-nums">
-              {formatRelativeTimestamp(event.timestamp)}
-            </span>
-          </div>
-          <p className="mt-1 line-clamp-2 text-sm font-medium text-primary-900 text-pretty">
-            {event.title}
-          </p>
-
-          {event.detail ? (
-            <details className="mt-1.5">
-              <summary className="cursor-pointer text-[11px] text-primary-600 tabular-nums">
-                Detail
-              </summary>
-              <p className="mt-1 rounded-md border border-primary-200 bg-primary-100/60 px-2 py-1.5 text-xs text-primary-700 text-pretty">
-                {event.detail}
-              </p>
-            </details>
-          ) : null}
-        </div>
+        <HugeiconsIcon
+          icon={getEventIcon(event.type)}
+          size={14}
+          strokeWidth={1.75}
+          className="shrink-0 opacity-70"
+        />
+        <span className="shrink-0 rounded-sm border border-[rgba(192,192,192,0.25)] bg-[rgba(255,255,255,0.03)] px-1.5 py-px text-[10px] uppercase tracking-wider tabular-nums opacity-80">
+          {getTypeLabel(event.type)}
+        </span>
+        <span className="shrink-0 text-[10px] tabular-nums opacity-60">
+          {formatRelativeTimestamp(event.timestamp)}
+        </span>
+        <p className="min-w-0 flex-1 truncate text-[13px] font-medium">
+          {event.title}
+        </p>
+        {event.detail ? (
+          <details className="shrink-0">
+            <summary className="cursor-pointer text-[10px] uppercase tracking-wider tabular-nums opacity-60 hover:opacity-100">
+              Detail
+            </summary>
+            <p className="mt-1.5 rounded-md border border-[rgba(192,192,192,0.25)] bg-[rgba(255,255,255,0.03)] px-2 py-1.5 text-xs text-pretty">
+              {event.detail}
+            </p>
+          </details>
+        ) : null}
       </div>
     </article>
   )

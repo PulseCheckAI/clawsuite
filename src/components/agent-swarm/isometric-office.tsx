@@ -402,7 +402,7 @@ export function IsometricOffice({ sessions, className }: IsometricOfficeProps) {
   return (
     <div
       className={cn(
-        'relative h-full w-full overflow-hidden bg-[#0d1117]',
+        'relative h-full w-full overflow-hidden bg-[var(--theme-bg)]',
         className,
       )}
     >
@@ -478,7 +478,7 @@ export function IsometricOffice({ sessions, className }: IsometricOfficeProps) {
       {/* Office info */}
       <div className="absolute bottom-3 left-3 rounded bg-slate-900/80 px-2 py-1 backdrop-blur">
         <span className="text-[9px] font-mono text-accent-400/60">
-          🦞 ClawSuite Office
+          🦞 PulseOS Office
         </span>
       </div>
 

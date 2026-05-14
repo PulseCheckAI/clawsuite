@@ -65,7 +65,7 @@ export function GatewayConnectionSetupForm({
   return (
     <div
       className={cn(
-        'rounded-2xl border border-amber-200 bg-amber-100/80 text-primary-900 shadow-sm',
+        'rounded-2xl border border-amber-500/40 bg-amber-500/10 text-primary-900 shadow-sm',
         isBanner ? 'p-3' : 'p-4 sm:p-5',
         className,
       )}
@@ -73,7 +73,7 @@ export function GatewayConnectionSetupForm({
       <div className={cn('flex gap-3', isBanner ? 'items-start' : 'items-start sm:items-center')}>
         <img
           src="/logo-icon.png"
-          alt="ClawSuite logo"
+          alt="PulseOS logo"
           width={isBanner ? 24 : 32}
           height={isBanner ? 24 : 32}
           className={cn(
@@ -92,7 +92,7 @@ export function GatewayConnectionSetupForm({
               </p>
             </div>
             {testStatus === 'success' ? (
-              <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+              <span className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400">
                 Connected
               </span>
             ) : null}
@@ -140,7 +140,7 @@ export function GatewayConnectionSetupForm({
           </div>
 
           {testStatus === 'error' && testError ? (
-            <div className="mt-2 rounded-xl border border-red-200 bg-red-50/80 px-3 py-2 text-xs text-red-700">
+            <div className="mt-2 rounded-xl border border-red-500/30 bg-red-50/80 px-3 py-2 text-xs text-red-400">
               <p className="font-medium">{errorInfo.title}</p>
               <p className="mt-0.5">{errorInfo.description}</p>
             </div>
@@ -258,14 +258,14 @@ export function GatewayConnectionBanner() {
           transition={{ duration: 0.2, ease: 'easeOut' }}
           className="fixed right-4 z-[90] w-[calc(100vw-2rem)] max-w-72 bottom-[calc(var(--tabbar-h,0px)+1rem)] sm:bottom-4"
         >
-          <div className="rounded-xl border border-amber-300 bg-amber-100/95 px-3 py-2.5 text-primary-900 shadow-lg">
+          <div className="rounded-xl border border-amber-300 bg-amber-500/10 px-3 py-2.5 text-primary-900 shadow-lg">
             <div className="flex items-start gap-2">
               <HugeiconsIcon
                 icon={isReconnecting ? RefreshIcon : Alert02Icon}
                 size={18}
                 strokeWidth={1.7}
                 className={cn(
-                  'mt-0.5 shrink-0 text-amber-700',
+                  'mt-0.5 shrink-0 text-amber-300',
                   isReconnecting ? 'animate-spin' : '',
                 )}
               />
@@ -276,7 +276,7 @@ export function GatewayConnectionBanner() {
                     : '⚠ Gateway offline · Chat unavailable'}
                 </p>
                 {!isReconnecting && testStatus === 'error' && testError ? (
-                  <p className="mt-1 text-[11px] text-amber-800">
+                  <p className="mt-1 text-[11px] text-amber-300">
                     {errorInfo.title}. {errorInfo.description}
                   </p>
                 ) : null}
@@ -296,7 +296,7 @@ export function GatewayConnectionBanner() {
               <button
                 type="button"
                 onClick={handleDismiss}
-                className="rounded-md p-1 text-amber-800 transition-colors hover:bg-amber-200"
+                className="rounded-md p-1 text-amber-300 transition-colors hover:bg-amber-200"
                 aria-label="Dismiss gateway connection banner"
               >
                 <HugeiconsIcon icon={Cancel01Icon} size={14} strokeWidth={1.8} />

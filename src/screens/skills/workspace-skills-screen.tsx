@@ -272,7 +272,7 @@ export function WorkspaceSkillsScreen() {
                     Loading skills...
                   </div>
                 ) : skillsQuery.isError ? (
-                  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-5 text-sm text-red-600">
+                  <div className="rounded-2xl border border-red-500/30 bg-red-50 px-4 py-5 text-sm text-red-400">
                     {skillsQuery.error instanceof Error
                       ? skillsQuery.error.message
                       : 'Failed to load skills'}
@@ -400,7 +400,7 @@ export function WorkspaceSkillsScreen() {
                         ))}
                       </div>
                     ) : skillContentQuery.isError ? (
-                      <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+                      <div className="rounded-lg border border-red-500/30 bg-red-50 px-3 py-2 text-sm text-red-400">
                         {skillContentQuery.error instanceof Error
                           ? skillContentQuery.error.message
                           : 'Failed to load skill content'}
@@ -484,7 +484,7 @@ export function WorkspaceSkillsScreen() {
                     Loading memory files...
                   </div>
                 ) : memoryQuery.isError ? (
-                  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-5 text-sm text-red-600">
+                  <div className="rounded-2xl border border-red-500/30 bg-red-50 px-4 py-5 text-sm text-red-400">
                     {memoryQuery.error instanceof Error
                       ? memoryQuery.error.message
                       : 'Failed to load memory files'}

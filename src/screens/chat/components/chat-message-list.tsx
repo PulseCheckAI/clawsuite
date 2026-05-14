@@ -1325,7 +1325,7 @@ function ChatMessageListComponent({
           {notice && noticePosition === 'start' ? notice : null}
           {shouldBottomPin ? <div className="flex-1" aria-hidden="true" /> : null}
           {showToolOnlyNotice ? (
-            <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <div className="mb-4 rounded-xl border border-amber-500/40 bg-amber-50 px-4 py-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-start gap-2.5">
                   <HugeiconsIcon
@@ -1335,12 +1335,12 @@ function ChatMessageListComponent({
                     className="mt-0.5 shrink-0 text-amber-600"
                   />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-amber-800 text-balance">
+                    <p className="text-sm font-medium text-amber-300 text-balance">
                       This session contains{' '}
                       <span className="tabular-nums">{toolInteractionCount}</span>{' '}
                       tool interactions
                     </p>
-                    <p className="mt-1 text-sm text-amber-700 text-pretty">
+                    <p className="mt-1 text-sm text-amber-300 text-pretty">
                       Most content is AI agent tool usage (file reads, code
                       execution, etc.)
                     </p>
@@ -1353,8 +1353,8 @@ function ChatMessageListComponent({
                   className={cn(
                     'shrink-0 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors',
                     expandAllToolSections
-                      ? 'border-amber-300 bg-amber-100 text-amber-700 cursor-default'
-                      : 'border-amber-300 bg-amber-100/80 text-amber-800 hover:bg-amber-200 dark:hover:bg-amber-900/30 hover:border-amber-400',
+                      ? 'border-amber-300 bg-amber-500/10 text-amber-300 cursor-default'
+                      : 'border-amber-300 bg-amber-500/10 text-amber-300 hover:bg-amber-200 dark:hover:bg-amber-900/30 hover:border-amber-400',
                   )}
                   aria-label={
                     expandAllToolSections

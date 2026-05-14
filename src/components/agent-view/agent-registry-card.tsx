@@ -211,7 +211,7 @@ export function AgentRegistryCard({
                       setMenuOpen(false)
                       handleKillIntent()
                     }}
-                    className="flex w-full items-center rounded-lg px-2.5 py-2 text-left text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/40"
+                    className="flex w-full items-center rounded-lg px-2.5 py-2 text-left text-xs font-medium text-red-400 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/40"
                   >
                     Kill
                   </button>

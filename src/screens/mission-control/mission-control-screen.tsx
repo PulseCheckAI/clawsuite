@@ -6,7 +6,6 @@ import {
   Tracker,
   BarList,
   Callout,
-  DonutGauge,
   PulseLogo,
   type TrackerCell,
   type BarListItem,
@@ -46,9 +45,44 @@ async function supabaseGet<T>(path: string): Promise<Array<T>> {
   return res.json()
 }
 
+type Integration = {
+  id: string
+  name: string
+  role: string
+  state: 'online' | 'configured' | 'not-configured' | 'unknown'
+  detail: string
+  color: string
+}
+
+type AutonomyState = {
+  enabled: boolean
+  lastTickAt: number
+  lastTickResult:
+    | null
+    | { ok: true; picked: null; reason: string }
+    | {
+        ok: true
+        picked: {
+          id: string
+          title: string
+          category: string
+          agent: string
+          status: string
+        }
+      }
+    | { ok: false; error: string }
+  totalTicks: number
+  totalDispatched: number
+  totalFailed: number
+  inflightCount: number
+}
+
 export function MissionControlScreen() {
   const [todos, setTodos] = useState<Array<Todo>>([])
   const [logs, setLogs] = useState<Array<AgentLog>>([])
+  const [integrations, setIntegrations] = useState<Array<Integration>>([])
+  const [autonomy, setAutonomy] = useState<AutonomyState | null>(null)
+  const [tickPending, setTickPending] = useState(false)
   const [loadErr, setLoadErr] = useState<string | null>(null)
   const [now, setNow] = useState(new Date())
 
@@ -70,6 +104,72 @@ export function MissionControlScreen() {
       })
       .catch((e) => setLoadErr(e.message))
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const res = await fetch('/api/system-integrations')
+        const body = (await res.json()) as {
+          ok: boolean
+          integrations: Array<Integration>
+        }
+        if (!cancelled && body.ok) setIntegrations(body.integrations)
+      } catch {
+        // Probe is best-effort; failures = no panel, no fabrication.
+      }
+    }
+    void load()
+    const refresh = setInterval(load, 60_000)
+    return () => {
+      cancelled = true
+      clearInterval(refresh)
+    }
+  }, [])
+
+  // Autonomy loop status — polls /api/autonomy-status every 10s.
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      try {
+        const res = await fetch('/api/autonomy-status')
+        const body = (await res.json()) as { ok: boolean; state: AutonomyState }
+        if (!cancelled && body.ok) setAutonomy(body.state)
+      } catch {
+        // best-effort; failures = no panel update
+      }
+    }
+    void load()
+    const refresh = setInterval(load, 10_000)
+    return () => {
+      cancelled = true
+      clearInterval(refresh)
+    }
+  }, [])
+
+  async function handleManualTick() {
+    if (tickPending) return
+    setTickPending(true)
+    try {
+      await fetch('/api/autonomy-tick', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      })
+      // Force-refresh state immediately after tick
+      try {
+        const res = await fetch('/api/autonomy-status')
+        const body = (await res.json()) as { ok: boolean; state: AutonomyState }
+        if (body.ok) setAutonomy(body.state)
+      } catch {
+        // ignore
+      }
+    } catch {
+      // ignore
+    } finally {
+      setTickPending(false)
+    }
+  }
 
   const totalTasks = todos.length
   const inProgress = todos.filter((t) => t.status === 'in_progress').length
@@ -147,6 +247,38 @@ export function MissionControlScreen() {
       formattedValue: String(value),
     }))
 
+  // ── Agent Roster ──────────────────────────────────────────────────────────
+  // Tutorial Phase 9 mapping: 5 named agents (Alex/Maya/Jordan/Dev/Sam) with
+  // role labels and signature glow colors. Stats come from command_center.
+  // agent_logs — last task description, last active timestamp, today's count,
+  // last model used. Empty-state cells show "No data yet" honestly (per the
+  // feedback_no_mock_data memory).
+  const AGENT_ROSTER = [
+    { key: 'Alex', emoji: '🔎', role: 'Research Analyst', color: '#3B82F6' },
+    { key: 'Maya', emoji: '✍️', role: 'Content Writer', color: '#7C3AED' },
+    {
+      key: 'Jordan',
+      emoji: '📈',
+      role: 'Marketing Strategist',
+      color: '#F59E0B',
+    },
+    { key: 'Dev', emoji: '💻', role: 'Full-Stack Developer', color: '#10B981' },
+    { key: 'Sam', emoji: '📱', role: 'Social Media Manager', color: '#EC4899' },
+  ] as const
+  const agentRosterStats = AGENT_ROSTER.map((a) => {
+    const agentLogs = logs
+      .filter((l) => l.agent_name === a.key)
+      .sort(
+        (x, y) =>
+          new Date(y.created_at).getTime() - new Date(x.created_at).getTime(),
+      )
+    const last = agentLogs[0] ?? null
+    const tasksToday = agentLogs.filter(
+      (l) => l.created_at.slice(0, 10) === today,
+    ).length
+    return { ...a, last, tasksToday, total: agentLogs.length }
+  })
+
   const catCounts: Record<string, number> = {}
   todos.forEach((t) => {
     catCounts[t.category] = (catCounts[t.category] || 0) + 1
@@ -205,32 +337,32 @@ export function MissionControlScreen() {
 
   return (
     <div className="min-h-screen bg-primary-50 dark:bg-primary-100 text-primary-950 dark:text-primary-950">
-      <header className="glass-bar sticky top-0 z-30 px-8 pt-6 pb-4 flex items-center justify-between gap-6 border-b border-primary-200 dark:border-primary-400">
+      {/* Flat page header — no card, no sticky bar. Logo + title sit
+          directly on the page; status pills float on the right. */}
+      <header className="px-6 md:px-8 pt-6 md:pt-8 pb-2 flex items-center justify-between gap-6">
         <div className="flex items-center gap-3">
-          <PulseLogo size={40} variant="gradient" glow />
+          <PulseLogo size={56} variant="gradient" glow={false} />
           <div>
             <h1 className="font-display text-3xl font-bold tracking-tight">
-              Mission Control
+              Command Center
             </h1>
             <p className="text-xs text-primary-700 dark:text-primary-800 mt-1 font-mono">
-              PulseCheck AI <span className="mx-1">›</span> Mission Control
+              PulseCheck AI <span className="mx-1">›</span> Command Center
               <span className="mx-2">·</span>
               <span className="pulse-text font-semibold">Live</span>
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3 text-xs">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary-100 dark:bg-primary-200 border border-primary-300">
+          <div className="inline-flex items-center gap-2">
             <StatusDot tone="live" />
             <span className="font-mono">Supabase command_center</span>
           </div>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-primary-100 dark:bg-primary-200 border border-primary-300 font-mono">
-            {now.toLocaleTimeString()}
-          </div>
+          <div className="font-mono">{now.toLocaleTimeString()}</div>
         </div>
       </header>
 
-      <div className="px-8 py-6 space-y-6 max-w-[1500px]">
+      <div className="px-6 md:px-8 py-6 space-y-6 max-w-[1500px]">
         {loadErr ? (
           <Callout tone="critical" title="Data load failed">
             {loadErr}
@@ -324,16 +456,16 @@ export function MissionControlScreen() {
         ) : (
           <Callout tone="success" title="No action required">
             No stale in_progress tasks (&gt;24h), no off-track items, no recent
-            failures. Mission Control is clear.
+            failures. Command Center is clear.
           </Callout>
         )}
 
         {/* ── Activity tracker — what changed over 30 days ── */}
-        <section className="glass-card p-5">
-          <div className="flex items-center justify-between mb-4">
+        <section className="glass-card p-5 rounded-xl border">
+          <div className="flex items-start justify-between gap-3 mb-4">
             <div>
               <h2 className="text-base font-semibold">Activity · 30 days</h2>
-              <p className="text-xs text-primary-700 dark:text-primary-800 mt-0.5 font-mono">
+              <p className="text-[11px] mt-0.5 font-mono opacity-60">
                 task + agent_log creation per day
               </p>
             </div>
@@ -342,12 +474,321 @@ export function MissionControlScreen() {
               tone="neutral"
             />
           </div>
-          <Tracker cells={trackerCells} cellWidth={12} cellHeight={36} />
-          <div className="mt-4 pt-4 border-t border-primary-200 dark:border-primary-600 flex items-center justify-between text-[11px] font-mono text-primary-700 dark:text-primary-800">
+          <Tracker cells={trackerCells} cellWidth={14} cellHeight={42} />
+          <div className="mt-4 pt-3 border-t border-[rgba(170,178,195,0.2)] flex items-center justify-between text-[10px] uppercase tracking-wider font-mono opacity-50">
             <span>30 days ago</span>
             <span>today</span>
           </div>
         </section>
+
+        {/* ── Agent Roster — 5 named agents with role + glow + live stats ── */}
+        <section className="rounded-xl border p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-base font-semibold">Agent Roster</h2>
+              <p className="text-[11px] mt-0.5 font-mono opacity-60">
+                Alex · Maya · Jordan · Dev · Sam — reading from{' '}
+                command_center.agent_logs
+              </p>
+            </div>
+            <span className="text-[10px] uppercase tracking-wider font-mono opacity-60">
+              {agentRosterStats.reduce((n, a) => n + a.tasksToday, 0)} tasks
+              today
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
+            {agentRosterStats.map((a) => (
+              <article
+                key={a.key}
+                className="relative rounded-xl border p-3 overflow-hidden"
+                style={{
+                  boxShadow: `inset 0 0 0 1px ${a.color}40, 0 8px 20px -10px ${a.color}55`,
+                }}
+              >
+                <span
+                  className="absolute inset-x-0 top-0 h-px"
+                  style={{
+                    background: `linear-gradient(90deg, transparent, ${a.color}, transparent)`,
+                  }}
+                />
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg leading-none">{a.emoji}</span>
+                  <div className="min-w-0">
+                    <div
+                      className="font-display text-sm font-bold leading-tight"
+                      style={{ color: a.color }}
+                    >
+                      {a.key}
+                    </div>
+                    <div className="text-[10px] font-mono uppercase tracking-wider opacity-60 truncate">
+                      {a.role}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 mb-2 text-[10px] font-mono">
+                  <span
+                    className="inline-block size-1.5 rounded-full"
+                    style={{ background: a.color }}
+                  />
+                  <span className="opacity-80">
+                    {a.total > 0 ? 'Active' : 'Idle'}
+                  </span>
+                  <span className="opacity-30">·</span>
+                  <span className="opacity-60">
+                    {a.tasksToday} today · {a.total} total
+                  </span>
+                </div>
+                <div className="text-[10px] uppercase tracking-wider opacity-50 font-mono mb-0.5">
+                  Last task
+                </div>
+                <div className="text-xs leading-snug line-clamp-2 mb-1.5">
+                  {a.last?.agent_name ? (
+                    <>
+                      <span className="opacity-90">
+                        {(a.last as any).task_description ||
+                          (a.last as any).agent_name ||
+                          'Task'}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="opacity-40 italic">No data yet</span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between text-[10px] font-mono opacity-60">
+                  <span>{a.last?.model_used ?? 'N/A'}</span>
+                  <span>
+                    {a.last
+                      ? new Date(a.last.created_at).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
+                      : '—'}
+                  </span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* ── System Integrations — probed against filesystem + gateway ── */}
+        {integrations.length > 0 ? (
+          <section className="rounded-xl border p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-base font-semibold">System Integrations</h2>
+                <p className="text-[11px] mt-0.5 font-mono opacity-60">
+                  Live state from /api/system-integrations · filesystem +
+                  gateway probes · refreshes every 60s
+                </p>
+              </div>
+              <span className="text-[10px] uppercase tracking-wider font-mono opacity-60">
+                {
+                  integrations.filter(
+                    (i) => i.state === 'online' || i.state === 'configured',
+                  ).length
+                }
+                /{integrations.length} ready
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {integrations.map((i) => {
+                const toneClass =
+                  i.state === 'online'
+                    ? 'text-emerald-400'
+                    : i.state === 'configured'
+                      ? 'text-emerald-400'
+                      : i.state === 'not-configured'
+                        ? 'text-amber-400'
+                        : 'text-white/50'
+                const dotColor =
+                  i.state === 'online' || i.state === 'configured'
+                    ? '#10b981'
+                    : i.state === 'not-configured'
+                      ? '#f59e0b'
+                      : '#9ca3af'
+                return (
+                  <article
+                    key={i.id}
+                    className="relative rounded-xl border p-3 overflow-hidden"
+                    style={{
+                      boxShadow: `inset 0 0 0 1px ${i.color}30, 0 8px 20px -10px ${i.color}40`,
+                    }}
+                  >
+                    <span
+                      className="absolute inset-x-0 top-0 h-px"
+                      style={{
+                        background: `linear-gradient(90deg, transparent, ${i.color}, transparent)`,
+                      }}
+                    />
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <div
+                        className="font-display text-sm font-bold leading-tight"
+                        style={{ color: i.color }}
+                      >
+                        {i.name}
+                      </div>
+                      <span
+                        className="inline-block size-1.5 rounded-full shrink-0"
+                        style={{ background: dotColor }}
+                      />
+                    </div>
+                    <div className="text-[10px] font-mono uppercase tracking-wider opacity-60 mb-2">
+                      {i.role}
+                    </div>
+                    <div
+                      className={`text-[10px] font-mono uppercase tracking-wider mb-1.5 ${toneClass}`}
+                    >
+                      {i.state === 'not-configured'
+                        ? 'Not configured'
+                        : i.state}
+                    </div>
+                    <div className="text-[11px] leading-snug opacity-80 line-clamp-2">
+                      {i.detail}
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          </section>
+        ) : null}
+
+        {/* ── Autonomy Loop control plane ─────────────────────────────── */}
+        {autonomy ? (
+          <section className="rounded-xl border p-5">
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <h2 className="text-base font-semibold">
+                  Autonomy Loop · Tier 1
+                </h2>
+                <p className="text-[11px] mt-0.5 font-mono opacity-60">
+                  Picks command_center.todos → routes by category → dispatches
+                  to OpenClaw agent · server-side 60s + CronCreate 10m heartbeat
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void handleManualTick()}
+                disabled={tickPending}
+                className="text-[11px] font-mono uppercase tracking-wider px-3 py-1.5 rounded-md border border-[rgba(255,107,53,0.55)] bg-[rgba(255,107,53,0.18)] text-white hover:bg-[rgba(255,107,53,0.3)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {tickPending ? 'Ticking…' : 'Tick now'}
+              </button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+              <div className="rounded-md border border-[rgba(170,178,195,0.25)] px-3 py-2.5">
+                <div className="text-[10px] uppercase tracking-wider opacity-60 mb-1">
+                  Status
+                </div>
+                <div
+                  className={`text-sm font-display font-bold ${
+                    autonomy.enabled ? 'text-emerald-400' : 'text-amber-400'
+                  }`}
+                >
+                  {autonomy.enabled ? 'Auto · 60s' : 'Manual'}
+                </div>
+                <div className="text-[10px] font-mono opacity-50 mt-0.5">
+                  {autonomy.enabled
+                    ? 'setInterval active'
+                    : 'cron heartbeat only'}
+                </div>
+              </div>
+              <div className="rounded-md border border-[rgba(170,178,195,0.25)] px-3 py-2.5">
+                <div className="text-[10px] uppercase tracking-wider opacity-60 mb-1">
+                  Ticks
+                </div>
+                <div className="text-sm font-display font-bold">
+                  {autonomy.totalTicks}
+                </div>
+                <div className="text-[10px] font-mono opacity-50 mt-0.5">
+                  {autonomy.inflightCount} in-flight
+                </div>
+              </div>
+              <div className="rounded-md border border-[rgba(170,178,195,0.25)] px-3 py-2.5">
+                <div className="text-[10px] uppercase tracking-wider opacity-60 mb-1">
+                  Dispatched
+                </div>
+                <div className="text-sm font-display font-bold text-emerald-400">
+                  {autonomy.totalDispatched}
+                </div>
+                <div className="text-[10px] font-mono opacity-50 mt-0.5">
+                  successes
+                </div>
+              </div>
+              <div className="rounded-md border border-[rgba(170,178,195,0.25)] px-3 py-2.5">
+                <div className="text-[10px] uppercase tracking-wider opacity-60 mb-1">
+                  Failed
+                </div>
+                <div
+                  className={`text-sm font-display font-bold ${
+                    autonomy.totalFailed > 0
+                      ? 'text-red-400'
+                      : 'text-emerald-400'
+                  }`}
+                >
+                  {autonomy.totalFailed}
+                </div>
+                <div className="text-[10px] font-mono opacity-50 mt-0.5">
+                  errors
+                </div>
+              </div>
+            </div>
+            <div className="text-[10px] uppercase tracking-wider opacity-50 mb-1 font-mono">
+              Last tick
+            </div>
+            <div className="text-xs opacity-90">
+              {autonomy.lastTickAt === 0 ? (
+                <span className="italic opacity-50">
+                  Never — press Tick now or wait for the next cron fire
+                </span>
+              ) : (
+                <>
+                  <span className="font-mono opacity-60">
+                    {new Date(autonomy.lastTickAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
+                    })}
+                  </span>
+                  <span className="mx-2 opacity-30">·</span>
+                  {autonomy.lastTickResult &&
+                  'picked' in autonomy.lastTickResult &&
+                  autonomy.lastTickResult.picked ? (
+                    <>
+                      <span
+                        className={
+                          autonomy.lastTickResult.picked.status === 'completed'
+                            ? 'text-emerald-400'
+                            : 'text-red-400'
+                        }
+                      >
+                        {autonomy.lastTickResult.picked.status}
+                      </span>
+                      <span className="mx-2 opacity-30">·</span>
+                      <span className="opacity-80">
+                        {autonomy.lastTickResult.picked.title}
+                      </span>
+                      <span className="opacity-40">
+                        {' '}
+                        →{' '}
+                        <code className="font-mono">
+                          {autonomy.lastTickResult.picked.agent}
+                        </code>
+                      </span>
+                    </>
+                  ) : autonomy.lastTickResult &&
+                    'reason' in autonomy.lastTickResult ? (
+                    <span className="opacity-50 italic">queue empty</span>
+                  ) : autonomy.lastTickResult &&
+                    'error' in autonomy.lastTickResult ? (
+                    <span className="text-red-400">
+                      error: {autonomy.lastTickResult.error}
+                    </span>
+                  ) : null}
+                </>
+              )}
+            </div>
+          </section>
+        ) : null}
 
         <section className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           <div className="glass-card p-5">
@@ -441,18 +882,17 @@ export function MissionControlScreen() {
             . All metrics derived from real Supabase rows — no mock data, honest
             emptiness when a series has no entries.
           </Callout>
-          <Callout tone="success" title="Mission Control kit installed">
+          <Callout tone="success" title="Command Center kit installed">
             8 vendored components live: KpiCard, SparkArea, StatusDot,
             BadgeDelta, Tracker, BarList, Callout, DonutGauge. Drop them into
-            any ClawSuite widget for the Mission Control look. Bricolage
-            Grotesque + Inter + JetBrains Mono self-hosted via
-            @fontsource-variable.
+            any PulseOS widget for the Command Center look. Bricolage Grotesque
+            + Inter + JetBrains Mono self-hosted via @fontsource-variable.
           </Callout>
         </section>
 
         <footer className="pt-2 pb-6 text-[11px] text-primary-700 dark:text-primary-800 flex items-center justify-between font-mono">
           <span>
-            PulseCheck AI · Mission Control · v1.0.0 · Source:{' '}
+            PulseCheck AI · Command Center · v1.0.0 · Source:{' '}
             <span className="text-accent-400">command_center</span> (Supabase)
           </span>
           <span>build 2026-05-14 · {now.toISOString().slice(0, 10)}</span>

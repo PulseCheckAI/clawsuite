@@ -623,9 +623,9 @@ export function UsageMeter() {
   const alertTone = (() => {
     if (statsView === 'agents') {
       if (agentActivity.activeAgents > 5)
-        return 'text-amber-600 bg-amber-100 border-amber-200'
+        return 'text-amber-600 bg-amber-500/10 border-amber-500/40'
       if (agentActivity.activeAgents > 0)
-        return 'text-emerald-600 bg-emerald-100 border-emerald-200'
+        return 'text-emerald-600 bg-emerald-500/10 border-emerald-500/30'
       return 'text-primary-600 bg-primary-50 border-primary-200'
     }
     if (statsView === 'provider' && primaryProvider) {
@@ -639,14 +639,14 @@ export function UsageMeter() {
         (max, l) => Math.max(max, l.used ?? 0),
         0,
       )
-      if (maxPct >= 75) return 'text-red-600 bg-red-100 border-red-200'
-      if (maxPct >= 50) return 'text-amber-600 bg-amber-100 border-amber-200'
-      return 'text-emerald-600 bg-emerald-100 border-emerald-200'
+      if (maxPct >= 75) return 'text-red-400 bg-red-500/10 border-red-500/30'
+      if (maxPct >= 50) return 'text-amber-600 bg-amber-500/10 border-amber-500/40'
+      return 'text-emerald-600 bg-emerald-500/10 border-emerald-500/30'
     }
     const value = usage.contextPercent
-    if (value >= 75) return 'text-red-600 bg-red-100 border-red-200'
-    if (value >= 50) return 'text-amber-600 bg-amber-100 border-amber-200'
-    return 'text-amber-600 bg-amber-100 border-amber-200'
+    if (value >= 75) return 'text-red-400 bg-red-500/10 border-red-500/30'
+    if (value >= 50) return 'text-amber-600 bg-amber-500/10 border-amber-500/40'
+    return 'text-amber-600 bg-amber-500/10 border-amber-500/40'
   })()
 
   const handleSetPreferredProvider = useCallback((provider: string) => {
@@ -861,7 +861,7 @@ export function UsageMeter() {
               key={view}
               onClick={() => handleStatsViewChange(view)}
               className={cn(
-                statsView === view && 'bg-amber-100 text-amber-800',
+                statsView === view && 'bg-amber-500/10 text-amber-300',
               )}
             >
               <span className="flex-1">{STATS_VIEW_LABELS[view]}</span>

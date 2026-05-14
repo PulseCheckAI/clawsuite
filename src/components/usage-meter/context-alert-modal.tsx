@@ -27,12 +27,12 @@ function ContextAlertModalComponent({
       ? 'bg-amber-500'
       : 'bg-amber-400'
   const iconBg = isCritical
-    ? 'bg-red-100'
+    ? 'bg-red-500/10'
     : isDanger
-      ? 'bg-amber-100'
-      : 'bg-amber-100'
+      ? 'bg-amber-500/10'
+      : 'bg-amber-500/10'
   const iconColor = isCritical
-    ? 'text-red-600'
+    ? 'text-red-400'
     : isDanger
       ? 'text-amber-600'
       : 'text-amber-600'

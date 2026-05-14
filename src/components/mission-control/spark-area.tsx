@@ -2,7 +2,7 @@ import { Area, AreaChart, ResponsiveContainer } from 'recharts'
 
 // Mission Control sparkline — minimal, no axes, no tooltip by default.
 // Mirrors Tremor Raw's SparkAreaChart pattern but built directly on Recharts
-// (already a ClawSuite dep at 3.8.1).
+// (already a PulseOS dep at 3.8.1).
 export function SparkArea({
   data,
   color = '#FF6B35',

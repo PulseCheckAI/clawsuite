@@ -97,7 +97,7 @@ function MemoryEditor({
             Loading file content...
           </div>
         ) : error ? (
-          <div className="flex h-full items-center justify-center px-5 text-sm text-red-700 text-pretty">
+          <div className="flex h-full items-center justify-center px-5 text-sm text-red-400 text-pretty">
             {error}
           </div>
         ) : (

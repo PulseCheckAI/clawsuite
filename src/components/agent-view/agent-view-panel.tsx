@@ -849,7 +849,7 @@ export function AgentViewPanel() {
                   className={cn(
                     'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium tabular-nums cursor-default',
                     activeCount > 0
-                      ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-700'
+                      ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-400'
                       : 'border-primary-300/70 bg-primary-200/50 text-primary-700',
                   )}
                   title={`${activeCount} agent${activeCount !== 1 ? 's' : ''} running · ${historyAgents.length} in history · ${queuedAgents.length} queued`}
@@ -1228,7 +1228,7 @@ export function AgentViewPanel() {
                                         cliAgentsQuery.refetch()
                                       } catch { /* noop */ }
                                     }}
-                                    className="shrink-0 rounded px-1 py-0.5 text-[9px] text-primary-400 hover:bg-red-100 hover:text-red-500 transition-colors"
+                                    className="shrink-0 rounded px-1 py-0.5 text-[9px] text-primary-400 hover:bg-red-500/10 hover:text-red-500 transition-colors"
                                     title="Kill agent"
                                   >
                                     ✕
@@ -1304,7 +1304,7 @@ export function AgentViewPanel() {
                       className={cn(
                         'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium tabular-nums',
                         activeCount > 0
-                          ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-700'
+                          ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-400'
                           : 'border-primary-300/70 bg-primary-200/50 text-primary-700',
                       )}
                     >
@@ -1372,7 +1372,7 @@ export function AgentViewPanel() {
                                 <button
                                   type="button"
                                   onClick={() => killAgent(node.id)}
-                                  className="text-[10px] text-red-500 hover:text-red-700 font-medium"
+                                  className="text-[10px] text-red-500 hover:text-red-400 font-medium"
                                 >
                                   Kill
                                 </button>

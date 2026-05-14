@@ -260,7 +260,7 @@ function ProviderRestartConfirmDialog({
       {/* Panel */}
       <div className="relative z-10 w-[min(420px,92vw)] rounded-2xl border border-primary-200 bg-primary-50 p-5 shadow-xl dark:border-primary-700 dark:bg-primary-900">
         <div className="flex items-start gap-3">
-          <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/30">
+          <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-amber-500/40 bg-amber-50 dark:border-amber-700/40 dark:bg-amber-900/30">
             <HugeiconsIcon
               icon={RefreshIcon}
               size={18}
@@ -368,12 +368,12 @@ function GatewayRestartOverlayView({
           </>
         ) : (
           <>
-            <span className="inline-flex size-12 items-center justify-center rounded-full border border-red-200 bg-red-50 dark:border-red-700/40 dark:bg-red-900/30">
+            <span className="inline-flex size-12 items-center justify-center rounded-full border border-red-500/30 bg-red-50 dark:border-red-700/40 dark:bg-red-900/30">
               <HugeiconsIcon
                 icon={Alert02Icon}
                 size={24}
                 strokeWidth={1.5}
-                className="text-red-600 dark:text-red-400"
+                className="text-red-400 dark:text-red-400"
               />
             </span>
             <div className="text-center">

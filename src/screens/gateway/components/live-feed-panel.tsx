@@ -115,10 +115,10 @@ function eventSeverity(event: FeedRow): EventSeverity {
 
 function severityClass(severity: EventSeverity): string {
   if (severity === 'error') {
-    return 'border-red-200 bg-red-50/80 dark:border-red-900/40 dark:bg-red-950/30'
+    return 'border-red-500/30 bg-red-50/80 dark:border-red-900/40 dark:bg-red-950/30'
   }
   if (severity === 'spawn') {
-    return 'border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/40 dark:bg-emerald-950/30'
+    return 'border-emerald-500/30 bg-emerald-50/70 dark:border-emerald-900/40 dark:bg-emerald-950/30'
   }
   if (severity === 'system') {
     return 'border-primary-200 bg-primary-50 dark:border-primary-800 dark:bg-primary-900/50'
@@ -140,8 +140,8 @@ function severityTextClass(severity: EventSeverity): string {
 }
 
 function severityTimestampClass(severity: EventSeverity): string {
-  if (severity === 'error') return 'text-red-700 dark:text-red-300'
-  if (severity === 'spawn') return 'text-emerald-700 dark:text-emerald-300'
+  if (severity === 'error') return 'text-red-400 dark:text-red-300'
+  if (severity === 'spawn') return 'text-emerald-400 dark:text-emerald-300'
   if (severity === 'system') return 'text-primary-500 dark:text-primary-500'
   return 'text-primary-700 dark:text-primary-400'
 }

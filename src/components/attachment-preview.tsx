@@ -72,7 +72,7 @@ export function AttachmentPreview({
                 {attachment.file.name}
               </p>
               {hasError ? (
-                <p className="text-[9px] text-red-600">{attachment.error}</p>
+                <p className="text-[9px] text-red-400">{attachment.error}</p>
               ) : (
                 <p className="text-[9px] text-primary-500">
                   {getFileExtension(attachment.file.name)} •{' '}

@@ -138,7 +138,7 @@ export function GatewayReconnectBanner() {
   return (
     <div
       className={cn(
-        'fixed left-4 right-4 z-[90] bottom-[calc(var(--tabbar-h,0px)+1rem)] sm:left-auto sm:bottom-4 sm:w-80 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 shadow-lg',
+        'fixed left-4 right-4 z-[90] bottom-[calc(var(--tabbar-h,0px)+1rem)] sm:left-auto sm:bottom-4 sm:w-80 rounded-xl border border-red-500/30 bg-red-50 px-3 py-2.5 shadow-lg',
         'transition-all duration-200 ease-out',
         (isVisible && !isFadingOut
           ? 'translate-y-0 opacity-100'
@@ -151,12 +151,12 @@ export function GatewayReconnectBanner() {
         <HugeiconsIcon
           icon={Alert02Icon}
           size={20}
-          className="shrink-0 text-red-600"
+          className="shrink-0 text-red-400"
           strokeWidth={1.5}
         />
         <div className="min-w-0 flex-1 text-xs">
           <p className="font-medium text-red-900">{errorInfo.title}</p>
-          <p className="mt-0.5 text-red-700 text-pretty">
+          <p className="mt-0.5 text-red-400 text-pretty">
             {errorInfo.description}
           </p>
           {errorInfo.action ? (
@@ -171,14 +171,14 @@ export function GatewayReconnectBanner() {
           variant="secondary"
           size="sm"
           onClick={handleOpenSettings}
-          className="h-7 shrink-0 border-red-300 bg-red-100 px-2 text-xs text-red-700 hover:bg-red-200"
+          className="h-7 shrink-0 border-red-300 bg-red-500/10 px-2 text-xs text-red-400 hover:bg-red-200"
         >
           <HugeiconsIcon icon={Settings02Icon} size={20} strokeWidth={1.5} />
           Reconfigure
         </Button>
         <button
           onClick={handleDismiss}
-          className="shrink-0 rounded p-1 text-red-600 transition-colors hover:bg-red-200/70"
+          className="shrink-0 rounded p-1 text-red-400 transition-colors hover:bg-red-200/70"
           aria-label="Dismiss banner"
         >
           <HugeiconsIcon icon={Cancel01Icon} size={20} strokeWidth={1.5} />

@@ -209,13 +209,13 @@ function statusBadge(status: ProviderUsage['status']) {
   switch (status) {
     case 'ok':
       return (
-        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+        <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
           Connected
         </span>
       )
     case 'auth_expired':
       return (
-        <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+        <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-300">
           Auth Expired
         </span>
       )
@@ -227,7 +227,7 @@ function statusBadge(status: ProviderUsage['status']) {
       )
     case 'error':
       return (
-        <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-medium text-red-700">
+        <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-medium text-red-400">
           Error
         </span>
       )
@@ -348,7 +348,7 @@ export function UsageDetailsModal({
         {activeTab === 'session' ? (
           <div className="flex flex-col gap-4">
             {error ? (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+              <div className="rounded-xl border border-red-500/30 bg-red-50 p-3 text-sm text-red-400">
                 {error}
               </div>
             ) : null}
@@ -463,7 +463,7 @@ export function UsageDetailsModal({
         ) : (
           <div className="flex flex-col gap-4">
             {providerError ? (
-              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+              <div className="rounded-xl border border-red-500/30 bg-red-50 p-3 text-sm text-red-400">
                 {providerError}
               </div>
             ) : null}
@@ -517,7 +517,7 @@ export function UsageDetailsModal({
                             </span>
                           ) : null}
                           {isDefault ? (
-                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                            <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
                               ⭐ Default
                             </span>
                           ) : null}
@@ -532,7 +532,7 @@ export function UsageDetailsModal({
 
                       {provider.status !== 'ok' ? (
                         <div className="mt-3 space-y-2">
-                          <div className="rounded-xl border border-amber-100 bg-amber-50 p-3 text-xs text-amber-700">
+                          <div className="rounded-xl border border-amber-100 bg-amber-50 p-3 text-xs text-amber-300">
                             {getActionableMessage(
                               provider.provider,
                               provider.status,

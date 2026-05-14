@@ -150,7 +150,7 @@ export function NotificationsPopover() {
                       className={cn(
                         'text-[11px] font-medium',
                         item.label === 'Error'
-                          ? 'text-red-600'
+                          ? 'text-red-400'
                           : 'text-primary-600',
                       )}
                     >

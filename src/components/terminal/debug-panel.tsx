@@ -31,7 +31,7 @@ export function DebugPanel({
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        'absolute inset-y-0 right-0 z-40 flex h-full w-[400px] max-w-full translate-x-0 flex-col border-l border-primary-700/40 bg-[#0d0d0d] text-primary-100 shadow-2xl transition-transform duration-200',
+        'absolute inset-y-0 right-0 z-40 flex h-full w-[400px] max-w-full translate-x-0 flex-col border-l border-primary-700/40 bg-[var(--theme-bg)] text-primary-100 shadow-2xl transition-transform duration-200',
       )}
       role="complementary"
       aria-label="Debug analyzer"

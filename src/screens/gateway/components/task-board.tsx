@@ -41,8 +41,8 @@ const PRIORITIES: Array<{
   label: string
   badge: string
 }> = [
-  { key: 'urgent', label: 'Urgent', badge: 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-300' },
-  { key: 'high', label: 'High', badge: 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300' },
+  { key: 'urgent', label: 'Urgent', badge: 'bg-red-500/10 text-red-400 dark:bg-red-950/40 dark:text-red-300' },
+  { key: 'high', label: 'High', badge: 'bg-amber-500/10 text-amber-300 dark:bg-amber-950/40 dark:text-amber-300' },
   { key: 'normal', label: 'Normal', badge: 'bg-primary-100 text-primary-700 dark:bg-primary-900/40 dark:text-primary-200' },
   { key: 'low', label: 'Low', badge: 'bg-primary-100 text-primary-700 dark:bg-primary-800 dark:text-primary-200' },
 ]

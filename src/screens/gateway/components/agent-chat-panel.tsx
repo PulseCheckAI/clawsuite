@@ -278,7 +278,7 @@ export function AgentChatPanel({
           )}
 
           {error && (
-            <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+            <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-400 dark:bg-red-900/20 dark:text-red-400">
               {error}
             </div>
           )}
@@ -297,7 +297,7 @@ export function AgentChatPanel({
                   msg.role === 'user'
                     ? 'bg-accent-500 text-white rounded-br-md'
                     : msg.role === 'system'
-                      ? 'bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 text-xs italic'
+                      ? 'bg-amber-50 text-amber-300 dark:bg-amber-900/20 dark:text-amber-300 text-xs italic'
                       : 'bg-primary-100 text-primary-900 dark:bg-primary-800 dark:text-primary-100 rounded-bl-md',
                 )}
               >

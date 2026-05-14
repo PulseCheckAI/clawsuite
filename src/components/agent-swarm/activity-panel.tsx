@@ -183,7 +183,7 @@ export function ActivityPanel({ sessions, className }: ActivityPanelProps) {
   return (
     <div
       className={cn(
-        'flex h-full flex-col gap-3 overflow-y-auto bg-[#0d1117] p-3 text-white',
+        'flex h-full flex-col gap-3 overflow-y-auto bg-[var(--theme-bg)] p-3 text-white',
         className,
       )}
     >

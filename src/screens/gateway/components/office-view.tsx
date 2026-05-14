@@ -37,9 +37,9 @@ export const OFFICE_MODEL_BADGE: Record<ModelPresetId, string> = {
   auto: 'rounded-full border border-primary-200 bg-primary-100 text-primary-600',
   opus: 'border border-accent-200 bg-accent-50 text-accent-700',
   sonnet: 'border border-blue-200 bg-blue-50 text-blue-700',
-  codex: 'border border-emerald-200 bg-emerald-50 text-emerald-700',
+  codex: 'border border-emerald-500/30 bg-emerald-50 text-emerald-400',
   flash: 'border border-violet-200 bg-violet-50 text-violet-700',
-  minimax: 'border border-amber-200 bg-amber-50 text-amber-700',
+  minimax: 'border border-amber-500/40 bg-amber-50 text-amber-300',
   'pc1-coder': 'border border-cyan-200 bg-cyan-50 text-cyan-700',
   'pc1-planner': 'border border-indigo-200 bg-indigo-50 text-indigo-700',
   'pc1-critic': 'border border-purple-200 bg-purple-50 text-purple-700',
@@ -81,10 +81,10 @@ export function getAgentStatusMeta(status: AgentWorkingStatus): {
     case 'active': return { label: 'Active', className: 'text-emerald-600', dotClassName: 'bg-emerald-500', pulse: true }
     case 'ready':
     case 'idle': return { label: 'Idle', className: 'text-primary-600', dotClassName: 'bg-primary-400' }
-    case 'error': return { label: 'Error', className: 'text-red-600', dotClassName: 'bg-red-500' }
+    case 'error': return { label: 'Error', className: 'text-red-400', dotClassName: 'bg-red-500' }
     case 'none': return { label: 'Offline', className: 'text-primary-400', dotClassName: 'bg-primary-400' }
     case 'spawning': return { label: 'Starting', className: 'text-blue-600', dotClassName: 'bg-blue-500', pulse: true }
-    case 'paused': return { label: 'Paused', className: 'text-amber-700', dotClassName: 'bg-amber-500' }
+    case 'paused': return { label: 'Paused', className: 'text-amber-300', dotClassName: 'bg-amber-500' }
     default: return { label: String(status), className: 'text-primary-600', dotClassName: 'bg-primary-400' }
   }
 }
@@ -365,7 +365,7 @@ function RemoteSessionCard({ session, onClick }: { session: RemoteSession; onCli
   const badgeColorClass = session.kind === 'main'
     ? 'bg-violet-100 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400 border-violet-200 dark:border-violet-800'
     : session.kind === 'subagent' || session.kind === 'sub-agent'
-      ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+      ? 'bg-emerald-500/10 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400 border-emerald-500/30 dark:border-emerald-800'
       : 'bg-blue-100 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 border-blue-200 dark:border-blue-800'
 
   const modelDisplay = session.model
@@ -547,16 +547,16 @@ export function OfficeView({
       {/* Header bar */}
       {hideHeader ? null : <div className="flex shrink-0 flex-wrap items-start justify-between gap-2 border-b border-primary-200 bg-white/80 px-5 py-3 backdrop-blur dark:border-slate-700 dark:bg-slate-800/80">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="text-base font-bold text-primary-900 dark:text-white">ClawSuite Office</span>
+          <span className="text-base font-bold text-primary-900 dark:text-white">PulseOS Office</span>
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-primary-100 dark:bg-primary-800 px-2 py-0.5 text-[10px] font-medium text-primary-600 dark:text-primary-400 tabular-nums">{agentRows.length} agents</span>
-            <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400 tabular-nums">{activeCount} working</span>
+            <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 text-[10px] font-medium text-emerald-400 dark:text-emerald-400 tabular-nums">{activeCount} working</span>
             <span className="rounded-full bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:text-blue-400 tabular-nums">{sessionCount} sessions</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {missionRunning ? (
-            <span className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-400">
+            <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-400 dark:border-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-400">
               <span className="relative flex size-1.5">
                 <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/60" />
                 <span className="relative inline-flex size-1.5 rounded-full bg-emerald-500" />
@@ -748,7 +748,7 @@ export function OfficeView({
 
         {/* Office whiteboard */}
         <div className="pointer-events-none absolute left-1/2 top-3 z-20 -translate-x-1/2">
-          <div className="rounded-md border border-primary-300/90 bg-[#fdfdf8] px-4 py-2 shadow-[0_2px_8px_rgba(15,23,42,0.15)]">
+          <div className="rounded-md border border-primary-300/90 bg-[var(--theme-bg)] px-4 py-2 shadow-[0_2px_8px_rgba(15,23,42,0.15)]">
             <span className="block whitespace-nowrap text-center text-sm font-bold tracking-wide text-primary-800 [font-family:'Bradley_Hand','Marker_Felt','Comic_Sans_MS',cursive]">
               {companyName}
             </span>
@@ -829,7 +829,7 @@ export function OfficeView({
 
               {/* Activity indicator */}
               {isActive ? (
-                <span className="mt-1 flex items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400">
+                <span className="mt-1 flex items-center gap-0.5 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-400 dark:bg-emerald-900/40 dark:text-emerald-400">
                   <span className="size-1 animate-pulse rounded-full bg-emerald-500" />
                   <span className="size-1 animate-pulse rounded-full bg-emerald-500 [animation-delay:120ms]" />
                   <span className="size-1 animate-pulse rounded-full bg-emerald-500 [animation-delay:240ms]" />

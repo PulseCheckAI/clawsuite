@@ -28,8 +28,8 @@ export function InlineApprovalCard({ approval, onApprove, onDeny }: InlineApprov
         isPending
           ? 'border-amber-300 bg-amber-50/80 dark:border-amber-700 dark:bg-amber-950/40 animate-pulse-subtle'
           : resolved === 'approved'
-            ? 'border-emerald-200 bg-emerald-50/60 dark:border-emerald-800 dark:bg-emerald-950/30'
-            : 'border-red-200 bg-red-50/60 dark:border-red-800 dark:bg-red-950/30',
+            ? 'border-emerald-500/30 bg-emerald-50/60 dark:border-emerald-800 dark:bg-emerald-950/30'
+            : 'border-red-500/30 bg-red-50/60 dark:border-red-800 dark:bg-red-950/30',
       )}
     >
       <div className="flex items-start gap-2">
@@ -38,7 +38,7 @@ export function InlineApprovalCard({ approval, onApprove, onDeny }: InlineApprov
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-amber-800 dark:text-amber-200">
+            <span className="text-xs font-semibold text-amber-300 dark:text-amber-200">
               Approval Required
             </span>
             <span className="text-[10px] text-primary-500">{ageLabel}</span>
@@ -63,7 +63,7 @@ export function InlineApprovalCard({ approval, onApprove, onDeny }: InlineApprov
               <button
                 type="button"
                 onClick={() => { setResolved('denied'); onDeny(approval.id) }}
-                className="rounded-md border border-red-300 bg-white px-3 py-1 text-[11px] font-semibold text-red-600 transition-colors hover:bg-red-50 dark:border-red-700 dark:bg-primary-800 dark:text-red-400 dark:hover:bg-red-950"
+                className="rounded-md border border-red-300 bg-white px-3 py-1 text-[11px] font-semibold text-red-400 transition-colors hover:bg-red-50 dark:border-red-700 dark:bg-primary-800 dark:text-red-400 dark:hover:bg-red-950"
               >
                 ✕ Deny
               </button>

@@ -1,7 +1,11 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useEffect } from 'react'
-import appCss from '../styles.css?url'
+// Direct side-effect import — Vite owns stylesheet HMR. Importing as ?url
+// and feeding it to TanStack head.links makes React 19's mountHoistable
+// fight Vite's stylesheet swap on every CSS hot-update, throwing
+// "removeChild on Node" on every save.
+import '../styles.css'
 import { SearchModal } from '@/components/search/search-modal'
 import { TerminalShortcutListener } from '@/components/terminal-shortcut-listener'
 import { GlobalShortcutListener } from '@/components/global-shortcut-listener'
@@ -44,8 +48,8 @@ const themeScript = `
 (() => {
   window.process = window.process || { env: {}, platform: 'browser' };
   
-  // Gateway connection via ClawSuite server proxy.
-  // Clients connect to /ws-gateway on the ClawSuite server (same host:port as the page).
+  // Gateway connection via PulseOS server proxy.
+  // Clients connect to /ws-gateway on the PulseOS server (same host:port as the page).
   // The server proxies internally to ws://127.0.0.1:18789 — so phone/LAN/Docker
   // users never need direct access to port 18789.
   // Manual override: set gatewayUrl in settings to skip proxy (e.g. wss:// remote).
@@ -57,7 +61,7 @@ const themeScript = `
       if (manualUrl && typeof manualUrl === 'string' && manualUrl.startsWith('ws')) {
         window.__GATEWAY_URL__ = manualUrl
       } else {
-        // Use proxy path — works from any device that can reach ClawSuite
+        // Use proxy path — works from any device that can reach PulseOS
         const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
         window.__GATEWAY_URL__ = proto + '//' + window.location.host + '/ws-gateway'
       }
@@ -94,24 +98,54 @@ const themeScript = `
     }
     const root = document.documentElement
     const media = window.matchMedia('(prefers-color-scheme: dark)')
-    // ClawSuite theme class + data-theme attribute
-    const enterpriseTheme = localStorage.getItem('clawsuite-theme')
+    // PulseOS theme class + data-theme attribute
+    // One-shot migration: any legacy dark theme (ops-dark / premium-dark
+    // / sunset-brand) gets upgraded to pulsecheck-navy. Users who want a
+    // different theme can switch in Settings AFTER this fires; the
+    // migration only runs once per pre-navy stored value.
+    let enterpriseTheme = localStorage.getItem('clawsuite-theme')
+    const NAVY_MIGRATION_KEY = 'clawsuite-navy-migrated-v1'
+    if (
+      !localStorage.getItem(NAVY_MIGRATION_KEY) &&
+      (enterpriseTheme === 'ops-dark' ||
+        enterpriseTheme === 'premium-dark' ||
+        enterpriseTheme === 'sunset-brand')
+    ) {
+      enterpriseTheme = 'pulsecheck-navy'
+      localStorage.setItem('clawsuite-theme', 'pulsecheck-navy')
+      localStorage.setItem(NAVY_MIGRATION_KEY, '1')
+    }
     const isValidEnterpriseTheme =
+      enterpriseTheme === 'pulsecheck-navy' ||
       enterpriseTheme === 'ops-dark' ||
       enterpriseTheme === 'premium-dark' ||
       enterpriseTheme === 'paper-light' ||
       enterpriseTheme === 'sunset-brand'
-    root.classList.remove('paper-light', 'ops-dark', 'premium-dark', 'sunset-brand')
+    root.classList.remove(
+      'paper-light',
+      'pulsecheck-navy',
+      'ops-dark',
+      'premium-dark',
+      'sunset-brand',
+    )
     if (isValidEnterpriseTheme) {
       root.setAttribute('data-theme', enterpriseTheme)
       root.classList.add(enterpriseTheme)
-      if (enterpriseTheme === 'ops-dark' || enterpriseTheme === 'premium-dark') {
+      if (
+        enterpriseTheme === 'pulsecheck-navy' ||
+        enterpriseTheme === 'ops-dark' ||
+        enterpriseTheme === 'premium-dark' ||
+        enterpriseTheme === 'sunset-brand'
+      ) {
         theme = 'dark'
       } else {
         theme = 'light'
       }
     } else {
-      root.removeAttribute('data-theme')
+      // No stored theme yet — default to pulsecheck-navy (Mission Control look)
+      root.setAttribute('data-theme', 'pulsecheck-navy')
+      root.classList.add('pulsecheck-navy')
+      theme = 'dark'
     }
     const apply = () => {
       root.classList.remove('light', 'dark', 'system')
@@ -144,12 +178,23 @@ const themeColorScript = `
       }
     }
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const isDark = enterpriseTheme === 'ops-dark' || enterpriseTheme === 'premium-dark'
+    const darkEnterprise =
+      enterpriseTheme === 'pulsecheck-navy' ||
+      enterpriseTheme === 'ops-dark' ||
+      enterpriseTheme === 'premium-dark' ||
+      enterpriseTheme === 'sunset-brand'
+    const isDark = darkEnterprise
       ? true
       : enterpriseTheme === 'paper-light'
         ? false
         : appTheme === 'dark' || (appTheme === 'system' && prefersDark)
-    const nextColor = isDark ? '#0f172a' : '#f97316'
+    // Navy hex matches oklch(0.18 0.08 248) — the page bg for pulsecheck-navy
+    const navyHex = '#0e1730'
+    const nextColor = isDark
+      ? enterpriseTheme === 'pulsecheck-navy'
+        ? navyHex
+        : '#0f172a'
+      : '#f97316'
 
     let meta = document.querySelector('meta[name="theme-color"]')
     if (!meta) {
@@ -179,7 +224,7 @@ export const Route = createRootRoute({
           'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-visual',
       },
       {
-        title: 'ClawSuite',
+        title: 'PulseOS',
       },
       {
         name: 'description',
@@ -217,10 +262,6 @@ export const Route = createRootRoute({
       },
     ],
     links: [
-      {
-        rel: 'stylesheet',
-        href: appCss,
-      },
       {
         rel: 'icon',
         type: 'image/svg+xml',
@@ -332,27 +373,37 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: themeColorScript }} />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <script
           dangerouslySetInnerHTML={{
             __html: `
           (function(){
             if (document.getElementById('splash-screen')) return;
-            var bg = '#f8fafc', txt = '#0f172a', muted = '#64748b';
+            // Default splash to pulsecheck-navy so no first-paint grey flash.
+            var bg = '#0e1730', txt = '#f8fafc', muted = '#94a3b8';
             try {
               var enterprise = localStorage.getItem('clawsuite-theme');
               var s = localStorage.getItem('openclaw-settings');
-              var t = 'light';
-              if (enterprise === 'ops-dark' || enterprise === 'premium-dark') {
+              var t = 'dark';
+              if (
+                enterprise === 'pulsecheck-navy' ||
+                enterprise === 'ops-dark' ||
+                enterprise === 'premium-dark' ||
+                enterprise === 'sunset-brand'
+              ) {
                 t = 'dark';
               } else if (enterprise === 'paper-light') {
                 t = 'light';
               } else if (s) {
                 var p = JSON.parse(s);
-                t = (p && p.state && p.state.settings && p.state.settings.theme) || 'light';
+                t = (p && p.state && p.state.settings && p.state.settings.theme) || 'dark';
               }
               if (t === 'system') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-              if (t === 'dark') { bg = '#0c0c12'; txt = '#f8fafc'; muted = '#94a3b8'; }
+              if (t === 'light') { bg = '#f8fafc'; txt = '#0f172a'; muted = '#64748b'; }
+              else if (enterprise === 'premium-dark') { bg = '#000000'; }
+              else if (enterprise === 'ops-dark') { bg = '#1e1e2e'; }
+              else if (enterprise === 'sunset-brand') { bg = '#1a0e05'; }
+              // else: pulsecheck-navy (default) — bg stays #0e1730
             } catch(e){}
 
             var quips = ["Warming up the claws...","Brewing agent espresso...","Deploying crustacean intelligence...","Loading forbidden knowledge...","Calibrating sarcasm module...","Spinning up the hive mind...","Polishing the shell...","Teaching agents to behave...","Summoning the swarm...","Initializing world domination...","Crunching the numbers (with claws)...","Consulting the oracle lobster...","Booting the lobster mainframe...","Decrypting the claw protocol..."];
@@ -362,7 +413,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             d.id = 'splash-screen';
             d.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:'+bg+';transition:opacity 0.8s ease;';
             d.innerHTML = '<div style="width:96px;height:96px;margin-bottom:20px;filter:drop-shadow(0 8px 32px rgba(249,115,22,0.5))"><svg width="96" height="96" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sOB" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ea580c"/><stop offset="50%" stop-color="#f97316"/><stop offset="100%" stop-color="#fb923c"/></linearGradient></defs><rect x="5" y="5" width="90" height="90" rx="16" fill="url(#sOB)"/><rect x="20" y="25" width="60" height="50" rx="4" stroke="#1e293b" stroke-width="3" fill="none"/><circle cx="28" cy="32" r="2.5" fill="#1e293b"/><circle cx="37" cy="32" r="2.5" fill="#1e293b"/><circle cx="46" cy="32" r="2.5" fill="#1e293b"/><path d="M38 45L32 50L38 55" stroke="#1e293b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M62 45L68 50L62 55" stroke="#1e293b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><style>@keyframes splashBlink{0%,100%{opacity:1}50%{opacity:.3}}.splashCur{animation:splashBlink 1.2s ease-in-out infinite}</style><rect x="47" y="46" width="4" height="10" rx="2" fill="#1e293b" class="splashCur"/></svg></div>'
-              + '<div style="font:700 24px/1 system-ui,-apple-system,sans-serif;letter-spacing:0.06em;color:'+txt+'">ClawSuite</div>'
+              + '<div style="font:700 24px/1 system-ui,-apple-system,sans-serif;letter-spacing:0.06em;color:'+txt+'">PulseOS</div>'
               + '<div style="margin-top:10px;font:italic 13px/1 system-ui,-apple-system,sans-serif;color:'+muted+'">'+quip+'</div>'
               + '<div style="margin-top:28px;width:140px;height:3px;background:#1e293b;border-radius:3px;overflow:hidden"><div id=splash-bar style="width:0%;height:100%;background:linear-gradient(90deg,#ea580c,#f97316,#fb923c);border-radius:3px;transition:width 0.4s ease"></div></div>';
             document.body.prepend(d);

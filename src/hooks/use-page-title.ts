@@ -1,10 +1,10 @@
 import { useEffect } from 'react'
 
-const BASE_TITLE = 'ClawSuite'
+const BASE_TITLE = 'PulseOS'
 
 /**
  * Sets document.title for the current page.
- * Usage: usePageTitle('Dashboard') → "Dashboard — ClawSuite"
+ * Usage: usePageTitle('Dashboard') → "Dashboard — PulseOS"
  */
 export function usePageTitle(page: string) {
   useEffect(() => {

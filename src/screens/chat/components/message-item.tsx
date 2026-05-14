@@ -635,9 +635,9 @@ function ToolCallPill({ toolCall }: { toolCall: StreamToolCall }) {
       className={cn(
         'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium font-mono max-w-full',
         isDone
-          ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400'
+          ? 'border-emerald-500/30 bg-emerald-50 text-emerald-400 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400'
           : isError
-            ? 'border-red-200 bg-red-50 text-red-600 dark:border-red-800 dark:bg-red-950/40 dark:text-red-400'
+            ? 'border-red-500/30 bg-red-50 text-red-400 dark:border-red-800 dark:bg-red-950/40 dark:text-red-400'
             : 'border-primary-200 bg-primary-50 text-primary-600 dark:border-primary-700 dark:bg-primary-800 dark:text-primary-400',
       )}
     >

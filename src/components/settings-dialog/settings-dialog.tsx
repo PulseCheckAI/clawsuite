@@ -222,7 +222,11 @@ function ProfileContent() {
               aria-describedby={nameError ? errorId : undefined}
             />
             {nameError && (
-              <p id={errorId} className="mt-1 text-xs text-red-600" role="alert">
+              <p
+                id={errorId}
+                className="mt-1 text-xs text-red-400"
+                role="alert"
+              >
                 {nameError}
               </p>
             )}
@@ -251,7 +255,7 @@ function ProfileContent() {
             </Button>
           </div>
           {profileError && (
-            <p className="text-xs text-red-600" role="alert">
+            <p className="text-xs text-red-400" role="alert">
               {profileError}
             </p>
           )}
@@ -268,7 +272,7 @@ function AppearanceContent() {
     const theme = value as SettingsThemeMode
     applyTheme(theme)
     updateSettings({ theme })
-    
+
     // If user switches to light/dark via the standard toggle, update enterprise theme too
     const currentEnterpriseTheme = localStorage.getItem('clawsuite-theme')
     if (
@@ -282,7 +286,8 @@ function AppearanceContent() {
       localStorage.setItem('clawsuite-theme', 'paper-light')
     } else if (
       theme === 'dark' &&
-      (!currentEnterpriseTheme || !isDarkEnterpriseTheme(currentEnterpriseTheme))
+      (!currentEnterpriseTheme ||
+        !isDarkEnterpriseTheme(currentEnterpriseTheme))
     ) {
       // Switch to Ops Dark when going dark (default)
       const html = document.documentElement
@@ -374,7 +379,9 @@ function AppearanceContent() {
         >
           <Switch
             checked={settings.showSystemMetricsFooter}
-            onCheckedChange={(c) => updateSettings({ showSystemMetricsFooter: c })}
+            onCheckedChange={(c) =>
+              updateSettings({ showSystemMetricsFooter: c })
+            }
             aria-label="Show system metrics footer"
           />
         </Row>
@@ -385,7 +392,14 @@ function AppearanceContent() {
         >
           <select
             value={settings.mobileChatNavMode ?? 'dock'}
-            onChange={(e) => updateSettings({ mobileChatNavMode: e.target.value as 'dock' | 'integrated' | 'scroll-hide' })}
+            onChange={(e) =>
+              updateSettings({
+                mobileChatNavMode: e.target.value as
+                  | 'dock'
+                  | 'integrated'
+                  | 'scroll-hide',
+              })
+            }
             className="rounded-lg border border-primary-200 bg-white px-3 py-1.5 text-sm dark:border-primary-700 dark:bg-primary-800 dark:text-primary-200"
           >
             <option value="dock">Dock (iMessage)</option>
@@ -400,50 +414,107 @@ function AppearanceContent() {
 
 const ENTERPRISE_THEMES = [
   {
+    id: 'pulsecheck-navy',
+    label: 'Mission Control Navy',
+    icon: '🌌',
+    desc: 'Rich navy with pulse-orange accents — the PulseCheck signature',
+    preview: {
+      bg: '#0e1730',
+      panel: '#0e1730',
+      border: 'rgba(170,178,195,0.4)',
+      accent: '#ff6b35',
+      text: '#ffffff',
+    },
+  },
+  {
     id: 'paper-light',
     label: 'Clean',
     icon: '☀️',
     desc: 'Warm gray canvas with white cards',
-    preview: { bg: '#f5f5f5', panel: '#ffffff', border: '#e5e5e5', accent: '#f97316', text: '#1a1a1a' },
+    preview: {
+      bg: '#f5f5f5',
+      panel: '#ffffff',
+      border: '#e5e5e5',
+      accent: '#f97316',
+      text: '#1a1a1a',
+    },
   },
   {
     id: 'ops-dark',
     label: 'Slate',
     icon: '🖥️',
     desc: 'Deep slate with teal secondary glow',
-    preview: { bg: '#1e1e2e', panel: '#2a2a3e', border: '#3a3a4e', accent: '#14b8a6', text: '#e5e5e5' },
+    preview: {
+      bg: '#1e1e2e',
+      panel: '#2a2a3e',
+      border: '#3a3a4e',
+      accent: '#14b8a6',
+      text: '#e5e5e5',
+    },
   },
   {
     id: 'premium-dark',
     label: 'Midnight',
     icon: '✨',
     desc: 'OLED true black with high contrast',
-    preview: { bg: '#000000', panel: '#0a0a0a', border: '#1a1a1a', accent: '#f97316', text: '#f5f5f5' },
+    preview: {
+      bg: '#000000',
+      panel: '#0a0a0a',
+      border: '#1a1a1a',
+      accent: '#f97316',
+      text: '#f5f5f5',
+    },
   },
   {
     id: 'sunset-brand',
     label: 'Sunset',
     icon: '🌇',
     desc: 'Warm brown brand immersion',
-    preview: { bg: '#1a0e05', panel: '#2a1a0e', border: '#6b3c1b', accent: '#f59e0b', text: '#ffe7d1' },
+    preview: {
+      bg: '#1a0e05',
+      panel: '#2a1a0e',
+      border: '#6b3c1b',
+      accent: '#f59e0b',
+      text: '#ffe7d1',
+    },
   },
 ] as const
 
-function ThemeSwatch({ colors }: { colors: typeof ENTERPRISE_THEMES[number]['preview'] }) {
+function ThemeSwatch({
+  colors,
+}: {
+  colors: (typeof ENTERPRISE_THEMES)[number]['preview']
+}) {
   return (
     <div
       className="flex h-10 w-full overflow-hidden rounded-md border"
       style={{ borderColor: colors.border, backgroundColor: colors.bg }}
     >
-      <div className="flex h-full w-4 flex-col gap-0.5 p-0.5" style={{ backgroundColor: colors.panel }}>
+      <div
+        className="flex h-full w-4 flex-col gap-0.5 p-0.5"
+        style={{ backgroundColor: colors.panel }}
+      >
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-1.5 w-full rounded-sm" style={{ backgroundColor: colors.border }} />
+          <div
+            key={i}
+            className="h-1.5 w-full rounded-sm"
+            style={{ backgroundColor: colors.border }}
+          />
         ))}
       </div>
       <div className="flex flex-1 flex-col gap-0.5 p-1">
-        <div className="h-1.5 w-3/4 rounded" style={{ backgroundColor: colors.text, opacity: 0.8 }} />
-        <div className="h-1 w-1/2 rounded" style={{ backgroundColor: colors.text, opacity: 0.3 }} />
-        <div className="mt-0.5 h-1.5 w-6 rounded-full" style={{ backgroundColor: colors.accent }} />
+        <div
+          className="h-1.5 w-3/4 rounded"
+          style={{ backgroundColor: colors.text, opacity: 0.8 }}
+        />
+        <div
+          className="h-1 w-1/2 rounded"
+          style={{ backgroundColor: colors.text, opacity: 0.3 }}
+        />
+        <div
+          className="mt-0.5 h-1.5 w-6 rounded-full"
+          style={{ backgroundColor: colors.accent }}
+        />
       </div>
     </div>
   )
@@ -496,12 +567,18 @@ function EnterpriseThemePicker() {
             <ThemeSwatch colors={t.preview} />
             <div className="flex items-center gap-1">
               <span className="text-xs">{t.icon}</span>
-              <span className="text-xs font-semibold text-primary-900 dark:text-primary-100">{t.label}</span>
+              <span className="text-xs font-semibold text-primary-900 dark:text-primary-100">
+                {t.label}
+              </span>
               {isActive && (
-                <span className="ml-auto text-[9px] font-bold text-accent-600 uppercase tracking-wide">Active</span>
+                <span className="ml-auto text-[9px] font-bold text-accent-600 uppercase tracking-wide">
+                  Active
+                </span>
               )}
             </div>
-            <p className="text-[10px] text-primary-500 dark:text-primary-400 leading-tight">{t.desc}</p>
+            <p className="text-[10px] text-primary-500 dark:text-primary-400 leading-tight">
+              {t.desc}
+            </p>
           </button>
         )
       })}
@@ -699,7 +776,10 @@ function AdvancedContent() {
         description="Gateway endpoint and connectivity."
       />
       <div className={SETTINGS_CARD_CLASS}>
-        <Row label="Gateway URL" description="Used for API requests from Studio">
+        <Row
+          label="Gateway URL"
+          description="Used for API requests from Studio"
+        >
           <div className="w-full max-w-sm">
             <Input
               type="url"
@@ -714,7 +794,7 @@ function AdvancedContent() {
             {urlError && (
               <p
                 id={urlErrorId}
-                className="mt-1 text-xs text-red-600"
+                className="mt-1 text-xs text-red-400"
                 role="alert"
               >
                 {urlError}
@@ -729,7 +809,7 @@ function AdvancedContent() {
               connectionStatus === 'connected' &&
                 'border-green-500/35 bg-green-500/10 text-green-600',
               connectionStatus === 'failed' &&
-                'border-red-500/35 bg-red-500/10 text-red-600',
+                'border-red-500/35 bg-red-500/10 text-red-400',
               connectionStatus === 'testing' &&
                 'border-accent-500/35 bg-accent-500/10 text-accent-600',
               connectionStatus === 'idle' &&
@@ -839,7 +919,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 Settings
               </DialogTitle>
               <DialogDescription className="sr-only">
-                Configure ClawSuite
+                Configure PulseOS
               </DialogDescription>
             </div>
             <DialogClose
@@ -876,10 +956,15 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                       onClick={() => handleSectionSelect(s.id)}
                       className={cn(
                         'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-primary-600 transition-colors hover:bg-primary-100',
-                        active === s.id && 'bg-accent-50 font-medium text-accent-700',
+                        active === s.id &&
+                          'bg-accent-50 font-medium text-accent-700',
                       )}
                     >
-                      <HugeiconsIcon icon={s.icon} size={16} strokeWidth={1.5} />
+                      <HugeiconsIcon
+                        icon={s.icon}
+                        size={16}
+                        strokeWidth={1.5}
+                      />
                       {s.label}
                     </button>
                   ))}

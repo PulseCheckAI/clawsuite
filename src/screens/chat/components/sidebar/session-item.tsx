@@ -151,7 +151,7 @@ function SessionItemComponent({
         <div
           className={cn(
             'mt-0.5 text-[11px] text-primary-600 truncate',
-            isError ? 'text-red-600' : undefined,
+            isError ? 'text-red-400' : undefined,
           )}
         >
           {subtitle}
@@ -206,7 +206,7 @@ function SessionItemComponent({
               event.stopPropagation()
               onDelete(session)
             }}
-            className="text-red-700 gap-2 hover:bg-red-50 dark:hover:bg-red-900/30/80 data-highlighted:bg-red-50/80"
+            className="text-red-400 gap-2 hover:bg-red-50 dark:hover:bg-red-900/30/80 data-highlighted:bg-red-50/80"
           >
             <HugeiconsIcon icon={Delete01Icon} size={20} strokeWidth={1.5} />{' '}
             Delete

@@ -50,6 +50,7 @@ import { Route as ApiTerminalResizeRouteImport } from './routes/api/terminal-res
 import { Route as ApiTerminalInputRouteImport } from './routes/api/terminal-input'
 import { Route as ApiTerminalCloseRouteImport } from './routes/api/terminal-close'
 import { Route as ApiSystemMetricsRouteImport } from './routes/api/system-metrics'
+import { Route as ApiSystemIntegrationsRouteImport } from './routes/api/system-integrations'
 import { Route as ApiSkillsRouteImport } from './routes/api/skills'
 import { Route as ApiSessionsRouteImport } from './routes/api/sessions'
 import { Route as ApiSessionTitleRouteImport } from './routes/api/session-title'
@@ -84,6 +85,8 @@ import { Route as ApiCliAgentsRouteImport } from './routes/api/cli-agents'
 import { Route as ApiChatEventsRouteImport } from './routes/api/chat-events'
 import { Route as ApiChatAbortRouteImport } from './routes/api/chat-abort'
 import { Route as ApiBrowserRouteImport } from './routes/api/browser'
+import { Route as ApiAutonomyTickRouteImport } from './routes/api/autonomy-tick'
+import { Route as ApiAutonomyStatusRouteImport } from './routes/api/autonomy-status'
 import { Route as ApiAuthCheckRouteImport } from './routes/api/auth-check'
 import { Route as ApiAuthRouteImport } from './routes/api/auth'
 import { Route as ApiAgentSteerRouteImport } from './routes/api/agent-steer'
@@ -332,6 +335,11 @@ const ApiSystemMetricsRoute = ApiSystemMetricsRouteImport.update({
   path: '/api/system-metrics',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSystemIntegrationsRoute = ApiSystemIntegrationsRouteImport.update({
+  id: '/api/system-integrations',
+  path: '/api/system-integrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiSkillsRoute = ApiSkillsRouteImport.update({
   id: '/api/skills',
   path: '/api/skills',
@@ -500,6 +508,16 @@ const ApiChatAbortRoute = ApiChatAbortRouteImport.update({
 const ApiBrowserRoute = ApiBrowserRouteImport.update({
   id: '/api/browser',
   path: '/api/browser',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAutonomyTickRoute = ApiAutonomyTickRouteImport.update({
+  id: '/api/autonomy-tick',
+  path: '/api/autonomy-tick',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAutonomyStatusRoute = ApiAutonomyStatusRouteImport.update({
+  id: '/api/autonomy-status',
+  path: '/api/autonomy-status',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthCheckRoute = ApiAuthCheckRouteImport.update({
@@ -750,6 +768,8 @@ export interface FileRoutesByFullPath {
   '/api/agent-steer': typeof ApiAgentSteerRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
+  '/api/autonomy-status': typeof ApiAutonomyStatusRoute
+  '/api/autonomy-tick': typeof ApiAutonomyTickRoute
   '/api/browser': typeof ApiBrowserRouteWithChildren
   '/api/chat-abort': typeof ApiChatAbortRoute
   '/api/chat-events': typeof ApiChatEventsRoute
@@ -784,6 +804,7 @@ export interface FileRoutesByFullPath {
   '/api/session-title': typeof ApiSessionTitleRoute
   '/api/sessions': typeof ApiSessionsRouteWithChildren
   '/api/skills': typeof ApiSkillsRoute
+  '/api/system-integrations': typeof ApiSystemIntegrationsRoute
   '/api/system-metrics': typeof ApiSystemMetricsRoute
   '/api/terminal-close': typeof ApiTerminalCloseRoute
   '/api/terminal-input': typeof ApiTerminalInputRoute
@@ -868,6 +889,8 @@ export interface FileRoutesByTo {
   '/api/agent-steer': typeof ApiAgentSteerRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
+  '/api/autonomy-status': typeof ApiAutonomyStatusRoute
+  '/api/autonomy-tick': typeof ApiAutonomyTickRoute
   '/api/browser': typeof ApiBrowserRouteWithChildren
   '/api/chat-abort': typeof ApiChatAbortRoute
   '/api/chat-events': typeof ApiChatEventsRoute
@@ -902,6 +925,7 @@ export interface FileRoutesByTo {
   '/api/session-title': typeof ApiSessionTitleRoute
   '/api/sessions': typeof ApiSessionsRouteWithChildren
   '/api/skills': typeof ApiSkillsRoute
+  '/api/system-integrations': typeof ApiSystemIntegrationsRoute
   '/api/system-metrics': typeof ApiSystemMetricsRoute
   '/api/terminal-close': typeof ApiTerminalCloseRoute
   '/api/terminal-input': typeof ApiTerminalInputRoute
@@ -988,6 +1012,8 @@ export interface FileRoutesById {
   '/api/agent-steer': typeof ApiAgentSteerRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
+  '/api/autonomy-status': typeof ApiAutonomyStatusRoute
+  '/api/autonomy-tick': typeof ApiAutonomyTickRoute
   '/api/browser': typeof ApiBrowserRouteWithChildren
   '/api/chat-abort': typeof ApiChatAbortRoute
   '/api/chat-events': typeof ApiChatEventsRoute
@@ -1022,6 +1048,7 @@ export interface FileRoutesById {
   '/api/session-title': typeof ApiSessionTitleRoute
   '/api/sessions': typeof ApiSessionsRouteWithChildren
   '/api/skills': typeof ApiSkillsRoute
+  '/api/system-integrations': typeof ApiSystemIntegrationsRoute
   '/api/system-metrics': typeof ApiSystemMetricsRoute
   '/api/terminal-close': typeof ApiTerminalCloseRoute
   '/api/terminal-input': typeof ApiTerminalInputRoute
@@ -1109,6 +1136,8 @@ export interface FileRouteTypes {
     | '/api/agent-steer'
     | '/api/auth'
     | '/api/auth-check'
+    | '/api/autonomy-status'
+    | '/api/autonomy-tick'
     | '/api/browser'
     | '/api/chat-abort'
     | '/api/chat-events'
@@ -1143,6 +1172,7 @@ export interface FileRouteTypes {
     | '/api/session-title'
     | '/api/sessions'
     | '/api/skills'
+    | '/api/system-integrations'
     | '/api/system-metrics'
     | '/api/terminal-close'
     | '/api/terminal-input'
@@ -1227,6 +1257,8 @@ export interface FileRouteTypes {
     | '/api/agent-steer'
     | '/api/auth'
     | '/api/auth-check'
+    | '/api/autonomy-status'
+    | '/api/autonomy-tick'
     | '/api/browser'
     | '/api/chat-abort'
     | '/api/chat-events'
@@ -1261,6 +1293,7 @@ export interface FileRouteTypes {
     | '/api/session-title'
     | '/api/sessions'
     | '/api/skills'
+    | '/api/system-integrations'
     | '/api/system-metrics'
     | '/api/terminal-close'
     | '/api/terminal-input'
@@ -1346,6 +1379,8 @@ export interface FileRouteTypes {
     | '/api/agent-steer'
     | '/api/auth'
     | '/api/auth-check'
+    | '/api/autonomy-status'
+    | '/api/autonomy-tick'
     | '/api/browser'
     | '/api/chat-abort'
     | '/api/chat-events'
@@ -1380,6 +1415,7 @@ export interface FileRouteTypes {
     | '/api/session-title'
     | '/api/sessions'
     | '/api/skills'
+    | '/api/system-integrations'
     | '/api/system-metrics'
     | '/api/terminal-close'
     | '/api/terminal-input'
@@ -1466,6 +1502,8 @@ export interface RootRouteChildren {
   ApiAgentSteerRoute: typeof ApiAgentSteerRoute
   ApiAuthRoute: typeof ApiAuthRoute
   ApiAuthCheckRoute: typeof ApiAuthCheckRoute
+  ApiAutonomyStatusRoute: typeof ApiAutonomyStatusRoute
+  ApiAutonomyTickRoute: typeof ApiAutonomyTickRoute
   ApiBrowserRoute: typeof ApiBrowserRouteWithChildren
   ApiChatAbortRoute: typeof ApiChatAbortRoute
   ApiChatEventsRoute: typeof ApiChatEventsRoute
@@ -1500,6 +1538,7 @@ export interface RootRouteChildren {
   ApiSessionTitleRoute: typeof ApiSessionTitleRoute
   ApiSessionsRoute: typeof ApiSessionsRouteWithChildren
   ApiSkillsRoute: typeof ApiSkillsRoute
+  ApiSystemIntegrationsRoute: typeof ApiSystemIntegrationsRoute
   ApiSystemMetricsRoute: typeof ApiSystemMetricsRoute
   ApiTerminalCloseRoute: typeof ApiTerminalCloseRoute
   ApiTerminalInputRoute: typeof ApiTerminalInputRoute
@@ -1823,6 +1862,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSystemMetricsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/system-integrations': {
+      id: '/api/system-integrations'
+      path: '/api/system-integrations'
+      fullPath: '/api/system-integrations'
+      preLoaderRoute: typeof ApiSystemIntegrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/skills': {
       id: '/api/skills'
       path: '/api/skills'
@@ -2059,6 +2105,20 @@ declare module '@tanstack/react-router' {
       path: '/api/browser'
       fullPath: '/api/browser'
       preLoaderRoute: typeof ApiBrowserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/autonomy-tick': {
+      id: '/api/autonomy-tick'
+      path: '/api/autonomy-tick'
+      fullPath: '/api/autonomy-tick'
+      preLoaderRoute: typeof ApiAutonomyTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/autonomy-status': {
+      id: '/api/autonomy-status'
+      path: '/api/autonomy-status'
+      fullPath: '/api/autonomy-status'
+      preLoaderRoute: typeof ApiAutonomyStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth-check': {
@@ -2496,6 +2556,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAgentSteerRoute: ApiAgentSteerRoute,
   ApiAuthRoute: ApiAuthRoute,
   ApiAuthCheckRoute: ApiAuthCheckRoute,
+  ApiAutonomyStatusRoute: ApiAutonomyStatusRoute,
+  ApiAutonomyTickRoute: ApiAutonomyTickRoute,
   ApiBrowserRoute: ApiBrowserRouteWithChildren,
   ApiChatAbortRoute: ApiChatAbortRoute,
   ApiChatEventsRoute: ApiChatEventsRoute,
@@ -2530,6 +2592,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiSessionTitleRoute: ApiSessionTitleRoute,
   ApiSessionsRoute: ApiSessionsRouteWithChildren,
   ApiSkillsRoute: ApiSkillsRoute,
+  ApiSystemIntegrationsRoute: ApiSystemIntegrationsRoute,
   ApiSystemMetricsRoute: ApiSystemMetricsRoute,
   ApiTerminalCloseRoute: ApiTerminalCloseRoute,
   ApiTerminalInputRoute: ApiTerminalInputRoute,

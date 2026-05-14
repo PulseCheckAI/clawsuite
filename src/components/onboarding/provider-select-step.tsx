@@ -323,7 +323,7 @@ export function ProviderSelectStep({ onComplete, onSkip }: ProviderSelectStepPro
             </div>
           )}
           {error && (
-            <div className="mt-2 flex items-center gap-1.5 text-xs text-red-600">
+            <div className="mt-2 flex items-center gap-1.5 text-xs text-red-400">
               <HugeiconsIcon icon={Alert02Icon} size={14} strokeWidth={2} />
               <span>{error}</span>
             </div>

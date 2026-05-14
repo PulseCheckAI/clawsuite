@@ -35,8 +35,8 @@ const AGENT_BADGE_COLORS = [
   'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
   'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
   'bg-accent-100 text-accent-700 dark:bg-accent-900/30 dark:text-accent-300',
-  'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-  'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+  'bg-emerald-500/10 text-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-300',
+  'bg-amber-500/10 text-amber-300 dark:bg-amber-900/30 dark:text-amber-300',
   'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
 ]
 
@@ -208,7 +208,7 @@ export function ApprovalsPanel({
       {/* Content */}
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {error ? (
-          <div className="border-b border-red-200 bg-red-50 px-4 py-2 text-xs text-red-700">
+          <div className="border-b border-red-500/30 bg-red-50 px-4 py-2 text-xs text-red-400">
             {error}
           </div>
         ) : null}
@@ -280,10 +280,10 @@ export function ApprovalsPanel({
                         className={cn(
                           'rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase',
                           entry.status === 'approved'
-                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                            ? 'bg-emerald-500/10 text-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-300'
                             : entry.status === 'denied'
-                              ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+                              ? 'bg-red-500/10 text-red-400 dark:bg-red-900/30 dark:text-red-300'
+                              : 'bg-amber-500/10 text-amber-300 dark:bg-amber-900/30 dark:text-amber-300',
                         )}
                       >
                         {entry.status}
@@ -327,7 +327,7 @@ function ApprovalCard({
       className={cn(
         'overflow-hidden rounded-xl border transition-all duration-200',
         isPending
-          ? 'border border-l-4 border-amber-200 border-l-amber-500 bg-amber-50/30 shadow-sm dark:border-amber-800/40 dark:border-l-amber-500 dark:bg-amber-950/10'
+          ? 'border border-l-4 border-amber-500/40 border-l-amber-500 bg-amber-50/30 shadow-sm dark:border-amber-800/40 dark:border-l-amber-500 dark:bg-amber-950/10'
           : 'border-primary-200 bg-primary-50 opacity-60 dark:border-primary-800 dark:bg-primary-900',
       )}
     >
@@ -372,7 +372,7 @@ function ApprovalCard({
               type="button"
               onClick={onDeny}
               disabled={disabled}
-              className="flex-1 rounded-lg border border-red-400 px-3 py-1.5 text-[11px] font-semibold text-red-600 transition-all duration-200 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/20"
+              className="flex-1 rounded-lg border border-red-400 px-3 py-1.5 text-[11px] font-semibold text-red-400 transition-all duration-200 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/20"
             >
               ✕ Deny
             </button>

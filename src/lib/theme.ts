@@ -1,12 +1,19 @@
 export type ThemeId =
   | 'paper-light'
+  | 'pulsecheck-navy'
   | 'ops-dark'
   | 'premium-dark'
   | 'sunset-brand'
 
-const DARK_THEMES: ThemeId[] = ['ops-dark', 'premium-dark', 'sunset-brand']
+const DARK_THEMES: ThemeId[] = [
+  'pulsecheck-navy',
+  'ops-dark',
+  'premium-dark',
+  'sunset-brand',
+]
 const THEME_SET = new Set<ThemeId>([
   'paper-light',
+  'pulsecheck-navy',
   'ops-dark',
   'premium-dark',
   'sunset-brand',
@@ -23,6 +30,13 @@ export const THEMES: Array<{
     label: 'Paper Light',
     description: 'Clean warm gray with soft shadows',
     icon: '☀️',
+  },
+  {
+    id: 'pulsecheck-navy',
+    label: 'Mission Control Navy',
+    description:
+      'Rich navy with pulse-orange accents — the PulseCheck signature',
+    icon: '🌌',
   },
   {
     id: 'ops-dark',

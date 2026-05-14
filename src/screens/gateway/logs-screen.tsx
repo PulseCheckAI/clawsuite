@@ -42,8 +42,8 @@ const LEVEL_STYLES: Record<LogLevel, string> = {
   trace: 'border-primary-200 bg-primary-50 text-primary-600',
   debug: 'border-slate-200 bg-slate-100 text-slate-700',
   info: 'border-blue-200 bg-blue-100 text-blue-700',
-  warn: 'border-amber-200 bg-amber-100 text-amber-800',
-  error: 'border-red-200 bg-red-100 text-red-700',
+  warn: 'border-amber-500/40 bg-amber-500/10 text-amber-300',
+  error: 'border-red-500/30 bg-red-500/10 text-red-400',
   fatal: 'border-red-300 bg-red-200 text-red-900',
 }
 
@@ -299,7 +299,7 @@ export function GatewayLogsScreen() {
             </div>
           ) : query.isError ? (
             <div className="px-5 py-12 text-center">
-              <p className="text-sm font-medium text-red-700">
+              <p className="text-sm font-medium text-red-400">
                 {query.error instanceof Error
                   ? query.error.message
                   : 'Failed to load gateway logs'}

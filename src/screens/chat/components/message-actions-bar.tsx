@@ -61,7 +61,7 @@ export function MessageActionsBar({
             <TooltipTrigger
               type="button"
               onClick={onRetry}
-              className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+              className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
             >
               <HugeiconsIcon icon={RefreshIcon} size={14} strokeWidth={1.6} />
               <span className="text-[11px] font-medium">Retry</span>

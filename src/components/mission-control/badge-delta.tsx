@@ -17,7 +17,7 @@ export function BadgeDelta({
       ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30'
       : tone === 'negative'
         ? 'text-red-400 bg-red-500/10 border-red-500/30'
-        : 'text-amber-400 bg-amber-500/10 border-amber-500/30'
+        : 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30'
 
   const arrow = tone === 'positive' ? '▲' : tone === 'negative' ? '▼' : '◆'
 

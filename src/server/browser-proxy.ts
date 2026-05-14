@@ -1,6 +1,6 @@
 /**
  * Local web proxy that strips iframe-blocking headers (X-Frame-Options, CSP).
- * Allows any website to be embedded in an iframe inside ClawSuite.
+ * Allows any website to be embedded in an iframe inside PulseOS.
  * Only runs locally — not exposed to the internet.
  */
 

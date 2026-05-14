@@ -1836,7 +1836,7 @@ function ChatComposerComponent({
                     className={cn(
                       'size-9 rounded-full flex items-center justify-center relative transition-all duration-150 select-none',
                       voiceRecorder.isRecording
-                        ? 'text-red-600 bg-red-100 animate-pulse'
+                        ? 'text-red-400 bg-red-500/10 animate-pulse'
                         : voiceInput.isListening
                           ? 'text-red-500 bg-red-50 animate-pulse'
                           : 'text-primary-500 bg-primary-100 dark:bg-white/10',
@@ -1951,7 +1951,7 @@ function ChatComposerComponent({
                             }}
                             className="rounded-xl border border-primary-100 bg-primary-50 p-4 flex flex-col items-start gap-2 text-left"
                           >
-                            <span className="rounded-lg bg-red-100 p-1.5 text-red-600">
+                            <span className="rounded-lg bg-red-500/10 p-1.5 text-red-400">
                               <HugeiconsIcon
                                 icon={Delete01Icon}
                                 size={24}
@@ -2217,7 +2217,7 @@ function ChatComposerComponent({
                     <Button
                       size="icon-sm"
                       variant="ghost"
-                      className="rounded-lg text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800 hover:text-red-600"
+                      className="rounded-lg text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-800 hover:text-red-400"
                       aria-label="Clear draft"
                       onClick={handleClearDraft}
                     >
@@ -2519,7 +2519,7 @@ function ChatComposerComponent({
                           className={cn(
                             'inline-flex h-6 items-center gap-1 rounded-full px-2 text-[11px] font-medium transition-colors',
                             thinkingLevel === 'adaptive'
-                              ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                              ? 'bg-amber-500/10 text-amber-300 dark:bg-amber-900/30 dark:text-amber-400'
                               : thinkingLevel === 'low'
                                 ? 'bg-primary-100 text-primary-600'
                                 : 'bg-primary-100 text-primary-500 hover:bg-primary-200',
@@ -2588,9 +2588,9 @@ function ChatComposerComponent({
                       className={cn(
                         'rounded-lg transition-colors select-none',
                         voiceRecorder.isRecording
-                          ? 'text-red-600 bg-red-100 hover:bg-red-200 animate-pulse'
+                          ? 'text-red-400 bg-red-500/10 hover:bg-red-200 animate-pulse'
                           : voiceInput.isListening
-                            ? 'text-red-500 bg-red-50 hover:bg-red-100 animate-pulse'
+                            ? 'text-red-500 bg-red-50 hover:bg-red-500/10 animate-pulse'
                             : 'text-primary-500 hover:bg-primary-100 dark:hover:bg-primary-800 hover:text-primary-700',
                       )}
                       aria-label={

@@ -86,7 +86,7 @@ function KpiCard({
             'mt-2 inline-flex rounded-md px-2 py-1 text-xs font-medium',
             delta.value <= 0
               ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-              : 'bg-red-500/15 text-red-600 dark:text-red-400',
+              : 'bg-red-500/15 text-red-400 dark:text-red-400',
           )}
         >
           {delta.text}
@@ -161,7 +161,7 @@ export function CostsScreen() {
   }
 
   return (
-    <div className="min-h-full bg-surface px-4 pt-5 pb-24 md:px-6 md:pt-8 text-primary-900 dark:text-primary-100">
+    <div className="min-h-full bg-surface px-6 pt-6 pb-24 md:px-8 md:pt-8 text-primary-900 dark:text-primary-100">
       <div className="mx-auto w-full max-w-[1200px]">
         <header className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary-200 bg-primary-50/80 px-4 py-3 shadow-sm dark:border-primary-800 dark:bg-primary-900/60">
           <div>

@@ -60,7 +60,7 @@ export function LoginScreen() {
                 <circle cx="50" cy="50" r="15" fill="currentColor" />
               </svg>
               <h1 className="text-2xl font-bold tracking-tight text-primary-900">
-                ClawSuite
+                PulseOS
               </h1>
             </div>
           </div>
@@ -88,7 +88,7 @@ export function LoginScreen() {
             </div>
 
             {error && (
-              <div className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700 ring-1 ring-red-200">
+              <div className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-400 ring-1 ring-red-200">
                 {error}
               </div>
             )}

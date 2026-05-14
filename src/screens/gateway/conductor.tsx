@@ -1929,13 +1929,13 @@ export function Conductor() {
                 )}
               </div>
               {conductor.streamError && (
-                <div className="mt-4 rounded-2xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+                <div className="mt-4 rounded-2xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-400">
                   {conductor.streamError}
                 </div>
               )}
               {conductor.timeoutWarning && (
                 <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-amber-400/40 bg-amber-500/10 px-5 py-3">
-                  <p className="text-sm text-amber-700">⚠️ Planning is taking longer than expected...</p>
+                  <p className="text-sm text-amber-300">⚠️ Planning is taking longer than expected...</p>
                   <Button
                     type="button"
                     onClick={handleNewMission}

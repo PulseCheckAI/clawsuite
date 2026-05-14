@@ -108,9 +108,9 @@ const MODEL_BADGE_COLOR: Record<ModelPresetId, string> = {
   auto: 'bg-primary-200 text-primary-700',
   opus: 'bg-accent-100 text-accent-700',
   sonnet: 'bg-blue-100 text-blue-700',
-  codex: 'bg-emerald-100 text-emerald-700',
+  codex: 'bg-emerald-500/10 text-emerald-400',
   flash: 'bg-violet-100 text-violet-700',
-  minimax: 'bg-amber-100 text-amber-700',
+  minimax: 'bg-amber-500/10 text-amber-300',
   'pc1-coder': 'bg-cyan-100 text-cyan-700',
   'pc1-planner': 'bg-indigo-100 text-indigo-700',
   'pc1-critic': 'bg-purple-100 text-purple-700',
@@ -359,7 +359,7 @@ export function TeamPanel({
                       event.stopPropagation()
                       onRetrySpawn?.(agent)
                     }}
-                    className="ml-1 mt-0.5 shrink-0 rounded p-0.5 text-sm leading-none text-red-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-red-500 dark:hover:bg-red-950/20 dark:hover:text-red-400"
+                    className="ml-1 mt-0.5 shrink-0 rounded p-0.5 text-sm leading-none text-red-400 transition-colors hover:bg-red-50 hover:text-red-400 dark:text-red-500 dark:hover:bg-red-950/20 dark:hover:text-red-400"
                   >
                     ↻
                   </button>

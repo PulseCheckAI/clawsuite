@@ -44,7 +44,7 @@ const CLOUD_PLAN_OPTIONS: Array<{
     plan: 'free',
     name: 'Free',
     price: '$0/mo',
-    description: 'Try ClawSuite Cloud with free AI models',
+    description: 'Try PulseOS Cloud with free AI models',
     cta: 'Start Free',
   },
   {
@@ -283,7 +283,7 @@ function GatewayStepContent() {
     const normalizedEmail = waitlistEmail.trim()
     if (!normalizedEmail) {
       setCloudProvisionStatus('error')
-      setCloudProvisionError('Enter your email to provision a ClawSuite Cloud gateway.')
+      setCloudProvisionError('Enter your email to provision a PulseOS Cloud gateway.')
       return
     }
 
@@ -309,7 +309,7 @@ function GatewayStepContent() {
         const errorMessage =
           data && 'error' in data && typeof data.error === 'string'
             ? data.error
-            : 'Failed to provision your free ClawSuite Cloud gateway.'
+            : 'Failed to provision your free PulseOS Cloud gateway.'
         setCloudProvisionStatus('error')
         setCloudProvisionError(errorMessage)
         return
@@ -329,7 +329,7 @@ function GatewayStepContent() {
       setCloudProvisionStatus('success')
     } catch {
       setCloudProvisionStatus('error')
-      setCloudProvisionError('Failed to provision your free ClawSuite Cloud gateway.')
+      setCloudProvisionError('Failed to provision your free PulseOS Cloud gateway.')
     }
   }
 
@@ -393,14 +393,14 @@ function GatewayStepContent() {
         <div className="mb-4 flex size-20 items-center justify-center rounded-2xl shadow-lg">
           <img
             src="/logo-icon.png"
-            alt="ClawSuite logo"
+            alt="PulseOS logo"
             width={64}
             height={64}
             className="size-16"
           />
         </div>
         <h2 className="mb-2 text-2xl font-semibold text-primary-900">
-          Welcome to ClawSuite
+          Welcome to PulseOS
         </h2>
         <p className="max-w-md text-sm leading-relaxed text-primary-600">
           Your AI command center
@@ -425,7 +425,7 @@ function GatewayStepContent() {
           />
           <SetupModeCard
             icon={CloudIcon}
-            title="ClawSuite Cloud"
+            title="PulseOS Cloud"
             description="No setup needed. Managed hosting with one click. (Coming soon)"
             selected={setupMode === 'cloud'}
             onClick={() => handleSetupModeChange('cloud')}
@@ -438,7 +438,7 @@ function GatewayStepContent() {
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h3 className="text-base font-semibold text-primary-900">
-                  ClawSuite Cloud Plans
+                  PulseOS Cloud Plans
                 </h3>
                 <p className="mt-1 text-sm text-primary-600">
                   Use this email as your Cloud login, then start free or continue to
@@ -527,7 +527,7 @@ function GatewayStepContent() {
             </div>
 
             {cloudProvisionError ? (
-              <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+              <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-50 p-3 text-sm text-red-800">
                 <HugeiconsIcon
                   icon={Alert02Icon}
                   className="mt-0.5 size-4 shrink-0"
@@ -582,7 +582,7 @@ function GatewayStepContent() {
             <div className="mb-4">
               <h3 className="text-base font-semibold text-primary-900">Setting up local gateway</h3>
               <p className="mt-1 text-sm text-primary-600">
-                ClawSuite is installing and starting OpenClaw in the background.
+                PulseOS is installing and starting OpenClaw in the background.
               </p>
             </div>
 
@@ -640,7 +640,7 @@ function GatewayStepContent() {
             </div>
 
             {localSetupError ? (
-              <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+              <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-50 p-3 text-sm text-red-800">
                 <HugeiconsIcon
                   icon={Alert02Icon}
                   className="mt-0.5 size-4 shrink-0"
@@ -653,14 +653,14 @@ function GatewayStepContent() {
                     <p className="mt-1 font-medium">{localSetupErrorInfo.action}</p>
                   ) : null}
                   {localSetupErrorInfo.details ? (
-                    <p className="mt-1 text-xs text-red-700">{localSetupErrorInfo.details}</p>
+                    <p className="mt-1 text-xs text-red-400">{localSetupErrorInfo.details}</p>
                   ) : null}
                 </div>
               </div>
             ) : null}
 
             {testError ? (
-              <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+              <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-50 p-3 text-sm text-red-800">
                 <HugeiconsIcon
                   icon={Alert02Icon}
                   className="mt-0.5 size-4 shrink-0"
@@ -673,7 +673,7 @@ function GatewayStepContent() {
                     <p className="mt-1 font-medium">{testErrorInfo.action}</p>
                   ) : null}
                   {testErrorInfo.details ? (
-                    <p className="mt-1 text-xs text-red-700">{testErrorInfo.details}</p>
+                    <p className="mt-1 text-xs text-red-400">{testErrorInfo.details}</p>
                   ) : null}
                 </div>
               </div>
@@ -749,7 +749,7 @@ function GatewayStepContent() {
             </div>
 
             {testError && (
-              <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+              <div className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-50 p-3 text-sm text-red-800">
                 <HugeiconsIcon
                   icon={Alert02Icon}
                   className="mt-0.5 size-4 shrink-0"
@@ -762,14 +762,14 @@ function GatewayStepContent() {
                     <p className="mt-1 font-medium">{testErrorInfo.action}</p>
                   ) : null}
                   {testErrorInfo.details ? (
-                    <p className="mt-1 text-xs text-red-700">{testErrorInfo.details}</p>
+                    <p className="mt-1 text-xs text-red-400">{testErrorInfo.details}</p>
                   ) : null}
                 </div>
               </div>
             )}
 
             {autoDetectError && (
-              <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+              <div className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-50 p-3 text-sm text-red-800">
                 <HugeiconsIcon
                   icon={Alert02Icon}
                   className="mt-0.5 size-4 shrink-0"
@@ -782,7 +782,7 @@ function GatewayStepContent() {
                     <p className="mt-1 font-medium">{autoDetectErrorInfo.action}</p>
                   ) : null}
                   {autoDetectErrorInfo.details ? (
-                    <p className="mt-1 text-xs text-red-700">{autoDetectErrorInfo.details}</p>
+                    <p className="mt-1 text-xs text-red-400">{autoDetectErrorInfo.details}</p>
                   ) : null}
                 </div>
               </div>

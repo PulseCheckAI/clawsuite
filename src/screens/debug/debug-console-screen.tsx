@@ -163,15 +163,21 @@ async function fetchGatewayHealth(): Promise<GatewayHealthData> {
     } finally {
       globalThis.clearTimeout(timeout)
     }
-    const raw = (await response.json().catch(() => ({}))) as Record<string, unknown>
+    const raw = (await response.json().catch(() => ({}))) as Record<
+      string,
+      unknown
+    >
     const status = normalizeHealthStatus(raw.status ?? raw.health ?? raw.state)
     return {
       status,
       uptime: typeof raw.uptime === 'number' ? raw.uptime : undefined,
       version: typeof raw.version === 'string' ? raw.version : undefined,
-      memory: (raw.memory && typeof raw.memory === 'object' && !Array.isArray(raw.memory))
-        ? (raw.memory as GatewayHealthData['memory'])
-        : undefined,
+      memory:
+        raw.memory &&
+        typeof raw.memory === 'object' &&
+        !Array.isArray(raw.memory)
+          ? (raw.memory as GatewayHealthData['memory'])
+          : undefined,
       raw,
     }
   } catch {
@@ -180,10 +186,13 @@ async function fetchGatewayHealth(): Promise<GatewayHealthData> {
 }
 
 function getHealthBadgeClass(status: GatewayHealthStatus): string {
-  if (status === 'healthy') return 'border-emerald-200 bg-emerald-100/70 text-emerald-700'
-  if (status === 'degraded') return 'border-amber-200 bg-amber-100/70 text-amber-700'
-  if (status === 'unreachable') return 'border-red-200 bg-red-100/70 text-red-700'
-  return 'border-amber-200 bg-amber-100/70 text-amber-700'
+  if (status === 'healthy')
+    return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+  if (status === 'degraded')
+    return 'border-amber-500/40 bg-amber-500/10 text-amber-300'
+  if (status === 'unreachable')
+    return 'border-red-500/30 bg-red-500/10 text-red-400'
+  return 'border-amber-500/40 bg-amber-500/10 text-amber-300'
 }
 
 function getHealthDotClass(status: GatewayHealthStatus): string {
@@ -349,12 +358,12 @@ function getConnectionLabel(state: DebugConnectionState): string {
 
 function getConnectionBadgeClass(state: DebugConnectionState): string {
   if (state === 'connected') {
-    return 'border-emerald-200 bg-emerald-100/70 text-emerald-700'
+    return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
   }
   if (state === 'disconnected') {
-    return 'border-red-200 bg-red-100/70 text-red-700'
+    return 'border-red-500/30 bg-red-500/10 text-red-400'
   }
-  return 'border-amber-200 bg-amber-100/70 text-amber-700'
+  return 'border-amber-500/40 bg-amber-500/10 text-amber-300'
 }
 
 function getConnectionDotClass(state: DebugConnectionState): string {
@@ -692,7 +701,7 @@ export function DebugConsoleScreen() {
   )
 
   return (
-    <main className="min-h-full bg-surface px-4 pt-5 pb-24 md:px-6 md:pt-8 text-primary-900 dark:text-primary-100">
+    <main className="min-h-full bg-surface px-6 pt-6 pb-24 md:px-8 md:pt-8 text-primary-900 dark:text-primary-100">
       <div className="mx-auto w-full max-w-[1200px] space-y-4">
         <header className="rounded-xl border border-primary-200 bg-primary-50/80 px-4 py-3 shadow-sm dark:border-primary-800 dark:bg-primary-900/60">
           <h1 className="text-base font-semibold text-primary-900 dark:text-primary-100">
@@ -751,23 +760,24 @@ export function DebugConsoleScreen() {
             <Button
               size="sm"
               variant="outline"
+              className="h-7 px-2 text-xs tabular-nums"
               onClick={handleReconnect}
               disabled={reconnectMutation.isPending}
             >
               {reconnectMutation.isPending ? 'Reconnecting…' : 'Reconnect'}
             </Button>
             {reconnectMutation.isError ? (
-              <span className="text-xs text-red-600 text-pretty tabular-nums">
+              <span className="text-xs text-red-400 text-pretty tabular-nums">
                 {readErrorMessage(reconnectMutation.error)}
               </span>
             ) : null}
             {reconnectMutation.isSuccess ? (
-              <span className="text-xs text-emerald-700 text-pretty tabular-nums">
+              <span className="text-xs text-emerald-400 text-pretty tabular-nums">
                 Reconnect attempt sent.
               </span>
             ) : null}
             {connectionQuery.isError ? (
-              <span className="text-xs text-red-600 text-pretty tabular-nums">
+              <span className="text-xs text-red-400 text-pretty tabular-nums">
                 Unable to load connection diagnostics.
               </span>
             ) : null}
@@ -784,91 +794,128 @@ export function DebugConsoleScreen() {
             <div className="rounded-xl border border-primary-200 bg-primary-100/50 px-3 py-3 text-sm text-primary-500">
               Loading health data…
             </div>
-          ) : (() => {
-            const health = gatewayHealthQuery.data ?? { status: 'unreachable' as GatewayHealthStatus, raw: {} }
-            return (
-              <div className="space-y-2.5 text-sm">
-                {/* Status badge row */}
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary-200 bg-primary-100/50 px-3 py-2.5">
-                  <span className="text-primary-700">Status</span>
-                  <span
-                    className={cn(
-                      'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium tabular-nums',
-                      getHealthBadgeClass(health.status),
-                    )}
-                  >
-                    <span className={cn('size-1.5 rounded-full', getHealthDotClass(health.status))} />
-                    {getHealthLabel(health.status)}
-                  </span>
-                </div>
-
-                {/* Uptime */}
-                {health.uptime !== undefined ? (
+          ) : (
+            (() => {
+              const health = gatewayHealthQuery.data ?? {
+                status: 'unreachable' as GatewayHealthStatus,
+                raw: {},
+              }
+              return (
+                <div className="space-y-2.5 text-sm">
+                  {/* Status badge row */}
                   <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary-200 bg-primary-100/50 px-3 py-2.5">
-                    <span className="text-primary-700">Uptime</span>
-                    <span className="font-medium text-ink tabular-nums">
-                      {formatUptimeDuration(health.uptime)}
+                    <span className="text-primary-700">Status</span>
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium tabular-nums',
+                        getHealthBadgeClass(health.status),
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          'size-1.5 rounded-full',
+                          getHealthDotClass(health.status),
+                        )}
+                      />
+                      {getHealthLabel(health.status)}
                     </span>
                   </div>
-                ) : null}
 
-                {/* Version */}
-                {health.version ? (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary-200 bg-primary-100/50 px-3 py-2.5">
-                    <span className="text-primary-700">Version</span>
-                    <code className="rounded-md border border-primary-200 bg-primary-50 px-2 py-1 font-mono text-xs text-primary-900 tabular-nums">
-                      {health.version}
-                    </code>
-                  </div>
-                ) : null}
-
-                {/* Memory */}
-                {health.memory ? (
-                  <div className="rounded-xl border border-primary-200 bg-primary-100/50 px-3 py-2.5 space-y-1">
-                    <span className="text-primary-700 block mb-1.5">Memory Usage</span>
-                    {health.memory.rss !== undefined ? (
-                      <div className="flex items-center justify-between text-xs tabular-nums">
-                        <span className="text-primary-500">RSS</span>
-                        <span className="text-ink font-medium">{formatMemoryBytes(health.memory.rss!)}</span>
-                      </div>
-                    ) : null}
-                    {health.memory.heapUsed !== undefined && health.memory.heapTotal !== undefined ? (
-                      <div className="flex items-center justify-between text-xs tabular-nums">
-                        <span className="text-primary-500">Heap</span>
-                        <span className="text-ink font-medium">
-                          {formatMemoryBytes(health.memory.heapUsed!)} / {formatMemoryBytes(health.memory.heapTotal!)}
-                        </span>
-                      </div>
-                    ) : null}
-                    {health.memory.external !== undefined ? (
-                      <div className="flex items-center justify-between text-xs tabular-nums">
-                        <span className="text-primary-500">External</span>
-                        <span className="text-ink font-medium">{formatMemoryBytes(health.memory.external!)}</span>
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
-
-                {/* Raw JSON toggle */}
-                <div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 px-2 text-xs tabular-nums"
-                    onClick={() => setHealthRawExpanded((v) => !v)}
-                    aria-expanded={healthRawExpanded}
-                  >
-                    {healthRawExpanded ? 'Hide raw JSON' : 'Show raw JSON'}
-                  </Button>
-                  {healthRawExpanded ? (
-                    <pre className="mt-2 overflow-x-auto rounded-xl border border-primary-200 bg-primary-50 px-3 py-2 font-mono text-[11px] leading-relaxed text-primary-800 dark:bg-primary-900 dark:text-primary-300 dark:border-primary-700">
-                      {JSON.stringify(health.raw, null, 2)}
-                    </pre>
+                  {/* Uptime */}
+                  {health.uptime !== undefined ? (
+                    <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary-200 bg-primary-100/50 px-3 py-2.5">
+                      <span className="text-primary-700">Uptime</span>
+                      <span className="font-medium text-ink tabular-nums">
+                        {formatUptimeDuration(health.uptime)}
+                      </span>
+                    </div>
                   ) : null}
+
+                  {/* Version */}
+                  {health.version ? (
+                    <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary-200 bg-primary-100/50 px-3 py-2.5">
+                      <span className="text-primary-700">Version</span>
+                      <code className="rounded-md border border-primary-200 bg-primary-50 px-2 py-1 font-mono text-xs text-primary-900 tabular-nums">
+                        {health.version}
+                      </code>
+                    </div>
+                  ) : null}
+
+                  {/* Memory */}
+                  {health.memory ? (
+                    <div className="rounded-xl border border-primary-200 bg-primary-100/50 px-3 py-2.5 space-y-1">
+                      <span className="text-primary-700 block mb-1.5">
+                        Memory Usage
+                      </span>
+                      {health.memory.rss !== undefined ? (
+                        <div className="flex items-center justify-between text-xs tabular-nums">
+                          <span className="text-primary-500">RSS</span>
+                          <span className="text-ink font-medium">
+                            {formatMemoryBytes(health.memory.rss!)}
+                          </span>
+                        </div>
+                      ) : null}
+                      {health.memory.heapUsed !== undefined &&
+                      health.memory.heapTotal !== undefined ? (
+                        <div className="flex items-center justify-between text-xs tabular-nums">
+                          <span className="text-primary-500">Heap</span>
+                          <span className="text-ink font-medium">
+                            {formatMemoryBytes(health.memory.heapUsed!)} /{' '}
+                            {formatMemoryBytes(health.memory.heapTotal!)}
+                          </span>
+                        </div>
+                      ) : null}
+                      {health.memory.external !== undefined ? (
+                        <div className="flex items-center justify-between text-xs tabular-nums">
+                          <span className="text-primary-500">External</span>
+                          <span className="text-ink font-medium">
+                            {formatMemoryBytes(health.memory.external!)}
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  {/* Helpful hint when the /health endpoint is unreachable.
+                      Surfaces the most likely cause + a one-shot remedy. */}
+                  {health.status === 'unreachable' ? (
+                    <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2.5 text-xs text-amber-300 text-pretty">
+                      <p className="font-medium">
+                        Gateway /health endpoint not reachable at{' '}
+                        {GATEWAY_HEALTH_URL}.
+                      </p>
+                      <p className="mt-1 opacity-80">
+                        Likely causes: gateway daemon not running, or firewall
+                        blocking 127.0.0.1:18789. Try{' '}
+                        <code className="rounded border border-amber-500/40 bg-amber-500/10 px-1 py-px font-mono">
+                          openclaw gateway start
+                        </code>
+                        , then click Reconnect above.
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {/* Raw JSON toggle */}
+                  <div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2 text-xs tabular-nums"
+                      onClick={() => setHealthRawExpanded((v) => !v)}
+                      aria-expanded={healthRawExpanded}
+                    >
+                      {healthRawExpanded ? 'Hide raw JSON' : 'Show raw JSON'}
+                    </Button>
+                    {healthRawExpanded ? (
+                      <pre className="mt-2 overflow-x-auto rounded-xl border border-[rgba(192,192,192,0.32)] bg-[rgba(255,255,255,0.03)] px-3 py-2 font-mono text-[11px] leading-relaxed">
+                        {JSON.stringify(health.raw, null, 2)}
+                      </pre>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-            )
-          })()}
+              )
+            })()
+          )}
         </DashboardGlassCard>
 
         <DashboardGlassCard
@@ -881,8 +928,8 @@ export function DebugConsoleScreen() {
               className={cn(
                 'inline-flex items-center gap-1 rounded-full border px-2 py-0.5',
                 isActivityConnected
-                  ? 'border-emerald-200 bg-emerald-100/70 text-emerald-700'
-                  : 'border-red-200 bg-red-100/70 text-red-700',
+                  ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-400'
+                  : 'border-red-500/30 bg-red-500/10 text-red-400',
               )}
             >
               <span
@@ -969,7 +1016,7 @@ export function DebugConsoleScreen() {
           description="Read-only pattern matcher that recommends next steps from recent errors."
           icon={Wrench01Icon}
         >
-          <div className="rounded-xl border border-amber-200 bg-amber-100/60 px-3 py-2 text-xs text-amber-800 text-pretty">
+          <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-300 text-pretty">
             ⚠️ Suggestions only — commands are not executed automatically
           </div>
 
@@ -1038,7 +1085,7 @@ export function DebugConsoleScreen() {
           description="Generate a safe, redacted bundle for troubleshooting and GitHub issues."
           icon={PackageIcon}
         >
-          <div className="rounded-xl border border-amber-200 bg-amber-100/60 px-3 py-2 text-xs text-amber-800 text-pretty">
+          <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-300 text-pretty">
             ⚠️ Never share secrets. This bundle is automatically redacted, but
             always review before sharing.
           </div>
@@ -1060,29 +1107,35 @@ export function DebugConsoleScreen() {
               <Button
                 variant="default"
                 size="sm"
+                className="h-7 px-2 text-xs tabular-nums"
                 onClick={handleExportDiagnostics}
                 disabled={isExporting}
               >
                 <HugeiconsIcon
                   icon={Download04Icon}
-                  size={20}
-                  strokeWidth={1.5}
+                  size={14}
+                  strokeWidth={1.75}
                 />
                 {isExporting ? 'Exporting…' : 'Export Diagnostics'}
               </Button>
 
-              <Button variant="outline" size="sm" onClick={handleOpenIssue}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-xs tabular-nums"
+                onClick={handleOpenIssue}
+              >
                 <HugeiconsIcon
                   icon={Github01Icon}
-                  size={20}
-                  strokeWidth={1.5}
+                  size={14}
+                  strokeWidth={1.75}
                 />
                 Open Issue on GitHub
               </Button>
             </div>
 
             {exportError ? (
-              <p className="text-xs text-red-600 text-pretty">{exportError}</p>
+              <p className="text-xs text-red-400 text-pretty">{exportError}</p>
             ) : null}
           </div>
         </DashboardGlassCard>

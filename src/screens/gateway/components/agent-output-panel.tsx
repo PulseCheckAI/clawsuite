@@ -478,12 +478,12 @@ export function AgentOutputPanel({
 
       {/* Terminal output */}
       {sessionKey && streamDisconnected && !sessionEnded ? (
-        <div className="mb-2 flex items-center justify-between gap-2 rounded-md border border-amber-300 bg-amber-50 px-2 py-1 text-[10px] font-medium text-amber-700 dark:border-amber-800/50 dark:bg-amber-950/40 dark:text-amber-400">
+        <div className="mb-2 flex items-center justify-between gap-2 rounded-md border border-amber-300 bg-amber-50 px-2 py-1 text-[10px] font-medium text-amber-300 dark:border-amber-800/50 dark:bg-amber-950/40 dark:text-amber-400">
           <span>Stream disconnected</span>
           <button
             type="button"
             onClick={handleReconnect}
-            className="rounded border border-amber-400 px-2 py-0.5 text-[10px] font-semibold text-amber-600 transition-colors hover:bg-amber-100 dark:border-amber-700 dark:text-amber-300 dark:hover:bg-amber-900/40"
+            className="rounded border border-amber-400 px-2 py-0.5 text-[10px] font-semibold text-amber-600 transition-colors hover:bg-amber-500/10 dark:border-amber-700 dark:text-amber-300 dark:hover:bg-amber-900/40"
           >
             Reconnect
           </button>
@@ -690,9 +690,9 @@ export function AgentOutputPanel({
             className={cn(
               'shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold',
               headerStatus === 'Completed'
-                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                ? 'border-emerald-500/30 bg-emerald-50 text-emerald-400'
                 : headerStatus === 'Disconnected'
-                  ? 'border-amber-200 bg-amber-50 text-amber-700'
+                  ? 'border-amber-500/40 bg-amber-50 text-amber-300'
                 : headerStatus === 'Streaming'
                     ? 'border-sky-200 bg-sky-50 text-sky-700'
                     : 'border-[var(--theme-border)] bg-[var(--theme-bg)] text-[var(--theme-muted)]',

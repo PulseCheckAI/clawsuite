@@ -85,9 +85,9 @@ function riskLevel(text: string): 'low' | 'medium' | 'high' {
 }
 
 const RISK_BADGE: Record<string, { bg: string; text: string; label: string }> = {
-  low: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', label: 'Low Risk' },
-  medium: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', label: 'Med Risk' },
-  high: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', label: 'High Risk' },
+  low: { bg: 'bg-emerald-500/10 dark:bg-emerald-900/30', text: 'text-emerald-400 dark:text-emerald-300', label: 'Low Risk' },
+  medium: { bg: 'bg-amber-500/10 dark:bg-amber-900/30', text: 'text-amber-300 dark:text-amber-300', label: 'Med Risk' },
+  high: { bg: 'bg-red-500/10 dark:bg-red-900/30', text: 'text-red-400 dark:text-red-300', label: 'High Risk' },
 }
 
 export function ExecApprovalToast() {
@@ -237,7 +237,7 @@ export function ExecApprovalToast() {
               {/* Header row: badge + agent + countdown */}
               <div className="mb-2 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                  <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-300 dark:bg-amber-900/40 dark:text-amber-300">
                     ⚡ Exec Approval
                   </span>
                   <span className={cn('rounded-full px-1.5 py-0.5 text-[9px] font-semibold uppercase', riskBadge.bg, riskBadge.text)}>
@@ -301,7 +301,7 @@ export function ExecApprovalToast() {
                   onClick={() => void handleResolve(approval.id, 'deny')}
                   disabled={Boolean(busy)}
                   className={cn(
-                    'flex-1 rounded-lg border border-red-300 bg-white py-2 text-xs font-bold text-red-600 transition-all hover:bg-red-50 active:scale-[0.98] dark:border-red-800/50 dark:bg-primary-900 dark:text-red-400 dark:hover:bg-red-950/30',
+                    'flex-1 rounded-lg border border-red-300 bg-white py-2 text-xs font-bold text-red-400 transition-all hover:bg-red-50 active:scale-[0.98] dark:border-red-800/50 dark:bg-primary-900 dark:text-red-400 dark:hover:bg-red-950/30',
                     busy && 'cursor-not-allowed opacity-60',
                   )}
                 >

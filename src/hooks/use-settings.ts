@@ -48,7 +48,10 @@ export const defaultStudioSettings: StudioSettings = {
 }
 
 function resolveStoredAccent(value: string | null): AccentColor | null {
-  return value === 'purple' || value === 'blue' || value === 'green' || value === 'orange'
+  return value === 'purple' ||
+    value === 'blue' ||
+    value === 'green' ||
+    value === 'orange'
     ? value
     : null
 }
@@ -96,9 +99,11 @@ export function resolveTheme(theme: SettingsThemeMode): 'light' | 'dark' {
   if (theme === 'dark') return 'dark'
 
   if (typeof window === 'undefined') return 'dark'
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
+  // Mission Control is dark-first. If user has not explicitly chosen
+  // paper-light, treat 'system' as dark regardless of OS preference.
+  const stored = localStorage.getItem('clawsuite-theme')
+  if (stored === 'paper-light') return 'light'
+  return 'dark'
 }
 
 export function applyTheme(theme: SettingsThemeMode) {
@@ -107,33 +112,58 @@ export function applyTheme(theme: SettingsThemeMode) {
   const root = document.documentElement
   const media = window.matchMedia('(prefers-color-scheme: dark)')
 
-  root.classList.remove('light', 'dark', 'system')
-  root.classList.add(theme)
+  // Precedence: explicit enterprise theme in localStorage wins over the
+  // appTheme/system preference. This makes Mission Control dark-first by
+  // default (pulsecheck-navy) while still letting the user pick paper-light.
+  const stored = localStorage.getItem('clawsuite-theme')
+  const DARK_ENTERPRISE = [
+    'pulsecheck-navy',
+    'ops-dark',
+    'premium-dark',
+    'sunset-brand',
+  ]
+  const isStoredDark = DARK_ENTERPRISE.includes(stored ?? '')
+  const isStoredLight = stored === 'paper-light'
 
-  if (theme === 'system' && media.matches) {
-    root.classList.add('dark')
-  }
+  // Default appTheme when 'system' resolves to LIGHT on the OS: still treat
+  // as dark unless the user explicitly chose paper-light. PulseOS is a
+  // Mission Control dashboard — dark-first by design.
+  const resolvedDark = isStoredDark
+    ? true
+    : isStoredLight
+      ? false
+      : theme === 'dark'
+        ? true
+        : theme === 'light'
+          ? false
+          : !isStoredLight // theme==='system': default to dark, opt out via paper-light
+
+  root.classList.remove('light', 'dark', 'system')
+  root.classList.add(resolvedDark ? 'dark' : 'light')
 
   // Sync data-theme so CSS variable overrides don't fight Tailwind dark: classes.
-  // paper-light CSS has !important overrides that win over dark: variants unless data-theme is correct.
-  const resolvedDark =
-    theme === 'dark' || (theme === 'system' && media.matches)
   if (resolvedDark) {
-    // Preserve user's enterprise dark theme if set, otherwise default to ops-dark
-    const stored = localStorage.getItem('clawsuite-theme')
-    const darkThemes = ['ops-dark', 'premium-dark', 'sunset-brand']
-    root.setAttribute('data-theme', darkThemes.includes(stored ?? '') ? (stored as string) : 'ops-dark')
+    root.setAttribute(
+      'data-theme',
+      isStoredDark ? (stored as string) : 'pulsecheck-navy',
+    )
   } else {
     root.setAttribute('data-theme', 'paper-light')
   }
+  // Suppress unused-variable warnings for system-media reference (kept for
+  // possible future listener wiring elsewhere)
+  void media
 
-  const storedAccent = resolveStoredAccent(localStorage.getItem('clawsuite-accent')) || 'orange'
+  const storedAccent =
+    resolveStoredAccent(localStorage.getItem('clawsuite-accent')) || 'orange'
   root.setAttribute('data-accent', storedAccent)
 }
 
 function applySettingsAppearance(settings: StudioSettings) {
   applyTheme(settings.theme)
-  const storedAccent = resolveStoredAccent(localStorage.getItem('clawsuite-accent'))
+  const storedAccent = resolveStoredAccent(
+    localStorage.getItem('clawsuite-accent'),
+  )
   applyAccentColor(storedAccent ?? settings.accentColor)
 }
 

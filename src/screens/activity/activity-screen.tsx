@@ -213,7 +213,7 @@ export function ActivityScreen() {
   )
 
   return (
-    <main className="min-h-full bg-surface px-4 pt-5 pb-24 md:px-6 md:pt-8 text-primary-900 dark:text-primary-100">
+    <main className="min-h-full bg-surface px-6 pt-6 pb-24 md:px-8 md:pt-8 text-primary-900 dark:text-primary-100">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col">
         <header className="mb-4 flex flex-wrap items-center gap-2.5 rounded-xl border border-primary-200 bg-primary-50/80 px-4 py-3 shadow-sm dark:border-primary-800 dark:bg-primary-900/60">
           <HugeiconsIcon icon={Activity01Icon} size={20} strokeWidth={1.5} />

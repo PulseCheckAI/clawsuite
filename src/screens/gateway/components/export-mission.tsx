@@ -69,7 +69,7 @@ function generateMarkdown(report: ExportableMissionReport): string {
   }
 
   lines.push('---')
-  lines.push(`*Exported from ClawSuite Agent Hub on ${new Date().toLocaleString()}*`)
+  lines.push(`*Exported from PulseOS Agent Hub on ${new Date().toLocaleString()}*`)
 
   return lines.join('\n')
 }
@@ -129,7 +129,7 @@ export function ExportMissionButton({ report }: { report: ExportableMissionRepor
           'flex items-center gap-1.5 rounded-lg border border-primary-200 dark:border-primary-700',
           'px-2.5 py-1.5 text-xs font-medium transition-colors',
           copied
-            ? 'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400'
+            ? 'border-emerald-300 bg-emerald-50 text-emerald-400 dark:border-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400'
             : 'text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-800',
         )}
       >

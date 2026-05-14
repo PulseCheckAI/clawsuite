@@ -28,7 +28,7 @@ const MODEL_BADGE: Record<string, string> = {
   opus: 'bg-accent-100 text-accent-700 dark:bg-accent-950/70 dark:text-accent-400',
   sonnet: 'bg-blue-100 text-blue-700 dark:bg-blue-950/70 dark:text-blue-400',
   codex:
-    'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-400',
+    'bg-emerald-500/10 text-emerald-400 dark:bg-emerald-950/70 dark:text-emerald-400',
   flash:
     'bg-violet-100 text-violet-700 dark:bg-violet-950/70 dark:text-violet-400',
   'pc1-planner':
@@ -117,7 +117,7 @@ function AgentCard({
       className={cn(
         'rounded-2xl border bg-white/70 backdrop-blur dark:bg-primary-900/50 dark:border-white/10 p-3 transition-all',
         isSelected
-          ? 'border-emerald-200 ring-1 ring-emerald-500/30 dark:border-emerald-800/50'
+          ? 'border-emerald-500/30 ring-1 ring-emerald-500/30 dark:border-emerald-800/50'
           : 'border-primary-200 dark:border-primary-800',
       )}
     >
@@ -167,7 +167,7 @@ function AgentCard({
           className={cn(
             'flex-1 rounded-lg px-2 py-1 text-[11px] font-medium transition-colors',
             isSelected
-              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300'
+              ? 'bg-emerald-500/10 text-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300'
               : 'bg-primary-100 text-primary-600 hover:bg-primary-200 hover:text-primary-900 dark:bg-primary-800 dark:text-primary-400 dark:hover:bg-primary-700 dark:hover:text-primary-200',
           )}
         >
@@ -460,7 +460,7 @@ export function LiveActivityPanel({
                 {selectedAgent ? selectedAgent.name : 'No agent selected'}
               </span>
               {selectedAgentId && (
-                <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
+                <span className="shrink-0 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-medium text-emerald-400 dark:bg-emerald-950/40 dark:text-emerald-400">
                   live
                 </span>
               )}

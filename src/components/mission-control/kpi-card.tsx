@@ -25,19 +25,20 @@ export function KpiCard({
   icon?: ReactNode
   className?: string
 }) {
+  // Semantic status tones: green=positive, yellow=neutral, red=negative.
   const deltaClass =
     deltaTone === 'positive'
       ? 'text-emerald-400'
       : deltaTone === 'negative'
         ? 'text-red-400'
-        : 'text-amber-400'
+        : 'text-yellow-400'
 
   return (
     <div className={cn('glass-tile relative p-5 overflow-hidden', className)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-primary-700 dark:text-primary-800">
           {icon ? <span className="shrink-0">{icon}</span> : null}
-          <span className="text-[11px] font-semibold tracking-[0.12em] uppercase font-mono">
+          <span className="text-[11px] font-semibold tracking-[0.14em] uppercase font-mono">
             {label}
           </span>
         </div>
@@ -66,7 +67,7 @@ export function KpiCard({
       ) : null}
 
       {context ? (
-        <div className="mt-2 text-xs text-primary-700 dark:text-primary-800">
+        <div className="mt-3 text-[13px] leading-[1.5] text-primary-800 dark:text-primary-700">
           {context}
         </div>
       ) : null}

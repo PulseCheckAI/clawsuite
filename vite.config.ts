@@ -378,6 +378,12 @@ const config = defineConfig(({ mode, command }) => {
               'Cross-Origin-Opener-Policy',
               'same-origin-allow-popups',
             )
+            // Dev-only: force fresh JS/CSS every load. Without this, browsers
+            // cache the HMR-keyed bundle and screen swaps (like /dashboard ->
+            // MissionControlScreen) don't show until a full cache purge.
+            res.setHeader('Cache-Control', 'no-store, must-revalidate')
+            res.setHeader('Pragma', 'no-cache')
+            res.setHeader('Expires', '0')
             next()
           })
         },

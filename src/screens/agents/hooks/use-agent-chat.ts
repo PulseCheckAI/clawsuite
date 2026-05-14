@@ -53,7 +53,7 @@ export function useAgentChat(sessionKey: string) {
     queryKey: ['operations', 'chat', sessionKey],
     queryFn: async () => {
       try {
-        // Try the ClawSuite history endpoint first (uses sessionKey param)
+        // Try the PulseOS history endpoint first (uses sessionKey param)
         const res = await fetch(`/api/history?sessionKey=${encodeURIComponent(sessionKey)}&limit=50`)
         if (res.ok) {
           const data = await res.json()

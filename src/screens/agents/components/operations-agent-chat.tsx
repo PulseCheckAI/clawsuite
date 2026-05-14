@@ -93,7 +93,7 @@ export function OperationsAgentChat({
       </div>
 
       {error ? (
-        <p className="mt-3 text-sm text-red-600">{error}</p>
+        <p className="mt-3 text-sm text-red-400">{error}</p>
       ) : null}
 
       <div className="mt-4 flex items-end gap-3">

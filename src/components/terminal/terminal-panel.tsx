@@ -188,7 +188,12 @@ export function TerminalPanel({ isMobile }: TerminalPanelProps) {
 
       const terminal = new Terminal({
         theme: {
-          background: '#0b0f1a',
+          // Match the global PulseOS navy theme so the terminal blends with
+          // the rest of the dashboard surfaces.
+          background:
+            getComputedStyle(document.documentElement)
+              .getPropertyValue('--theme-bg')
+              .trim() || '#0e1730',
         },
         cursorBlink: true,
         fontSize: 13,
@@ -375,7 +380,6 @@ export function TerminalPanel({ isMobile }: TerminalPanelProps) {
           />
 
           <div className="flex h-full flex-col">
-
             <div className="flex items-center gap-2 border-b border-primary-200 px-3 py-2">
               <div className="flex items-center gap-2 overflow-x-auto">
                 {tabs.map((tab) => (
@@ -493,7 +497,7 @@ function TerminalView({
     <div
       ref={containerRef}
       className={cn(
-        'h-full w-full bg-[#0b0f1a] text-primary-100',
+        'h-full w-full bg-[var(--theme-bg)] text-primary-100',
         isActive ? 'block' : 'hidden',
       )}
       onKeyDown={(event) => {

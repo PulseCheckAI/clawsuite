@@ -133,7 +133,7 @@ export default function FilePreviewDialog({
           {loading ? (
             <div className="text-sm text-primary-500">Loading…</div>
           ) : error ? (
-            <div className="text-sm text-red-600">{error}</div>
+            <div className="text-sm text-red-400">{error}</div>
           ) : path && isImageFile(path) ? (
             <div className="flex items-center justify-center">
               {dataUrl ? (

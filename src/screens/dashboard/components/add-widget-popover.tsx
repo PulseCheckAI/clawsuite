@@ -92,7 +92,7 @@ export function AddWidgetPopover({
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="truncate text-sm text-ink">{w.label}</span>
                     {w.tier === 'demo' ? (
-                      <span className="shrink-0 rounded bg-amber-100 px-1 py-px text-[10px] font-medium text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
+                      <span className="shrink-0 rounded bg-amber-500/10 px-1 py-px text-[10px] font-medium text-amber-300 dark:bg-amber-900/50 dark:text-amber-400">
                         Demo
                       </span>
                     ) : null}

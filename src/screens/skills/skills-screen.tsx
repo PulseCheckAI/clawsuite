@@ -269,8 +269,20 @@ export function SkillsScreen() {
         <header className="rounded-2xl border border-primary-200 bg-primary-50/85 p-4 backdrop-blur-xl">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="space-y-1.5">
-              <p className="text-xs font-medium uppercase text-primary-500 tabular-nums">
-                ClawSuite Marketplace
+              <p className="text-xs font-semibold uppercase tracking-wider tabular-nums text-white">
+                Pulse
+                <span
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(90deg, #E63946 0%, #FF6B35 40%, #FF9F1C 70%, #FFD166 100%)',
+                    WebkitBackgroundClip: 'text',
+                    backgroundClip: 'text',
+                    color: 'transparent',
+                  }}
+                >
+                  OS
+                </span>{' '}
+                Marketplace
               </p>
               <h1 className="text-2xl font-medium text-ink text-balance sm:text-3xl">
                 Skills Browser
@@ -293,7 +305,10 @@ export function SkillsScreen() {
                 <TabsTab value="installed" className="flex-1 sm:min-w-[132px]">
                   Installed
                 </TabsTab>
-                <TabsTab value="marketplace" className="flex-1 sm:min-w-[168px]">
+                <TabsTab
+                  value="marketplace"
+                  className="flex-1 sm:min-w-[168px]"
+                >
                   Marketplace
                 </TabsTab>
                 <TabsTab value="featured" className="flex-1 sm:min-w-[120px]">
@@ -303,6 +318,10 @@ export function SkillsScreen() {
 
               <div className="flex flex-wrap items-center gap-2">
                 <input
+                  id="skills-search"
+                  name="skills-search"
+                  type="search"
+                  aria-label="Search skills by name, tags, or description"
                   value={searchInput}
                   onChange={(event) => handleSearchChange(event.target.value)}
                   placeholder="Search by name, tags, or description"
@@ -581,12 +600,12 @@ const SECURITY_BADGE: Record<
   },
   medium: {
     label: 'Caution',
-    badgeClass: 'bg-amber-100 text-amber-700 border-amber-200',
+    badgeClass: 'bg-amber-500/10 text-amber-300 border-amber-500/40',
     confidence: 'REVIEW RECOMMENDED',
   },
   high: {
     label: 'Warning',
-    badgeClass: 'bg-red-100 text-red-700 border-red-200',
+    badgeClass: 'bg-red-500/10 text-red-400 border-red-500/30',
     confidence: 'MANUAL REVIEW',
   },
 }
@@ -657,7 +676,7 @@ function SecurityScanCard({ security }: { security: SecurityRisk }) {
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <span className="text-primary-500 font-medium w-16 shrink-0">
-              ClawSuite
+              PulseOS
             </span>
             <span
               className={cn(
@@ -731,7 +750,8 @@ function SkillsGrid({
   }
 
   if (skills.length === 0) {
-    const isMarketplace = tab === 'marketplace' || tab === ('featured' as string)
+    const isMarketplace =
+      tab === 'marketplace' || tab === ('featured' as string)
     return (
       <div className="rounded-xl border border-dashed border-primary-200 bg-primary-100/40 px-4 py-8 text-center">
         <p className="text-sm font-medium text-primary-700">

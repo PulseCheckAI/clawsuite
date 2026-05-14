@@ -44,7 +44,7 @@ export function ModelSuggestionToast({
               </p>
               <p className="mt-0.5 text-xs text-primary-600">{reason}</p>
               {costImpact && (
-                <p className="mt-1 text-xs font-medium text-emerald-700">
+                <p className="mt-1 text-xs font-medium text-emerald-400">
                   {costImpact}
                 </p>
               )}

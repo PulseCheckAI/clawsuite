@@ -200,10 +200,10 @@ export function getLatestRun(
 
 export function statusBadgeClass(status: CronRunStatus): string {
   if (status === 'success') {
-    return 'border-emerald-500/40 bg-emerald-500/10 text-emerald-700'
+    return 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
   }
   if (status === 'error') {
-    return 'border-red-500/40 bg-red-500/10 text-red-700'
+    return 'border-red-500/40 bg-red-500/10 text-red-400'
   }
   if (status === 'running') {
     return 'border-blue-500/40 bg-blue-500/10 text-blue-700'

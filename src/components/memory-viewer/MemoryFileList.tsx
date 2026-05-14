@@ -119,7 +119,7 @@ function MemoryFileList({
             </div>
           ) : null}
           {error ? (
-            <div className="rounded-lg border border-red-300 bg-red-50/70 px-3 py-2 text-xs text-red-700 text-pretty">
+            <div className="rounded-lg border border-red-300 bg-red-50/70 px-3 py-2 text-xs text-red-400 text-pretty">
               {error}
             </div>
           ) : null}

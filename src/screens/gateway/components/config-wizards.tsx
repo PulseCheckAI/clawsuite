@@ -809,7 +809,7 @@ export function AgentWizardModal({
             'flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors',
             addMode
               ? 'border-primary-200 dark:border-primary-700 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-800'
-              : 'border-red-200 dark:border-red-800/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20',
+              : 'border-red-500/30 dark:border-red-800/50 text-red-400 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20',
           )}
         >
           {addMode ? null : (
@@ -1173,9 +1173,9 @@ export function TeamWizardModal({
               {notInTeam.map((agent) => (
                 <div
                   key={agent.id}
-                  className="flex items-center gap-2.5 rounded-lg border border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/30 dark:bg-emerald-900/10 px-3 py-2.5 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+                  className="flex items-center gap-2.5 rounded-lg border border-emerald-500/30 dark:border-emerald-800/50 bg-emerald-50/30 dark:bg-emerald-900/10 px-3 py-2.5 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
                 >
-                  <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
+                  <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 dark:bg-emerald-900/30 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
                     {agent.name[0]?.toUpperCase() ?? '?'}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -1191,7 +1191,7 @@ export function TeamWizardModal({
                   <button
                     type="button"
                     onClick={() => addAgent(agent.id)}
-                    className="flex size-6 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-colors"
+                    className="flex size-6 items-center justify-center rounded-full bg-emerald-500/10 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-colors"
                     title="Add to team"
                   >
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -1214,7 +1214,7 @@ export function TeamWizardModal({
         <button
           type="button"
           onClick={onDelete}
-          className="flex items-center gap-1.5 rounded-lg border border-red-200 dark:border-red-800/50 px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          className="flex items-center gap-1.5 rounded-lg border border-red-500/30 dark:border-red-800/50 px-3 py-2 text-xs font-medium text-red-400 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
         >
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path
@@ -1558,7 +1558,7 @@ export function AddTeamModal({
                           ? 'bg-green-100 text-green-700'
                           : tpl.tier === 'balanced'
                             ? 'bg-blue-100 text-blue-700'
-                            : 'bg-amber-100 text-amber-700',
+                            : 'bg-amber-500/10 text-amber-300',
                       )}
                     >
                       {tpl.tier === 'budget'
@@ -1835,7 +1835,7 @@ export function ProviderEditModal({
             <button
               type="button"
               onClick={() => void onDelete()}
-              className="rounded-lg border border-red-200 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950 transition-colors"
+              className="rounded-lg border border-red-500/30 px-3 py-2 text-xs font-medium text-red-400 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950 transition-colors"
             >
               Remove Provider
             </button>

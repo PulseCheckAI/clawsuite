@@ -32,9 +32,9 @@ export const HUB_COLORS = {
 } as const
 
 export const HUB_STATUS = {
-  ready: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300',
-  paused: 'bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300',
-  blocked: 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-300',
+  ready: 'bg-emerald-500/10 text-emerald-400 dark:bg-emerald-950/30 dark:text-emerald-300',
+  paused: 'bg-amber-500/10 text-amber-300 dark:bg-amber-950/30 dark:text-amber-300',
+  blocked: 'bg-red-500/10 text-red-400 dark:bg-red-950/30 dark:text-red-300',
   neutral: 'bg-primary-200 text-primary-600 dark:bg-primary-800 dark:text-primary-300',
 } as const
 
@@ -56,12 +56,12 @@ export const MISSION_CONTROL_STATUS_META: Record<
   running: {
     label: 'Running',
     className:
-      'border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-950/40 dark:text-emerald-300',
+      'border border-emerald-500/30 bg-emerald-50 text-emerald-400 dark:border-emerald-800/50 dark:bg-emerald-950/40 dark:text-emerald-300',
   },
   paused: {
     label: 'Paused',
     className:
-      'border border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800/50 dark:bg-amber-950/40 dark:text-amber-300',
+      'border border-amber-500/40 bg-amber-50 text-amber-300 dark:border-amber-800/50 dark:bg-amber-950/40 dark:text-amber-300',
   },
   completed: {
     label: 'Completed',
@@ -71,7 +71,7 @@ export const MISSION_CONTROL_STATUS_META: Record<
   aborted: {
     label: 'Aborted',
     className:
-      'border border-red-200 bg-red-50 text-red-700 dark:border-red-800/50 dark:bg-red-950/40 dark:text-red-300',
+      'border border-red-500/30 bg-red-50 text-red-400 dark:border-red-800/50 dark:bg-red-950/40 dark:text-red-300',
   },
   stopped: {
     label: 'Stopped',

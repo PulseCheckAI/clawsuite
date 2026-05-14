@@ -141,7 +141,7 @@ function probeTone(probe?: ProbeResult | null) {
   if (probe?.ok === true) {
     return {
       dot: 'bg-emerald-500',
-      text: 'text-emerald-700',
+      text: 'text-emerald-400',
       label: 'Probe OK',
     }
   }
@@ -149,14 +149,14 @@ function probeTone(probe?: ProbeResult | null) {
   if (probe?.ok === false || probe?.error) {
     return {
       dot: 'bg-red-500',
-      text: 'text-red-600',
+      text: 'text-red-400',
       label: 'Probe failed',
     }
   }
 
   return {
     dot: 'bg-amber-500',
-    text: 'text-amber-700',
+    text: 'text-amber-300',
     label: 'Probe pending',
   }
 }
@@ -550,13 +550,13 @@ export function ChannelsScreen() {
                       <div className="flex flex-wrap gap-2">
                         <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-xs font-medium">
                           <StatusDot className={running ? 'bg-emerald-500' : 'bg-red-500'} />
-                          <span className={running ? 'text-emerald-700' : 'text-red-600'}>
+                          <span className={running ? 'text-emerald-400' : 'text-red-400'}>
                             {running ? 'Running' : 'Stopped'}
                           </span>
                         </span>
                         <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-200 bg-primary-50 px-2.5 py-1 text-xs font-medium">
                           <StatusDot className={connected ? 'bg-emerald-500' : 'bg-amber-500'} />
-                          <span className={connected ? 'text-emerald-700' : 'text-amber-700'}>
+                          <span className={connected ? 'text-emerald-400' : 'text-amber-300'}>
                             {connected ? 'Connected' : 'Not connected'}
                           </span>
                         </span>
@@ -786,7 +786,7 @@ export function ChannelsScreen() {
                                 {normalized}
                                 <button
                                   type="button"
-                                  className="text-primary-500 hover:text-red-600"
+                                  className="text-primary-500 hover:text-red-400"
                                   disabled={patchMutation.isPending || isRestarting}
                                   onClick={() => {
                                     void removeAllowFrom(channelId, allowFrom, normalized)

@@ -40,11 +40,16 @@ export function GatewayStatusDot() {
       : 'Offline'
 
   return (
-    <span className="relative flex h-2 w-2 shrink-0" title={`Gateway: ${label}`}>
+    <span
+      className="relative flex h-2 w-2 shrink-0"
+      title={`Gateway: ${label}`}
+    >
       {isConnected && (
         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/40" />
       )}
-      <span className={`relative inline-flex h-2 w-2 rounded-full ${dotColor}`} />
+      <span
+        className={`relative inline-flex h-2 w-2 rounded-full ${dotColor}`}
+      />
     </span>
   )
 }
@@ -94,13 +99,18 @@ export function GatewayStatusIndicator({
             className={`relative inline-flex h-1.5 w-1.5 rounded-full ${dotColor}`}
           />
         </span>
-        <span className="text-[10px] text-primary-400 dark:text-gray-500">{label}</span>
+        <span className="text-[10px] text-primary-400 dark:text-gray-500">
+          {label}
+        </span>
       </span>
     )
   }
 
   return (
-    <div className="flex items-center gap-2 px-2 py-1.5" title={`Gateway ${label}`}>
+    <div
+      className="flex items-center gap-2 px-2 py-1.5"
+      title={`Gateway ${label}`}
+    >
       <span className="relative flex h-2 w-2 shrink-0">
         {(isLoading || isConnected) && (
           <span
@@ -112,7 +122,9 @@ export function GatewayStatusIndicator({
         />
       </span>
       {!collapsed && (
-        <span className="truncate text-[11px] text-primary-500 dark:text-gray-400">{label}</span>
+        <span className="truncate text-[11px] text-primary-500 dark:text-gray-400">
+          {label}
+        </span>
       )}
     </div>
   )

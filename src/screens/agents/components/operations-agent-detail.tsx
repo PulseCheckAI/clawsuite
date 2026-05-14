@@ -279,7 +279,7 @@ export function OperationsAgentDetail({
         <div className="mt-6 flex flex-col gap-3 border-t border-[var(--theme-border)] pt-4 sm:flex-row sm:items-center sm:justify-between">
           <Button
             variant="ghost"
-            className="justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
+            className="justify-start text-red-400 hover:bg-red-50 hover:text-red-400"
             onClick={() => void onDelete(agent.id)}
             disabled={isDeleting || isSaving}
           >

@@ -31,7 +31,7 @@ function getStatusPill(output: AgentOutput) {
     return {
       label: output.statusLabel || 'Success',
       icon: '✅',
-      className: 'bg-emerald-500/12 text-emerald-700 border-emerald-500/20',
+      className: 'bg-emerald-500/12 text-emerald-400 border-emerald-500/20',
     }
   }
 
@@ -54,7 +54,7 @@ function getStatusPill(output: AgentOutput) {
       return {
         label: output.statusLabel || 'Needs Approval',
         icon: '✋',
-        className: 'bg-amber-500/12 text-amber-700 border-amber-500/20',
+        className: 'bg-amber-500/12 text-amber-300 border-amber-500/20',
       }
     }
     if (output.failureKind === 'runtime') {
@@ -75,7 +75,7 @@ function getStatusPill(output: AgentOutput) {
     return {
       label: output.statusLabel || 'Running',
       icon: '⏳',
-      className: 'bg-amber-500/12 text-amber-700 border-amber-500/20',
+      className: 'bg-amber-500/12 text-amber-300 border-amber-500/20',
     }
   }
 
@@ -235,7 +235,7 @@ function OutputCard({ output }: { output: AgentOutput }) {
                 : output.failureKind === 'config'
                   ? 'border-violet-500/25 bg-violet-500/8 text-violet-700'
                   : output.failureKind === 'approval'
-                    ? 'border-amber-500/25 bg-amber-500/8 text-amber-700'
+                    ? 'border-amber-500/25 bg-amber-500/8 text-amber-300'
                     : 'border-[var(--theme-danger-border)] bg-[var(--theme-danger-soft)] text-[var(--theme-danger)]',
             )}
           >

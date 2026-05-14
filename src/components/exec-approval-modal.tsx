@@ -178,7 +178,7 @@ export function ExecApprovalModal() {
           {/* Header */}
           <div className="mb-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+              <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-amber-300 dark:bg-amber-900/40 dark:text-amber-300">
                 ⚡ Exec Approval
               </span>
             </div>
@@ -254,7 +254,7 @@ export function ExecApprovalModal() {
               onClick={() => void handleResolve(current.id, 'deny')}
               disabled={Boolean(busy)}
               className={cn(
-                'flex-1 rounded-xl border-2 border-red-300 bg-white py-3 text-sm font-bold text-red-600 transition-all hover:bg-red-50 active:scale-[0.98] dark:border-red-800/50 dark:bg-primary-900 dark:text-red-400 dark:hover:bg-red-950/20',
+                'flex-1 rounded-xl border-2 border-red-300 bg-white py-3 text-sm font-bold text-red-400 transition-all hover:bg-red-50 active:scale-[0.98] dark:border-red-800/50 dark:bg-primary-900 dark:text-red-400 dark:hover:bg-red-950/20',
                 busy && 'cursor-not-allowed opacity-60',
               )}
             >

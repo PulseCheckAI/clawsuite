@@ -23,7 +23,7 @@ export const Route = createFileRoute('/api/gateway/approvals/$approvalId/$action
           )
         }
 
-        // Map ClawSuite action names to gateway ExecApprovalDecision values.
+        // Map PulseOS action names to gateway ExecApprovalDecision values.
         const decision = action === 'approve' ? 'allow-once' : 'deny'
 
         try {

@@ -5,11 +5,15 @@ export type TrackerCell = {
   tooltip?: string
 }
 
+// Tracker cell tones. `unknown` uses an explicit silver-translucent fill
+// (not bg-primary-*) so empty days stay visible against navy — the global
+// pulsecheck-navy crush would otherwise collapse it into the body bg.
 const TONE_CLASSES = {
-  ok: 'bg-emerald-500/80 hover:bg-emerald-400',
-  warn: 'bg-amber-500/80 hover:bg-amber-400',
-  fail: 'bg-red-500/80 hover:bg-red-400',
-  unknown: 'bg-primary-500/60 hover:bg-primary-400',
+  ok: 'bg-emerald-500/85 hover:bg-emerald-400',
+  warn: 'bg-amber-500/85 hover:bg-amber-400',
+  fail: 'bg-red-500/85 hover:bg-red-400',
+  unknown:
+    'bg-[rgba(170,178,195,0.18)] hover:bg-[rgba(170,178,195,0.3)] border border-[rgba(170,178,195,0.1)]',
 }
 
 // Mission Control daily-uptime tracker — segmented bar like a GitHub

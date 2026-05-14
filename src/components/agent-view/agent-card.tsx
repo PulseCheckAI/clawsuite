@@ -284,7 +284,7 @@ export function AgentCard({
             onClick={function onClickKill() {
               setKillConfirmOpen(true)
             }}
-            className="text-red-700 hover:bg-red-50/80 data-highlighted:bg-red-50/80"
+            className="text-red-400 hover:bg-red-50/80 data-highlighted:bg-red-50/80"
           >
             <HugeiconsIcon icon={Delete02Icon} size={16} strokeWidth={1.5} />
             Kill
@@ -408,7 +408,7 @@ export function AgentCard({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 px-3 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
+                className="h-8 px-3 text-red-400 hover:bg-red-50 hover:text-red-400 dark:hover:bg-red-950/30"
                 onClick={() => setKillConfirmOpen(true)}
               >
                 <HugeiconsIcon icon={Delete02Icon} size={14} strokeWidth={1.5} />

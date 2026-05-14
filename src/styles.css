@@ -522,9 +522,189 @@ body::before {
   --theme-header-border: #6b3c1b;
 }
 
+/* ── PulseCheck Navy (Mission Control default dark) ──
+   MONOCHROME NAVY: every surface uses the same deep navy. Separation
+   comes from 1px borders, not lighter fills. No medium-blue panels.
+   ALL non-brand text is pure #ffffff — primary-500..950 are crushed to
+   white so every text-primary-* utility renders pure white. */
+[data-theme='pulsecheck-navy'] {
+  --theme-bg: oklch(0.18 0.08 248);
+  --theme-sidebar: oklch(0.18 0.08 248);
+  --theme-panel: oklch(0.18 0.08 248);
+  --theme-card: oklch(0.18 0.08 248);
+  --theme-card2: oklch(0.18 0.08 248);
+  /* Silver borders — cooler metallic tone */
+  --theme-border: rgba(170, 178, 195, 0.4);
+  --theme-border-subtle: rgba(170, 178, 195, 0.2);
+  --theme-text: #ffffff;
+  --theme-muted: #ffffff;
+  --theme-shadow-1: 0 1px 2px rgba(8, 14, 36, 0.6);
+  --theme-shadow-2: 0 8px 24px rgba(8, 14, 36, 0.55);
+  --theme-shadow-3: 0 22px 44px rgba(8, 14, 36, 0.65);
+  --theme-glass: oklch(0.18 0.08 248);
+  --theme-focus: #ff6b35;
+  --theme-accent: #ff6b35;
+  --theme-accent-secondary: #ff9f1c;
+  --theme-accent-subtle: rgba(255, 107, 53, 0.12);
+  --theme-accent-border: rgba(255, 107, 53, 0.34);
+  --theme-stripe: rgba(170, 178, 195, 0.18);
+  --theme-header-bg: oklch(0.18 0.08 248);
+  --theme-header-border: rgba(170, 178, 195, 0.4);
+
+  /* Harmonize the entire navy theme across every module page:
+     - primary-50/100 = body navy (page bg, primary surfaces)
+     - primary-200 = subtle lift for hover/active states (still navy family)
+     - primary-300/400 = border lifts (for separation)
+     - primary-500..950 = pure white (text-primary-* utilities) */
+  --color-primary-50: oklch(0.18 0.08 248);
+  --color-primary-100: oklch(0.18 0.08 248);
+  --color-primary-200: oklch(0.22 0.09 246);
+  --color-primary-300: oklch(0.26 0.09 245);
+  --color-primary-400: oklch(0.32 0.1 244);
+  --color-primary-500: #ffffff;
+  --color-primary-600: #ffffff;
+  --color-primary-700: #ffffff;
+  --color-primary-800: #ffffff;
+  --color-primary-900: #ffffff;
+  --color-primary-950: #ffffff;
+  color: #ffffff;
+}
+
+/* Harmonization: per-screen Tailwind utilities that hard-code bg-white,
+   bg-zinc-*, bg-gray-*, bg-slate-*, bg-neutral-*, bg-stone-* get crushed
+   to body navy under the pulsecheck-navy theme. Borders and text colors
+   from those palettes are left alone (handled by the white-text override
+   below). High specificity via `!important` because Tailwind utilities
+   are class-level and would otherwise outweigh attribute selectors. */
+[data-theme='pulsecheck-navy']
+  :where(
+    .bg-white,
+    [class*='bg-white/'],
+    [class*='bg-zinc-'],
+    [class*='bg-gray-'],
+    [class*='bg-slate-'],
+    [class*='bg-neutral-'],
+    [class*='bg-stone-'],
+    [class*='bg-primary-500'],
+    [class*='bg-primary-600'],
+    [class*='bg-primary-700'],
+    [class*='bg-primary-800'],
+    [class*='bg-primary-900'],
+    [class*='bg-primary-950']
+  ):not([class*='bg-red-']):not([class*='bg-amber-']):not(
+    [class*='bg-yellow-']
+  ):not([class*='bg-emerald-']):not([class*='bg-green-']):not(
+    [class*='bg-accent-']
+  ) {
+  background-color: var(--theme-bg) !important;
+  background-image: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   APPLE LIQUID GLASS (iOS 26 web translation) — global card treatment
+   ═══════════════════════════════════════════════════════════════════
+   Every rounded+bordered surface across every module gets the Liquid
+   Glass material: translucent navy fill (lets content show through),
+   backdrop-filter blur + saturate (reflects color/light from siblings),
+   1px hairline border (color-mix white 10%), inset highlight on top
+   edge (1px rgba(255,255,255,0.08)), depth shadow below.
+
+   Scoping rules:
+   - Apply to `header`, `section`, `aside`, `article` containers.
+   - Apply to `div`s with `rounded-{xl,2xl,3xl}` AND `border`.
+   - Skip buttons, inputs, selects, textareas, rounded-md/sm/full
+     (those are interactive controls, not cards).
+   - Skip elements already using a `.glass-*` class (already glass).
+   - Skip elements with semantic bg- utilities (red/amber/yellow/etc.)
+     since those convey status, not chrome.
+   =================================================================== */
+[data-theme='pulsecheck-navy']
+  :where(
+    [class*='rounded-xl'][class*='border'],
+    [class*='rounded-2xl'][class*='border'],
+    [class*='rounded-3xl'][class*='border']
+  ):not(button):not(input):not(select):not(textarea):not([class*='glass-']):not(
+    [class*='bg-red-']
+  ):not([class*='bg-amber-']):not([class*='bg-yellow-']):not(
+    [class*='bg-emerald-']
+  ):not([class*='bg-green-']):not([class*='bg-accent-']):not(
+    .pulse-status-dot
+  ) {
+  background-color: color-mix(
+    in oklab,
+    var(--theme-bg) 62%,
+    transparent
+  ) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  /* Silver 1px hairline — cooler, less saturated than pure white */
+  border: 1px solid rgba(170, 178, 195, 0.28) !important;
+  /* Drop the white inset highlight — was reading as a thin white line on
+     top of every card. Keep depth shadow only. */
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 8px 24px -8px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Hover lift — subtle interactive feedback matching iOS .interactive() */
+[data-theme='pulsecheck-navy']
+  :where(
+    [class*='rounded-xl'][class*='border'],
+    [class*='rounded-2xl'][class*='border'],
+    [class*='rounded-3xl'][class*='border']
+  ):not(button):not(input):not(select):not(textarea):not(
+    [class*='glass-']
+  ):hover {
+  border-color: rgba(192, 200, 215, 0.5) !important;
+}
+
+/* Borders: every Tailwind border utility that resolves to white (because
+   our text-shade tokens are #ffffff) or to a Tailwind palette outside the
+   navy family gets crushed to --theme-border (subtle navy-family lift)
+   under the pulsecheck-navy theme. */
+[data-theme='pulsecheck-navy']
+  :where(
+    [class*='border-primary-500'],
+    [class*='border-primary-600'],
+    [class*='border-primary-700'],
+    [class*='border-primary-800'],
+    [class*='border-primary-900'],
+    [class*='border-primary-950'],
+    [class*='border-white'],
+    [class*='border-zinc-'],
+    [class*='border-gray-'],
+    [class*='border-slate-'],
+    [class*='border-neutral-'],
+    [class*='border-stone-']
+  ):not([class*='border-red-']):not([class*='border-amber-']):not(
+    [class*='border-yellow-']
+  ):not([class*='border-emerald-']):not([class*='border-green-']):not(
+    [class*='border-accent-']
+  ) {
+  border-color: var(--theme-border) !important;
+}
+
+/* Global text-color override — every descendant of the navy-themed root
+   defaults to pure white, EXCEPT brand-accent and semantic-status text
+   (green=positive, yellow=neutral, red=negative, pulse-orange=brand). */
+[data-theme='pulsecheck-navy']
+  :where(
+    *:not([class*='text-accent']):not([class*='text-[#ff']):not(
+        [class*='text-red']
+      ):not([class*='text-amber']):not([class*='text-yellow']):not(
+        [class*='text-emerald']
+      ):not([class*='text-green']):not([class*='pulse-text']):not(svg):not(path)
+  ) {
+  color: #ffffff;
+}
+
 [data-theme='paper-light'] html,
 [data-theme='paper-light'] body,
 [data-theme='paper-light'] #root,
+[data-theme='pulsecheck-navy'] html,
+[data-theme='pulsecheck-navy'] body,
+[data-theme='pulsecheck-navy'] #root,
+[data-theme='pulsecheck-navy'] .dark,
 [data-theme='ops-dark'] html,
 [data-theme='ops-dark'] body,
 [data-theme='ops-dark'] #root,
@@ -1507,15 +1687,11 @@ code {
   .glass-pulse,
   .glass-prominent,
   .glass-bar {
-    background-color: color-mix(
-      in oklab,
-      var(--color-primary-300) 55%,
-      transparent
-    );
+    /* Monochrome navy: surfaces match body bg; borders provide separation */
+    background-color: var(--theme-bg, oklch(0.18 0.08 248));
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid
-      color-mix(in oklab, var(--color-primary-500) 35%, transparent);
+    border: 1px solid var(--theme-border, oklch(0.32 0.1 244));
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
       0 1px 1px rgba(0, 0, 0, 0.25),
@@ -1556,12 +1732,9 @@ code {
   }
 
   .glass-pulse {
-    background-color: color-mix(
-      in oklab,
-      #ff6b35 12%,
-      var(--color-primary-300) 50%
-    );
-    border-color: rgba(255, 107, 53, 0.35);
+    /* Pulse-accent variant: navy bg + orange-tinted border, not orange-fill */
+    background-color: var(--theme-bg, oklch(0.18 0.08 248));
+    border-color: rgba(255, 107, 53, 0.5);
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
       0 0 0 1px rgba(255, 107, 53, 0.15),
@@ -1569,11 +1742,7 @@ code {
   }
 
   .glass-prominent {
-    background-color: color-mix(
-      in oklab,
-      var(--color-primary-200) 82%,
-      transparent
-    );
+    background-color: var(--theme-bg, oklch(0.18 0.08 248));
     border-color: color-mix(
       in oklab,
       var(--color-primary-600) 55%,

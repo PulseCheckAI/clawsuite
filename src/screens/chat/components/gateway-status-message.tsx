@@ -25,7 +25,7 @@ function classifyConnectionError(
   if (!normalizedError && !status) {
     return {
       title: 'Not connected',
-      description: "ClawSuite can't reach the gateway.",
+      description: "PulseOS can't reach the gateway.",
       action: 'Check that OpenClaw is running, then try again.',
     }
   }
@@ -106,7 +106,7 @@ export function GatewayStatusMessage({
         'mx-auto max-w-lg rounded-lg border px-3 py-2 transition-all duration-300',
         isChecking
           ? 'border-primary-200 bg-primary-50 text-primary-600'
-          : 'border-amber-200 bg-amber-50 text-amber-800',
+          : 'border-amber-500/40 bg-amber-50 text-amber-300',
         fadingOut && 'opacity-0 translate-y-[-4px]',
         className,
       )}
@@ -128,8 +128,8 @@ export function GatewayStatusMessage({
           </p>
           {!isChecking ? (
             <>
-              <p className="mt-0.5 text-amber-700">{errorInfo.description}</p>
-              <p className="mt-1 font-medium text-amber-800">{errorInfo.action}</p>
+              <p className="mt-0.5 text-amber-300">{errorInfo.description}</p>
+              <p className="mt-1 font-medium text-amber-300">{errorInfo.action}</p>
             </>
           ) : null}
         </div>
@@ -137,7 +137,7 @@ export function GatewayStatusMessage({
           <button
             type="button"
             onClick={onRetry}
-            className="shrink-0 rounded-md border border-amber-300 bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-200 dark:hover:bg-amber-900/30"
+            className="shrink-0 rounded-md border border-amber-300 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-300 transition-colors hover:bg-amber-200 dark:hover:bg-amber-900/30"
           >
             Retry
           </button>

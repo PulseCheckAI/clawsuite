@@ -135,7 +135,7 @@ export const SaveModeDialog = memo(function SaveModeDialog({
             {error && (
               <p
                 id="mode-name-error"
-                className="mt-1 text-xs text-red-600"
+                className="mt-1 text-xs text-red-400"
                 role="alert"
               >
                 {error}

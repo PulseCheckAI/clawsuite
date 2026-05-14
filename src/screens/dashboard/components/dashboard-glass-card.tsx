@@ -80,7 +80,7 @@ export function DashboardGlassCard({
               </span>
             ) : null}
             {badge ? (
-              <span className="ml-1.5 rounded bg-amber-100 px-1 py-px text-[10px] font-medium normal-case tracking-normal text-amber-700 dark:bg-amber-900/50 dark:text-amber-400">
+              <span className="ml-1.5 rounded bg-amber-500/10 px-1 py-px text-[10px] font-medium normal-case tracking-normal text-amber-300 dark:bg-amber-900/50 dark:text-amber-400">
                 {badge}
               </span>
             ) : null}

@@ -148,7 +148,7 @@ export function ModeSelector({
             </span>
           )}
           {modelUnavailable && (
-            <span className="text-red-600" title="Model unavailable">
+            <span className="text-red-400" title="Model unavailable">
               ⚠️
             </span>
           )}
@@ -197,7 +197,7 @@ export function ModeSelector({
                         )}
                         {unavailable && (
                           <span
-                            className="text-red-600 text-xs"
+                            className="text-red-400 text-xs"
                             title="Model unavailable"
                           >
                             ⚠️

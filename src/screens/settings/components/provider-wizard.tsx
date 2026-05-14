@@ -314,7 +314,7 @@ export function ProviderWizard({ open, onOpenChange, editProvider }: ProviderWiz
     verifyState === 'success'
       ? 'border-green-200 bg-green-50/60'
       : verifyState === 'warning'
-        ? 'border-amber-200 bg-amber-50/60'
+        ? 'border-amber-500/40 bg-amber-50/60'
         : 'border-primary-200 bg-primary-100/70'
 
   const verifyTitle =
@@ -633,8 +633,8 @@ export function ProviderWizard({ open, onOpenChange, editProvider }: ProviderWiz
                         </p>
                       </div>
 
-                      <div className="rounded-xl border border-amber-200 bg-amber-50/70 px-3 py-2">
-                        <p className="text-xs text-amber-800 text-pretty">
+                      <div className="rounded-xl border border-amber-500/40 bg-amber-50/70 px-3 py-2">
+                        <p className="text-xs text-amber-300 text-pretty">
                           <strong>Requires:</strong> Claude Code or Claude CLI
                           must be installed and authenticated first. Run{' '}
                           <code className="font-mono">claude</code> in terminal
@@ -695,7 +695,7 @@ export function ProviderWizard({ open, onOpenChange, editProvider }: ProviderWiz
                       </div>
 
                       {saveState === 'error' ? (
-                        <p className="text-xs text-red-600">{saveError}</p>
+                        <p className="text-xs text-red-400">{saveError}</p>
                       ) : null}
 
                       {saveState === 'saved' ? (

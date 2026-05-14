@@ -59,7 +59,7 @@ const MODEL_BADGE: Record<string, string> = {
   auto:          'border border-primary-200 bg-primary-100 text-primary-600',
   opus:          'border border-accent-200 bg-accent-50 text-accent-700',
   sonnet:        'border border-blue-200 bg-blue-50 text-blue-700',
-  codex:         'border border-emerald-200 bg-emerald-50 text-emerald-700',
+  codex:         'border border-emerald-500/30 bg-emerald-50 text-emerald-400',
   flash:         'border border-violet-200 bg-violet-50 text-violet-700',
   'pc1-planner': 'border border-teal-200 bg-teal-50 text-teal-700',
   'pc1-coder':   'border border-purple-200 bg-purple-50 text-purple-700',

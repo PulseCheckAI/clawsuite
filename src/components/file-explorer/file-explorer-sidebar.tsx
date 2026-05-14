@@ -335,8 +335,8 @@ export function FileExplorerSidebar({
               })
             }}
             className={cn(
-              'group flex w-full items-center gap-2 rounded-md py-1.5 text-left text-sm text-primary-900',
-              'hover:bg-primary-200',
+              'group flex w-full items-center gap-2 rounded-md py-1.5 pr-2 text-left text-sm text-white/90 transition-colors',
+              'hover:bg-[rgba(255,255,255,0.06)] hover:text-white',
             )}
             style={{ paddingLeft: padding }}
           >
@@ -412,10 +412,14 @@ export function FileExplorerSidebar({
 
       <div className="px-3 py-2">
         <input
+          id="file-explorer-search"
+          name="file-explorer-search"
+          type="search"
+          aria-label="Search files"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Search files"
-          className="w-full rounded-md border border-primary-200 bg-primary-50 px-2 py-1 text-sm text-primary-900 placeholder:text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-300"
+          className="w-full rounded-md border border-[rgba(170,178,195,0.32)] bg-[rgba(255,255,255,0.04)] px-2.5 py-1.5 text-sm text-white placeholder:text-white/40 backdrop-blur-sm transition-colors focus:outline-none focus:border-[#ff6b35] focus:bg-[rgba(255,255,255,0.07)]"
         />
       </div>
 
@@ -507,8 +511,11 @@ export function FileExplorerSidebar({
 
       <input
         ref={uploadInputRef}
+        id="file-explorer-upload"
+        name="file-explorer-upload"
         type="file"
         multiple
+        aria-label="Upload files to workspace"
         className="hidden"
         onChange={handleUploadChange}
       />
@@ -569,7 +576,7 @@ export function FileExplorerSidebar({
             </button>
           )}
           <button
-            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-red-700 hover:bg-red-50/80"
+            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-red-400 hover:bg-red-50/80"
             onClick={() => {
               void handleDelete(contextMenu.entry)
               setContextMenu(null)

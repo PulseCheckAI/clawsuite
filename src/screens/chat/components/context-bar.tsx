@@ -91,15 +91,15 @@ function ContextBarComponent({ compact: _compact }: { compact?: boolean }) {
         : 'bg-emerald-500'
 
   const barBg = isCritical
-    ? 'bg-red-100'
+    ? 'bg-red-500/10'
     : isDanger
       ? 'bg-accent-100'
       : isWarning
-        ? 'bg-yellow-100'
-        : 'bg-emerald-100'
+        ? 'bg-yellow-500/10'
+        : 'bg-emerald-500/10'
 
   const textColor = isCritical
-    ? 'text-red-600'
+    ? 'text-red-400'
     : isDanger
       ? 'text-accent-600'
       : isWarning
@@ -198,7 +198,7 @@ function ContextBarComponent({ compact: _compact }: { compact?: boolean }) {
             )}
           </div>
           {isCritical && (
-            <p className="text-[10px] text-red-600 font-medium">
+            <p className="text-[10px] text-red-400 font-medium">
               Context almost full — consider starting a new chat
             </p>
           )}

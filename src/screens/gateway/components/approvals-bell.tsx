@@ -97,8 +97,8 @@ export function ApprovalsBell({ approvals, onApprove, onDeny }: ApprovalsBellPro
           'relative flex min-h-9 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all',
           count > 0
             ? open
-              ? 'border-amber-300 bg-amber-100 text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
-              : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 dark:border-amber-800/60 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/30'
+              ? 'border-amber-300 bg-amber-500/10 text-amber-300 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+              : 'border-amber-500/40 bg-amber-50 text-amber-300 hover:bg-amber-500/10 dark:border-amber-800/60 dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/30'
             : 'border-primary-200 text-primary-500 hover:bg-primary-50 hover:text-primary-700 dark:border-primary-700 dark:text-primary-400 dark:hover:bg-primary-800 dark:hover:text-primary-200',
           pulse && 'ring-2 ring-amber-400/50',
         )}
@@ -129,7 +129,7 @@ export function ApprovalsBell({ approvals, onApprove, onDeny }: ApprovalsBellPro
           <div className="flex items-center justify-between border-b border-primary-200 px-4 py-3 dark:border-primary-700">
             <div className="flex items-center gap-2">
               <span className="text-sm font-semibold text-[var(--theme-text)]">Approvals</span>
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+              <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-300 dark:bg-amber-900/40 dark:text-amber-300">
                 {count} pending
               </span>
             </div>
@@ -162,7 +162,7 @@ export function ApprovalsBell({ approvals, onApprove, onDeny }: ApprovalsBellPro
                       'rounded-lg border p-3',
                       approval.source === 'gateway'
                         ? 'border-violet-200/60 bg-violet-50/40 dark:border-violet-500/20 dark:bg-violet-900/10'
-                        : 'border-amber-200/70 bg-amber-50/50 dark:border-amber-500/20 dark:bg-amber-900/10',
+                        : 'border-amber-500/40/70 bg-amber-50/50 dark:border-amber-500/20 dark:bg-amber-900/10',
                     )}
                   >
                     <div className="flex items-center justify-between gap-2">
@@ -183,7 +183,7 @@ export function ApprovalsBell({ approvals, onApprove, onDeny }: ApprovalsBellPro
                         type="button"
                         onClick={() => void handleQuickAction(approval.id, 'deny')}
                         disabled={Boolean(busy)}
-                        className="flex-1 rounded-lg border border-red-200 bg-white py-1.5 text-[11px] font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-800/50 dark:bg-primary-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                        className="flex-1 rounded-lg border border-red-500/30 bg-white py-1.5 text-[11px] font-medium text-red-400 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-800/50 dark:bg-primary-800 dark:text-red-400 dark:hover:bg-red-900/20"
                       >
                         {busy === 'deny' ? 'Denying...' : 'Deny'}
                       </button>

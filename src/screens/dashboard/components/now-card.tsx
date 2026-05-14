@@ -66,7 +66,7 @@ export function NowCard({
         {gatewayConnected ? (
           <span className="text-emerald-600 dark:text-emerald-400">Connected</span>
         ) : (
-          <span className="text-red-600 dark:text-red-400">Offline</span>
+          <span className="text-red-400 dark:text-red-400">Offline</span>
         )}
         {updatedAgo ? (
           <span className="text-primary-400">· {updatedAgo}</span>

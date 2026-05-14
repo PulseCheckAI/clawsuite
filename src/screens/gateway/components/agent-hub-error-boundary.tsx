@@ -16,7 +16,7 @@ export class AgentHubErrorBoundary extends Component<Props, State> {
         <div className="flex h-full min-h-[400px] items-center justify-center p-8 text-center">
           <div>
             <p className="text-3xl mb-3">⚠️</p>
-            <p className="text-base font-semibold text-red-600">Something went wrong</p>
+            <p className="text-base font-semibold text-red-400">Something went wrong</p>
             <p className="mt-1 text-sm text-primary-500 max-w-sm">{this.state.error.message}</p>
             <button
               type="button"

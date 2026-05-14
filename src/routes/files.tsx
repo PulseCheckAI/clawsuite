@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Editor } from '@monaco-editor/react'
 import { createFileRoute } from '@tanstack/react-router'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { FileExplorerSidebar } from '@/components/file-explorer'
-import { resolveTheme, useSettings } from '@/hooks/use-settings'
+import { useSettings } from '@/hooks/use-settings'
 
 const INITIAL_EDITOR_VALUE = `// Files workspace
 // Use the file tree on the left to browse and manage project files.
@@ -55,7 +54,6 @@ function FilesRoute() {
   const [isMobile, setIsMobile] = useState(false)
   const [fileExplorerCollapsed, setFileExplorerCollapsed] = useState(false)
   const [editorValue, setEditorValue] = useState(INITIAL_EDITOR_VALUE)
-  const resolvedTheme = resolveTheme(settings.theme)
 
   useEffect(() => {
     const media = window.matchMedia('(max-width: 767px)')
@@ -96,20 +94,19 @@ function FilesRoute() {
             </p>
           </header>
           <div className="min-h-0 flex-1 pb-24 md:pb-0">
-            <Editor
-              height="100%"
-              theme={resolvedTheme === 'dark' ? 'vs-dark' : 'vs-light'}
-              language="typescript"
+            <textarea
+              id="files-draft-notes"
+              name="files-draft-notes"
+              aria-label="Draft notes"
               value={editorValue}
-              onChange={function onEditorChange(value) {
-                setEditorValue(value || '')
-              }}
-              options={{
-                minimap: { enabled: settings.editorMinimap },
+              onChange={(e) => setEditorValue(e.target.value)}
+              spellCheck={false}
+              style={{
                 fontSize: settings.editorFontSize,
-                scrollBeyondLastLine: false,
-                wordWrap: settings.editorWordWrap ? 'on' : 'off',
+                whiteSpace: settings.editorWordWrap ? 'pre-wrap' : 'pre',
               }}
+              className="h-full w-full resize-none bg-transparent px-6 py-4 font-mono text-white outline-none placeholder:text-white/40"
+              placeholder="Draft notes here…"
             />
           </div>
         </main>

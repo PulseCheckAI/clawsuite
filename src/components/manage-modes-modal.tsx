@@ -136,7 +136,7 @@ export function ManageModesModal({
                     {mode.name}
                     {modelUnavailable && (
                       <span
-                        className="ml-2 text-xs text-red-600"
+                        className="ml-2 text-xs text-red-400"
                         title="Model unavailable"
                       >
                         ⚠️ Model unavailable
@@ -155,7 +155,7 @@ export function ManageModesModal({
                     <button
                       type="button"
                       onClick={() => setModeToDelete(mode)}
-                      className="rounded-lg border border-red-200 bg-surface px-3 py-1 text-xs font-medium text-red-700 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400"
+                      className="rounded-lg border border-red-500/30 bg-surface px-3 py-1 text-xs font-medium text-red-400 transition-colors hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-400"
                       aria-label={`Delete ${mode.name}`}
                     >
                       Delete
@@ -167,7 +167,7 @@ export function ManageModesModal({
                   {mode.preferredModel && (
                     <div>
                       <span className="font-medium">Model:</span>{' '}
-                      <span className={cn(modelUnavailable && 'text-red-600')}>
+                      <span className={cn(modelUnavailable && 'text-red-400')}>
                         {mode.preferredModel}
                       </span>
                     </div>

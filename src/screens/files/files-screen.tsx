@@ -365,7 +365,7 @@ function DiffModal({ open, fileName, original, updated, onSave, onCancel }: Diff
               <DialogDescription className="mt-0.5 text-xs text-primary-500 dark:text-primary-400">
                 <span className="text-emerald-600 font-medium">+{addedCount} added</span>
                 {' · '}
-                <span className="text-red-600 font-medium">−{removedCount} removed</span>
+                <span className="text-red-400 font-medium">−{removedCount} removed</span>
               </DialogDescription>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -456,7 +456,7 @@ function DiffModal({ open, fileName, original, updated, onSave, onCancel }: Diff
                         className={cn(
                           'flex-1 whitespace-pre-wrap break-all px-1',
                           line.kind === 'added'
-                            ? 'text-emerald-800 dark:text-emerald-300'
+                            ? 'text-emerald-300 dark:text-emerald-300'
                             : 'text-primary-800 dark:text-primary-300',
                         )}
                       >
@@ -814,7 +814,7 @@ function FilePanel({ selectedEntry }: FilePanelProps) {
         {diffModal}
         <div className="flex h-full flex-col">
           {header}
-          <div className="flex flex-1 items-center justify-center p-4 text-sm text-red-600 dark:text-red-400">
+          <div className="flex flex-1 items-center justify-center p-4 text-sm text-red-400 dark:text-red-400">
             {fileError}
           </div>
           {footer}
@@ -1209,7 +1209,7 @@ export function FilesScreen() {
             </button>
           )}
           <button
-            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
+            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-red-400 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
             onClick={() => {
               setDeleteConfirm(contextMenu.entry)
               setContextMenu(null)

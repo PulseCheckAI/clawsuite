@@ -136,7 +136,7 @@ export function OperationsInlineChat({
       </div>
 
       <div className="border-t border-[var(--theme-border)] px-3 py-3">
-        {error ? <p className="mb-2 text-xs text-red-600">{error}</p> : null}
+        {error ? <p className="mb-2 text-xs text-red-400">{error}</p> : null}
         <div className="flex items-center gap-2 rounded-[1rem] border border-[var(--theme-border)] bg-[var(--theme-bg)] p-2">
           <input
             type="text"

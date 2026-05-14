@@ -23,9 +23,10 @@ const TASK_VIEW_STORAGE_KEY = 'clawsuite-task-view-mode'
 /* Helpers */
 
 function priorityColor(p: string): string {
-  if (p === 'P0') return 'bg-red-500/15 text-red-600 dark:text-red-400'
-  if (p === 'P1') return 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
-  if (p === 'P2') return 'bg-primary-200/60 text-primary-700 dark:text-primary-300'
+  if (p === 'P0') return 'bg-red-500/15 text-red-400 dark:text-red-400'
+  if (p === 'P1') return 'bg-amber-500/15 text-amber-300 dark:text-amber-400'
+  if (p === 'P2')
+    return 'bg-primary-200/60 text-primary-700 dark:text-primary-300'
   return 'bg-primary-100 text-primary-500 dark:bg-primary-200/60 dark:text-primary-400'
 }
 
@@ -235,7 +236,9 @@ function ListTaskItem({
           <span
             className={cn('size-2 rounded-full', statusDotColor(task.status))}
           />
-          <p className="truncate text-[13px] font-medium text-ink">{task.title}</p>
+          <p className="truncate text-[13px] font-medium text-ink">
+            {task.title}
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
           <span
@@ -361,7 +364,9 @@ function KanbanTaskCard({
       </div>
 
       {task.dueDate ? (
-        <p className="mt-1 text-[11px] text-primary-400">Due {formatDate(task.dueDate)}</p>
+        <p className="mt-1 text-[11px] text-primary-400">
+          Due {formatDate(task.dueDate)}
+        </p>
       ) : null}
 
       <div className="mt-2 flex justify-end opacity-0 transition-opacity group-hover:opacity-100">
@@ -425,7 +430,9 @@ function TaskDetailPanel({
               autoFocus
             />
           ) : (
-            <h2 className="flex-1 text-sm font-semibold text-ink">{task.title}</h2>
+            <h2 className="flex-1 text-sm font-semibold text-ink">
+              {task.title}
+            </h2>
           )}
           <span className="shrink-0 text-[11px] text-primary-400 tabular-nums">
             {task.id}
@@ -442,7 +449,12 @@ function TaskDetailPanel({
             {task.priority}
           </span>
           <span className="flex items-center gap-1 rounded bg-primary-100 px-2 py-0.5 text-[11px] text-primary-600">
-            <span className={cn('size-1.5 rounded-full', statusDotColor(task.status))} />
+            <span
+              className={cn(
+                'size-1.5 rounded-full',
+                statusDotColor(task.status),
+              )}
+            />
             {STATUS_LABELS[task.status]}
           </span>
           {task.project ? (
@@ -567,9 +579,12 @@ export function TasksScreen() {
   const handleAddTask = useCallback(
     (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
       void addTask(task).catch((error) => {
-        toast(error instanceof Error ? error.message : 'Failed to create task', {
-          type: 'error',
-        })
+        toast(
+          error instanceof Error ? error.message : 'Failed to create task',
+          {
+            type: 'error',
+          },
+        )
       })
     },
     [addTask],
@@ -589,9 +604,12 @@ export function TasksScreen() {
   const handleUpdateTask = useCallback(
     (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => {
       void updateTask(id, updates).catch((error) => {
-        toast(error instanceof Error ? error.message : 'Failed to update task', {
-          type: 'error',
-        })
+        toast(
+          error instanceof Error ? error.message : 'Failed to update task',
+          {
+            type: 'error',
+          },
+        )
       })
     },
     [updateTask],
@@ -600,9 +618,12 @@ export function TasksScreen() {
   const handleDeleteTask = useCallback(
     (id: string) => {
       void deleteTask(id).catch((error) => {
-        toast(error instanceof Error ? error.message : 'Failed to delete task', {
-          type: 'error',
-        })
+        toast(
+          error instanceof Error ? error.message : 'Failed to delete task',
+          {
+            type: 'error',
+          },
+        )
       })
     },
     [deleteTask],
@@ -611,13 +632,16 @@ export function TasksScreen() {
   const filteredTasks = useMemo(
     () =>
       tasks
-        .filter((task) => (statusFilter === 'all' ? true : task.status === statusFilter))
+        .filter((task) =>
+          statusFilter === 'all' ? true : task.status === statusFilter,
+        )
         .filter((task) =>
           priorityFilter === 'all' ? true : task.priority === priorityFilter,
         )
         .sort((a, b) => {
           const pOrder = ['P0', 'P1', 'P2', 'P3']
-          const priorityDiff = pOrder.indexOf(a.priority) - pOrder.indexOf(b.priority)
+          const priorityDiff =
+            pOrder.indexOf(a.priority) - pOrder.indexOf(b.priority)
           if (priorityDiff !== 0) return priorityDiff
           return (
             new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -673,15 +697,18 @@ export function TasksScreen() {
   )
 
   return (
-    <main className="min-h-full bg-surface px-4 pt-5 pb-24 md:px-6 md:pt-8 text-primary-900 dark:text-primary-100">
+    <main className="min-h-full bg-surface px-6 pt-6 pb-24 md:px-8 md:pt-8 text-primary-900 dark:text-primary-100">
       <section className="mx-auto w-full max-w-[1200px]">
         <header className="mb-4 flex flex-wrap items-center justify-between gap-2.5 rounded-xl border border-primary-200 bg-primary-50/80 px-4 py-3 shadow-sm dark:border-primary-800 dark:bg-primary-900/60 md:mb-6">
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="text-base font-semibold text-primary-900 dark:text-primary-100">Tasks</h1>
+              <h1 className="text-base font-semibold text-primary-900 dark:text-primary-100">
+                Tasks
+              </h1>
               <p className="text-xs text-primary-500 dark:text-primary-400">
                 {tasks.filter((task) => task.status !== 'done').length} active ·{' '}
-                {tasks.filter((task) => task.status === 'done').length} completed
+                {tasks.filter((task) => task.status === 'done').length}{' '}
+                completed
               </p>
             </div>
           </div>
@@ -729,8 +756,13 @@ export function TasksScreen() {
           <section>
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <select
+                id="tasks-status-filter"
+                name="tasks-status-filter"
+                aria-label="Filter tasks by status"
                 value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+                onChange={(event) =>
+                  setStatusFilter(event.target.value as StatusFilter)
+                }
                 className="rounded-lg border border-primary-200 bg-primary-50 px-2.5 py-1.5 text-[11px] text-ink outline-none dark:bg-primary-100"
               >
                 <option value="all">All Statuses</option>
@@ -742,6 +774,9 @@ export function TasksScreen() {
               </select>
 
               <select
+                id="tasks-priority-filter"
+                name="tasks-priority-filter"
+                aria-label="Filter tasks by priority"
                 value={priorityFilter}
                 onChange={(event) =>
                   setPriorityFilter(event.target.value as PriorityFilter)
@@ -808,7 +843,9 @@ export function TasksScreen() {
                         statusDotColor(column.status),
                       )}
                     />
-                    <h2 className="text-[13px] font-medium text-ink">{column.label}</h2>
+                    <h2 className="text-[13px] font-medium text-ink">
+                      {column.label}
+                    </h2>
                   </div>
                   <span className="rounded-full border border-primary-200 bg-primary-50/80 px-2 py-0.5 text-[11px] font-medium text-primary-600 tabular-nums dark:bg-primary-100">
                     {column.tasks.length}

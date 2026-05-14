@@ -73,9 +73,9 @@ function toRisk(value: string): 'low' | 'medium' | 'high' {
 }
 
 function riskBadgeClass(risk: 'low' | 'medium' | 'high'): string {
-  if (risk === 'high') return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-  if (risk === 'medium') return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
-  return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+  if (risk === 'high') return 'bg-red-500/10 text-red-400 dark:bg-red-900/30 dark:text-red-300'
+  if (risk === 'medium') return 'bg-amber-500/10 text-amber-300 dark:bg-amber-900/30 dark:text-amber-300'
+  return 'bg-emerald-500/10 text-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-300'
 }
 
 function normalizeGatewayApproval(entry: GatewayApprovalEntry): UnifiedApproval | null {
@@ -221,7 +221,7 @@ export function ApprovalsPage({ approvals, onApprove, onDeny }: ApprovalsPagePro
               <p className="text-xs text-primary-500 dark:text-primary-400">Live gateway queue with local approval history</p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+              <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-300 dark:bg-amber-900/30 dark:text-amber-300">
                 {pendingRows.length} pending
               </span>
               <span className="rounded-full border border-primary-200 bg-primary-100 px-2 py-0.5 text-[10px] font-medium text-primary-600 dark:border-primary-700 dark:bg-primary-800 dark:text-primary-300">
@@ -230,7 +230,7 @@ export function ApprovalsPage({ approvals, onApprove, onDeny }: ApprovalsPagePro
             </div>
           </div>
           {error ? (
-            <p className="mt-2 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300">
+            <p className="mt-2 rounded-lg border border-red-500/30 bg-red-50 px-2.5 py-1.5 text-xs text-red-400 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300">
               {error}
             </p>
           ) : null}
@@ -268,7 +268,7 @@ export function ApprovalsPage({ approvals, onApprove, onDeny }: ApprovalsPagePro
                           'rounded-xl border p-3 transition-all sm:p-4',
                           row.source === 'gateway'
                             ? 'border-violet-200 bg-violet-50/40 dark:border-violet-800/40 dark:bg-violet-900/10'
-                            : 'border-amber-200 bg-amber-50/40 dark:border-amber-800/40 dark:bg-amber-900/10',
+                            : 'border-amber-500/40 bg-amber-50/40 dark:border-amber-800/40 dark:bg-amber-900/10',
                           newIds[row.key] && 'animate-pulse ring-2 ring-accent-300/70 dark:ring-accent-500/40',
                         )}
                       >
@@ -308,7 +308,7 @@ export function ApprovalsPage({ approvals, onApprove, onDeny }: ApprovalsPagePro
                               type="button"
                               onClick={() => void handleResolve(row, 'deny')}
                               disabled={isBusy}
-                              className="min-h-10 flex-1 rounded-lg border border-red-300 bg-white px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-800/70 dark:bg-primary-900 dark:text-red-400 dark:hover:bg-red-950/20 sm:flex-initial"
+                              className="min-h-10 flex-1 rounded-lg border border-red-300 bg-white px-3 py-2 text-xs font-semibold text-red-400 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-800/70 dark:bg-primary-900 dark:text-red-400 dark:hover:bg-red-950/20 sm:flex-initial"
                             >
                               {resolvingAction === 'deny' ? 'Denying...' : 'Deny'}
                             </button>
@@ -346,8 +346,8 @@ export function ApprovalsPage({ approvals, onApprove, onDeny }: ApprovalsPagePro
                             className={cn(
                               'rounded-full px-1.5 py-0.5 text-[10px] font-semibold uppercase',
                               entry.status === 'approved'
-                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-                                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+                                ? 'bg-emerald-500/10 text-emerald-400 dark:bg-emerald-900/30 dark:text-emerald-300'
+                                : 'bg-red-500/10 text-red-400 dark:bg-red-900/30 dark:text-red-300',
                             )}
                           >
                             {entry.status}

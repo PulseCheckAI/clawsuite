@@ -27,13 +27,13 @@ const buttonVariants = cva(
       },
       variant: {
         default:
-          'bg-primary-950 text-primary-50 hover:bg-primary-900 shadow-sm outline outline-primary-900/10 shadow-2xs',
+          'border border-[rgba(255,107,53,0.55)] bg-[rgba(255,107,53,0.18)] text-white backdrop-blur-sm hover:bg-[rgba(255,107,53,0.3)] hover:border-[rgba(255,107,53,0.75)] shadow-sm transition-colors',
         secondary:
           'bg-primary-50 text-primary-950 hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-100 dark:hover:bg-primary-800 outline outline-primary-900/10 dark:outline-primary-700 shadow-2xs',
         outline:
-          'border-primary-200 bg-transparent text-primary-900 hover:bg-primary-50 dark:border-primary-700 dark:text-primary-100 dark:hover:bg-primary-800 shadow-2xs outline outline-primary-900/10 dark:outline-primary-700',
+          'border border-[rgba(170,178,195,0.32)] bg-[rgba(255,255,255,0.04)] text-white backdrop-blur-sm hover:bg-[rgba(255,255,255,0.09)] hover:border-[rgba(192,200,215,0.5)] shadow-sm transition-colors',
         ghost:
-          'text-primary-900 hover:bg-primary-200 dark:text-primary-100 dark:hover:bg-primary-800 hover:text-primary-950 dark:hover:text-primary-100',
+          'text-primary-900 hover:bg-primary-200 dark:text-primary-900 dark:hover:bg-primary-200 hover:text-primary-950 dark:hover:text-primary-950',
         destructive: 'bg-red-600 text-primary-50 hover:bg-red-700 shadow-sm',
       },
     },

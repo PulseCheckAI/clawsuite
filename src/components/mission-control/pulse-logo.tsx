@@ -1,15 +1,18 @@
 import { cn } from '@/lib/utils'
 
-// PulseCheck AI brand mark — canonical pulse waveform from
-// pulsecheck-ai/os/dashboard/index.html. Two render modes:
-//   - solid: stroke is single color (default pulse-orange)
-//   - gradient: stroke fills via the pulse gradient (red→orange→amber→yellow)
-// Set `glow` for the animated pulse-glow filter (defined in styles.css).
+// PulseCheck AI brand mark — REAL wave PNG from docs/Logos/
+// pulsecheck-logo-dark.png (transparent RGBA, 1024×238). The wave
+// occupies the leftmost ~28% of the source canvas. We use a wider-than-
+// tall container (1.2:1) matching the wave's natural aspect, then
+// object-fit:cover + object-position:left to crop the trailing
+// whitespace. No background, no card — the PNG's alpha channel keeps
+// the navy page bg visible around the wave.
+// `variant`/`color` kept for API compat; the PNG ships its own gradient.
 export function PulseLogo({
   size = 32,
-  variant = 'gradient',
+  variant: _variant = 'gradient',
   glow = true,
-  color = '#FF6B35',
+  color: _color = '#FF6B35',
   className,
 }: {
   size?: number
@@ -18,34 +21,37 @@ export function PulseLogo({
   color?: string
   className?: string
 }) {
-  const gradientId = 'pulse-logo-grad'
+  // Source PNG (1024×238): the wave silhouette spans x=53–315 (width 263)
+  // with full-height peaks, then a white wordmark "PulseCheck AI" lives
+  // x=336–972. A container aspect of 1.4:1 plus object-fit:cover left-
+  // anchored renders the full wave shape and stops just before the
+  // wordmark starts. Math: visible-source-width = (1.4/4.3) × 1024 ≈ 333px.
+  const w = Math.round(size * 1.4)
+  const h = size
+  // <picture> with WebP first (smaller + sharper gradient encoding) and
+  // PNG fallback. The intrinsic source is 1024×238 — plenty of source
+  // pixels for any reasonable rendered size, so the browser downsamples
+  // cleanly on HiDPI/Retina displays. `image-rendering: auto` lets the
+  // browser use its highest-quality resampler for gradient art.
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 100 100"
-      className={cn('shrink-0', glow && 'pulse-glow', className)}
-      aria-hidden="true"
-      role="img"
-    >
-      {variant === 'gradient' ? (
-        <defs>
-          <linearGradient id={gradientId} x1="0%" y1="50%" x2="100%" y2="50%">
-            <stop offset="0%" stopColor="#E63946" />
-            <stop offset="40%" stopColor="#FF6B35" />
-            <stop offset="70%" stopColor="#FF9F1C" />
-            <stop offset="100%" stopColor="#FFD166" />
-          </linearGradient>
-        </defs>
-      ) : null}
-      <path
-        d="M 8 50 L 22 50 C 26 30, 30 18, 34 38 C 38 60, 42 72, 48 50 C 53 30, 58 12, 66 16 C 74 20, 78 38, 84 50 L 92 50"
-        stroke={variant === 'gradient' ? `url(#${gradientId})` : color}
-        strokeWidth={9}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
+    <picture>
+      <source srcSet="/pulsecheck-wave.webp" type="image/webp" />
+      <img
+        src="/pulsecheck-wave.png"
+        alt="PulseCheck"
+        width={w}
+        height={h}
+        decoding="async"
+        className={cn('shrink-0', glow && 'pulse-glow', className)}
+        style={{
+          width: w,
+          height: h,
+          objectFit: 'cover',
+          objectPosition: 'left center',
+          background: 'transparent',
+          imageRendering: 'auto',
+        }}
       />
-    </svg>
+    </picture>
   )
 }
