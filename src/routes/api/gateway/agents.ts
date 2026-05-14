@@ -297,7 +297,7 @@ function normalizeAgentConfig(
 // Dev mode (NODE_ENV !== production) skips the auth gate on GET so the dashboard's
 // fetch from a file:// origin (no cookie jar) can succeed.
 const IS_DEV = process.env.NODE_ENV !== 'production'
-const CORS_HEADERS_GET = IS_DEV
+const CORS_HEADERS_GET: Record<string, string> = IS_DEV
   ? {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, OPTIONS',
