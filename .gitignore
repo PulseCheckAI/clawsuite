@@ -29,6 +29,29 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 
+# Ephemeral Playwright / audit screenshots from ad-hoc probe runs at repo root
+audit*.png
+audit-shots_*.png
+audit*_*.png
+clawsuite-*.png
+dashboard-*.png
+debug-*.png
+debug-full*.png
+files-*.png
+settings-*.png
+settings-appearance*.png
+skills-*.png
+tracker*.png
+usage-*.png
+dash-bg-check.png
+
+# Background dev-server log written by `npm run dev > autonomy-dev.log`
+autonomy-dev.log
+
+# Ad-hoc audit output directories
+audit-shots/
+audit[0-9]*/
+
 # Editor directories
 .vscode/*
 !.vscode/extensions.json
