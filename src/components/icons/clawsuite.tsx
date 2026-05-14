@@ -112,15 +112,18 @@ export function OpenClawStudioIcon({
         fill="none"
       />
 
-      {/* Center cursor bar - dark fill */}
-      <rect x="47" y="46" width="4" height="10" rx="2" fill="#1e293b">
-        <animate
-          attributeName="opacity"
-          values="1;0.4;1"
-          dur="1.5s"
-          repeatCount="indefinite"
-        />
-      </rect>
+      {/* Center cursor bar - dark fill. CSS animation (oc-cursor-blink in
+          styles.css) replaces the prior SMIL <animate> for DevTools-friendly
+          performance. */}
+      <rect
+        x="47"
+        y="46"
+        width="4"
+        height="10"
+        rx="2"
+        fill="#1e293b"
+        className="oc-cursor-blink"
+      />
     </svg>
   )
 }

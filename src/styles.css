@@ -1,7 +1,11 @@
 /* Mission Control theme — harmonized with os/dashboard/index.html
-   Brand: pulse-orange (#FF6B35) gradient, Bricolage Grotesque + Inter + JetBrains Mono,
-   pure-black surfaces with subtle grayscale steps. */
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+   Brand: pulse-orange (#FF6B35) gradient, Bricolage Grotesque + Inter +
+   JetBrains Mono (self-hosted via @fontsource-variable/*), pure-black
+   surfaces with subtle grayscale steps. No external font requests = no
+   CSP allowance needed and no <link> reconciler crash. */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/bricolage-grotesque';
 @import 'tailwindcss';
 
 /* Hide scrollbars until scroll (cross-browser) */
@@ -88,31 +92,42 @@
     #ffd166 100%
   );
 
+  /* @fontsource-variable packages expose family names with " Variable" suffix.
+     Keep the suffixed names FIRST so the bundled variable fonts win; fall back
+     to non-suffixed names for any system-installed copies; then system stack. */
   --font-sans:
-    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui,
-    sans-serif;
-  --font-display: 'Bricolage Grotesque', 'Inter', system-ui, sans-serif;
-  --font-serif: 'Bricolage Grotesque', 'Inter', serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+    'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    system-ui, sans-serif;
+  --font-display:
+    'Bricolage Grotesque Variable', 'Bricolage Grotesque', 'Inter Variable',
+    'Inter', system-ui, sans-serif;
+  --font-serif:
+    'Bricolage Grotesque Variable', 'Bricolage Grotesque', 'Inter Variable',
+    'Inter', serif;
+  --font-mono:
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
 }
 
 .dark {
   color-scheme: dark;
-  /* Primary palette mapped to Mission Control mc-bg-* surface tones (pure-black
-     through near-white). primary-50 = #000 (mc-bg-primary), primary-950 = #fff. */
-  --color-primary-50: oklch(0 0 0);
-  --color-primary-100: oklch(0.09 0 0);
-  --color-primary-200: oklch(0.13 0 0);
-  --color-primary-300: oklch(0.17 0 0);
-  --color-primary-400: oklch(0.21 0 0);
-  --color-primary-500: oklch(0.24 0 0);
-  --color-primary-600: oklch(0.29 0 0);
-  --color-primary-700: oklch(0.45 0 0);
-  --color-primary-800: oklch(0.62 0 0);
-  --color-primary-900: oklch(0.83 0 0);
-  --color-primary-950: oklch(1 0 0);
+  /* Primary palette tinted DEEP NAVY (h≈250 in oklch). primary-50 = deep
+     midnight-navy (page background), primary-950 = white. Chroma rises as
+     lightness rises so darker surfaces feel more saturated/blue. Pulse-orange
+     accent stays warm-vs-cool against this — high contrast, premium. */
+  /* RICH NAVY ramp — unmistakably blue (h=246, chroma 0.10-0.12). */
+  --color-primary-50: oklch(0.18 0.08 248); /* page bg */
+  --color-primary-100: oklch(0.22 0.1 247); /* mc-bg-secondary */
+  --color-primary-200: oklch(0.26 0.11 246); /* mc-bg-tertiary */
+  --color-primary-300: oklch(0.3 0.12 245); /* mc-bg-card */
+  --color-primary-400: oklch(0.36 0.12 244); /* mc-bg-elevated */
+  --color-primary-500: oklch(0.44 0.11 243); /* mc-border */
+  --color-primary-600: oklch(0.55 0.1 242); /* mc-border-strong */
+  --color-primary-700: oklch(0.68 0.07 240); /* mc-text-muted */
+  --color-primary-800: oklch(0.8 0.05 238); /* mc-text-tertiary */
+  --color-primary-900: oklch(0.9 0.03 236); /* mc-text-secondary */
+  --color-primary-950: oklch(1 0 0); /* mc-text-primary */
 
-  --color-surface: oklch(0 0 0);
+  --color-surface: oklch(0.18 0.08 248);
   --color-ink: oklch(1 0 0);
 
   /* Accent — brighter in dark mode, spans the pulse gradient stops */
@@ -130,6 +145,129 @@
 
 [data-accent='orange'] {
   /* Default accent palette already uses orange hues. */
+}
+
+/* ===========================================================================
+   Mission Control decorative utilities — ported from
+   pulsecheck-ai/artifacts-panel/11-mission-control.html so ClawSuite cards
+   can adopt the same pulse-gradient visual language.
+   =========================================================================== */
+
+::selection {
+  background: rgba(255, 107, 53, 0.35);
+  color: #fff;
+}
+
+.pulse-text {
+  background: linear-gradient(
+    90deg,
+    #e63946 0%,
+    #ff6b35 40%,
+    #ff9f1c 70%,
+    #ffd166 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 2px gradient bar at the top of a card — the signature Mission Control KPI look */
+.pulse-border-top {
+  position: relative;
+}
+.pulse-border-top::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    #e63946 0%,
+    #ff6b35 40%,
+    #ff9f1c 70%,
+    #ffd166 100%
+  );
+  border-radius: 8px 8px 0 0;
+}
+
+/* Gradient left border for accent panels */
+.pulse-border-left {
+  border-left: 2px solid transparent;
+  background-image:
+    linear-gradient(
+      var(--color-primary-300, #1a1a1a),
+      var(--color-primary-300, #1a1a1a)
+    ),
+    linear-gradient(180deg, #e63946 0%, #ff6b35 40%, #ff9f1c 70%, #ffd166 100%);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.ring-pulse {
+  box-shadow:
+    0 0 0 1px rgba(255, 107, 53, 0.35),
+    0 0 24px -6px rgba(255, 107, 53, 0.45);
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 3px rgba(255, 107, 53, 0.35));
+  }
+  50% {
+    opacity: 0.85;
+    filter: drop-shadow(0 0 12px rgba(255, 107, 53, 0.6));
+  }
+}
+.pulse-glow {
+  animation: pulse-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-status-dot {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+}
+.pulse-status-dot {
+  animation: pulse-status-dot 1.8s ease-out infinite;
+}
+
+@keyframes pulse-wave-flow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -240;
+  }
+}
+.pulse-wave-flow {
+  stroke-dasharray: 6 4;
+  animation: pulse-wave-flow 6s linear infinite;
+}
+
+.pulse-chart-grid line {
+  stroke: #1f1f1f;
+}
+
+/* Subtle film grain — pure-black surfaces feel flat without it. Matches
+   the founder dashboard at os/dashboard/index.html. Applies globally to
+   body so every ClawSuite route gets the Mission Control texture. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: 0.035;
+  mix-blend-mode: overlay;
 }
 
 [data-accent='purple'] {
@@ -1190,4 +1328,292 @@ code {
 
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ===========================================================================
+   Global Mission Control treatment — propagates the aesthetic across every
+   ClawSuite screen without per-component edits. All rules use `:where()` to
+   keep specificity 0,0,0 so component-level overrides still win.
+   =========================================================================== */
+
+/* Display font on all headings (Bricolage Grotesque variable) */
+:where(h1, h2, h3, h4) {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
+}
+:where(h1) {
+  font-weight: 700;
+}
+:where(h2) {
+  font-weight: 600;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+}
+
+/* Mono uppercase letter-spaced — Mission Control label treatment */
+.label-mc {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: oklch(0.62 0 0); /* primary-800 in dark mode mapping */
+}
+
+/* Focus ring — pulse-orange across the board */
+:where(*):focus-visible {
+  outline: 2px solid rgba(255, 107, 53, 0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+:where(input, textarea, select):focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 1px rgba(255, 107, 53, 0.6),
+    0 0 0 4px rgba(255, 107, 53, 0.15);
+}
+
+/* Sidebar nav-item active state — pulse gradient left border.
+   Targets ClawSuite's actual active-class signature
+   (`bg-accent-500/10 text-accent-500` from chat-sidebar.tsx item.active branch)
+   plus aria-current/data-active for any future TanStack Link migrations. */
+:where(
+  .bg-accent-500\/10.text-accent-500,
+  [data-active='true'],
+  a[aria-current='page'],
+  .nav-active
+) {
+  position: relative;
+}
+:where(
+  .bg-accent-500\/10.text-accent-500,
+  [data-active='true'],
+  a[aria-current='page'],
+  .nav-active
+)::before {
+  content: '';
+  position: absolute;
+  inset-block: 4px;
+  inset-inline-start: 0;
+  width: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    #e63946 0%,
+    #ff6b35 40%,
+    #ff9f1c 70%,
+    #ffd166 100%
+  );
+  pointer-events: none;
+}
+
+/* Button — primary "accent" variant glows on hover (matches Mission Control feel) */
+:where(button[data-variant='primary'], .btn-pulse):hover {
+  box-shadow:
+    0 0 0 1px rgba(255, 107, 53, 0.4),
+    0 8px 24px -6px rgba(255, 107, 53, 0.35);
+}
+
+/* Cards with the standard ClawSuite shell (rounded-lg + border) get a subtle
+   accent on the top edge when hovered. Pure decoration, no layout shift. */
+:where(
+    .bg-primary-50,
+    .bg-primary-100,
+    .bg-primary-200,
+    .bg-primary-300
+  ).rounded-lg.border {
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+:where(
+    .bg-primary-50,
+    .bg-primary-100,
+    .bg-primary-200,
+    .bg-primary-300
+  ).rounded-lg.border:hover {
+  border-color: rgba(255, 107, 53, 0.25);
+}
+
+/* Tabular numbers — KPI values + timestamps look better aligned */
+:where(.font-mono, .text-mono, [class*='tabular']) {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Code blocks + inline mono — bind to JetBrains Mono via the theme var */
+:where(code, kbd, pre, samp, .font-mono, .text-mono) {
+  font-family: var(--font-mono);
+}
+
+/* Hide scrollbar but allow scroll on horizontal rails (Mission Control feel) */
+.scroll-rail {
+  scrollbar-width: none;
+}
+.scroll-rail::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pulse gradient bar — usable on any element via the .pulse-bar class
+   (e.g. for section dividers). Differs from .pulse-border-top in that it
+   stands alone, not bound to a card top. */
+.pulse-bar {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    #e63946 0%,
+    #ff6b35 40%,
+    #ff9f1c 70%,
+    #ffd166 100%
+  );
+  border-radius: 1px;
+}
+
+/* OpenClaw icon cursor-bar blink — CSS replacement for SMIL <animate> */
+@keyframes oc-cursor-blink-kf {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+.oc-cursor-blink {
+  animation: oc-cursor-blink-kf 1.5s ease-in-out infinite;
+}
+
+/* ===========================================================================
+   PulseCheck AI · Liquid Glass — web-adapted from Apple's iOS 26 spec.
+   Frosted backdrop + translucent fill + soft top-light inner shadow.
+   Tints carry the pulse-orange brand accent.
+
+   Variants:
+     .glass-panel      — base material, regular tint
+     .glass-card       — card-size, rect 12px radius, soft elevation
+     .glass-tile       — KPI tile with pulse-border-top accent
+     .glass-pulse      — same shape, tinted pulse-orange for prominence
+     .glass-prominent  — opaque enough for primary CTAs, glow on hover
+     .glass-bar        — toolbar / nav strip
+   =========================================================================== */
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass-panel,
+  .glass-card,
+  .glass-tile,
+  .glass-pulse,
+  .glass-prominent,
+  .glass-bar {
+    background-color: color-mix(
+      in oklab,
+      var(--color-primary-300) 55%,
+      transparent
+    );
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid
+      color-mix(in oklab, var(--color-primary-500) 35%, transparent);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.06),
+      0 1px 1px rgba(0, 0, 0, 0.25),
+      0 8px 24px -8px rgba(0, 0, 0, 0.35);
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      box-shadow 200ms ease,
+      transform 200ms ease;
+  }
+
+  .glass-card {
+    border-radius: 12px;
+  }
+  .glass-tile {
+    border-radius: 12px;
+    position: relative;
+  }
+  .glass-tile::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    border-radius: 12px 12px 0 0;
+    background: linear-gradient(
+      90deg,
+      #e63946 0%,
+      #ff6b35 40%,
+      #ff9f1c 70%,
+      #ffd166 100%
+    );
+    pointer-events: none;
+  }
+  .glass-bar {
+    border-radius: 0;
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+  }
+
+  .glass-pulse {
+    background-color: color-mix(
+      in oklab,
+      #ff6b35 12%,
+      var(--color-primary-300) 50%
+    );
+    border-color: rgba(255, 107, 53, 0.35);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+      0 0 0 1px rgba(255, 107, 53, 0.15),
+      0 8px 28px -8px rgba(255, 107, 53, 0.35);
+  }
+
+  .glass-prominent {
+    background-color: color-mix(
+      in oklab,
+      var(--color-primary-200) 82%,
+      transparent
+    );
+    border-color: color-mix(
+      in oklab,
+      var(--color-primary-600) 55%,
+      transparent
+    );
+  }
+
+  .glass-card:hover,
+  .glass-tile:hover,
+  .glass-pulse:hover,
+  .glass-prominent:hover {
+    border-color: rgba(255, 107, 53, 0.45);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 18px 42px -10px rgba(0, 0, 0, 0.5),
+      0 0 24px -6px rgba(255, 107, 53, 0.25);
+    transform: translateY(-1px);
+  }
+
+  .glass-interactive {
+    cursor: pointer;
+  }
+  .glass-interactive:active {
+    transform: translateY(0) scale(0.985);
+    transition-duration: 80ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-card,
+  .glass-tile,
+  .glass-pulse,
+  .glass-prominent {
+    transition: none;
+  }
+  .glass-card:hover,
+  .glass-tile:hover,
+  .glass-pulse:hover,
+  .glass-prominent:hover {
+    transform: none;
+  }
 }

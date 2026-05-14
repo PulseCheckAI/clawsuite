@@ -110,9 +110,15 @@ export function WidgetShell({
         className,
       )}
     >
+      {/* Mission Control pulse-gradient bar: red → orange → amber → yellow.
+          Signature look from artifacts-panel/11-mission-control.html. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-accent-500 via-accent-400/50 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-0.5"
+        style={{
+          background:
+            'linear-gradient(90deg, #E63946 0%, #FF6B35 40%, #FF9F1C 70%, #FFD166 100%)',
+        }}
       />
       {/* Header */}
       <header
@@ -141,9 +147,7 @@ export function WidgetShell({
         </div>
 
         {/* Trailing action (only shown when not in edit mode) */}
-        {action && !editMode ? (
-          <div className="shrink-0">{action}</div>
-        ) : null}
+        {action && !editMode ? <div className="shrink-0">{action}</div> : null}
       </header>
 
       {/* Body */}

@@ -132,14 +132,8 @@ function LobsterSVG({
           stroke="#dc2626"
           strokeWidth="1.5"
           opacity="0.4"
-        >
-          <animate
-            attributeName="opacity"
-            values="0.3;0.6;0.3"
-            dur="1.5s"
-            repeatCount="indefinite"
-          />
-        </circle>
+          style={{ animation: 'oa-opacity-pulse 1.5s ease-in-out infinite' }}
+        />
       )}
 
       {/* Antennae */}
@@ -373,14 +367,8 @@ function ClawCatSVG({
           stroke={O}
           strokeWidth="1.5"
           opacity="0.4"
-        >
-          <animate
-            attributeName="opacity"
-            values="0.3;0.6;0.3"
-            dur="1.5s"
-            repeatCount="indefinite"
-          />
-        </circle>
+          style={{ animation: 'oa-opacity-pulse 1.5s ease-in-out infinite' }}
+        />
       )}
       {/* Tail */}
       <path
@@ -1043,14 +1031,8 @@ function DragonSVG({
           stroke="#16a34a"
           strokeWidth="1.5"
           opacity="0.4"
-        >
-          <animate
-            attributeName="opacity"
-            values="0.3;0.6;0.3"
-            dur="1.5s"
-            repeatCount="indefinite"
-          />
-        </circle>
+          style={{ animation: 'oa-opacity-pulse 1.5s ease-in-out infinite' }}
+        />
       )}
       {/* Horns */}
       <polygon points="9,7 6,1 12,5" fill="#15803d" />
@@ -1065,34 +1047,22 @@ function DragonSVG({
       <circle cx="18" cy="15" r="0.8" fill="#0f172a" opacity="0.5" />
       {state === 'thinking' && (
         <>
-          <circle cx="12" cy="13" r="1" fill="#94a3b8" opacity="0.3">
-            <animate
-              attributeName="cy"
-              values="13;10;7"
-              dur="1.5s"
-              repeatCount="indefinite"
-            />
-            <animate
-              attributeName="opacity"
-              values="0.4;0.1;0"
-              dur="1.5s"
-              repeatCount="indefinite"
-            />
-          </circle>
-          <circle cx="20" cy="13" r="0.8" fill="#94a3b8" opacity="0.3">
-            <animate
-              attributeName="cy"
-              values="13;9;6"
-              dur="1.8s"
-              repeatCount="indefinite"
-            />
-            <animate
-              attributeName="opacity"
-              values="0.4;0.1;0"
-              dur="1.8s"
-              repeatCount="indefinite"
-            />
-          </circle>
+          <circle
+            cx="12"
+            cy="13"
+            r="1"
+            fill="#94a3b8"
+            opacity="0.3"
+            style={{ animation: 'oa-smoke-rise 1.5s ease-out infinite' }}
+          />
+          <circle
+            cx="20"
+            cy="13"
+            r="0.8"
+            fill="#94a3b8"
+            opacity="0.3"
+            style={{ animation: 'oa-smoke-rise 1.8s ease-out infinite' }}
+          />
         </>
       )}
       {/* Eyes */}
@@ -1389,7 +1359,10 @@ type OrchestratorAvatarProps = {
   compact?: boolean
 }
 
-function OrchestratorAvatarComponent({ size = 48, compact = false }: OrchestratorAvatarProps) {
+function OrchestratorAvatarComponent({
+  size = 48,
+  compact = false,
+}: OrchestratorAvatarProps) {
   const { state, label } = useOrchestratorState()
   const [avatarStyle, setAvatarStyle] = useState<AvatarStyle>(getStoredAvatar)
   const [showPicker, setShowPicker] = useState(false)

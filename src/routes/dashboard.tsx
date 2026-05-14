@@ -1,13 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { DashboardScreen } from '@/screens/dashboard/dashboard-screen'
+import { MissionControlScreen } from '@/screens/mission-control/mission-control-screen'
 import { GatewayConnectionSetupForm } from '@/components/gateway-connection-banner'
 import { usePageTitle } from '@/hooks/use-page-title'
 
 export const Route = createFileRoute('/dashboard')({
   ssr: false,
   component: function DashboardRoute() {
-    usePageTitle('Dashboard')
-    return <DashboardScreen />
+    usePageTitle('Mission Control')
+    return <MissionControlScreen />
   },
   errorComponent: function DashboardError({ error }) {
     const message =

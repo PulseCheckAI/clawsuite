@@ -212,7 +212,7 @@ const config = defineConfig(({ mode, command }) => {
     ? env.CLAWSUITE_ALLOWED_HOSTS.split(',')
         .map((h) => h.trim())
         .filter(Boolean)
-    : ['.ts.net']  // allow all Tailscale hostnames by default
+    : ['.ts.net'] // allow all Tailscale hostnames by default
   let proxyTarget = 'http://127.0.0.1:18789'
 
   try {
@@ -255,9 +255,52 @@ const config = defineConfig(({ mode, command }) => {
     server: {
       // Force IPv4 — 'localhost' resolves to ::1 (IPv6) on Windows, breaking gateway connectivity
       host: allowedHosts.length > 0 ? '0.0.0.0' : '127.0.0.1',
-      allowedHosts: allowedHosts.length > 0 ? [...allowedHosts, '127.0.0.1', 'localhost'] : ['127.0.0.1', 'localhost'],
+      // Defensive HTTP response headers — applied to every dev-server response.
+      // These don't silence browser-extension warnings (those originate above
+      // the page), but they harden the surface and signal modern best-practice
+      // policy to user agents.
+      headers: {
+        // Permissions-Policy: deny APIs we don't need, including unload semantics.
+        // unload=() tells the browser the document does NOT want unload-style
+        // lifecycle events; doesn't disable extension listeners but signals intent.
+        'Permissions-Policy': [
+          'unload=()',
+          'beforeunload=()',
+          'camera=()',
+          'microphone=()',
+          'geolocation=()',
+          'gyroscope=()',
+          'magnetometer=()',
+          'accelerometer=()',
+          'payment=()',
+          'usb=()',
+          'serial=()',
+          'browsing-topics=()',
+          'interest-cohort=()',
+        ].join(', '),
+        'Referrer-Policy': 'strict-origin-when-cross-origin',
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+        // COOP: process-isolate from cross-origin openers (mitigates Spectre,
+        // closes side-channel leaks). Allow popups so window.open still works.
+        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+        // COEP omitted intentionally — require-corp would break iframes/Recharts
+        // SVGs that don't carry explicit CORP headers; not worth the breakage
+        // until every dep ships CORP.
+        // X-XSS-Protection deliberately omitted — deprecated, can introduce its
+        // own XSS via filter bypasses; CSP handles XSS.
+      },
+      allowedHosts:
+        allowedHosts.length > 0
+          ? [...allowedHosts, '127.0.0.1', 'localhost']
+          : ['127.0.0.1', 'localhost'],
       // HMR over Tailscale/reverse proxy: use client's origin so WS connects back through :443
-      hmr: allowedHosts.length > 0 ? { clientPort: 443, protocol: 'wss' } : undefined,
+      // (Local-dev fix 2026-05-13): allowedHosts always falls back to ['.ts.net'] (length=1) which
+      // mis-triggered the production HMR config. Gate on the env var explicitly so local-dev gets
+      // the Vite default (page-origin HMR).
+      hmr: env.CLAWSUITE_ALLOWED_HOSTS?.trim()
+        ? { clientPort: 443, protocol: 'wss' }
+        : undefined,
       proxy: {
         // WebSocket proxy: clients connect to /ws-gateway on the ClawSuite
         // server (any IP/port), which internally forwards to the local gateway.
@@ -303,6 +346,42 @@ const config = defineConfig(({ mode, command }) => {
       tailwindcss(),
       tanstackStart(),
       viteReact(),
+      {
+        // Defensive hardening — set every response's hardening headers BEFORE
+        // any other middleware. Vite's server.headers config gets overridden
+        // by TanStack Start's response handlers, so we apply them here.
+        name: 'clawsuite-hardening-headers',
+        configureServer(server) {
+          server.middlewares.use((_req, res, next) => {
+            res.setHeader(
+              'Permissions-Policy',
+              [
+                'unload=()',
+                'beforeunload=()',
+                'camera=()',
+                'microphone=()',
+                'geolocation=()',
+                'gyroscope=()',
+                'magnetometer=()',
+                'accelerometer=()',
+                'payment=()',
+                'usb=()',
+                'serial=()',
+                'browsing-topics=()',
+                'interest-cohort=()',
+              ].join(', '),
+            )
+            res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+            res.setHeader('X-Content-Type-Options', 'nosniff')
+            res.setHeader('X-Frame-Options', 'DENY')
+            res.setHeader(
+              'Cross-Origin-Opener-Policy',
+              'same-origin-allow-popups',
+            )
+            next()
+          })
+        },
+      },
       {
         name: 'workspace-daemon',
         buildStart() {
@@ -353,7 +432,12 @@ const config = defineConfig(({ mode, command }) => {
             }
           })
 
-          if (command !== 'serve' || workspaceDaemonStarted || workspaceDaemonStarting) return
+          if (
+            command !== 'serve' ||
+            workspaceDaemonStarted ||
+            workspaceDaemonStarting
+          )
+            return
 
           workspaceDaemonStarting = true
           void (async () => {
@@ -392,13 +476,26 @@ const config = defineConfig(({ mode, command }) => {
         transform(code, _id) {
           const envName = this.environment?.name
           if (envName !== 'client') return null
-          if (!code.includes('process.env') && !code.includes('process.platform')) return null
+          if (
+            !code.includes('process.env') &&
+            !code.includes('process.platform')
+          )
+            return null
 
           // Replace specific env vars first, then the generic fallback
           let result = code
-          result = result.replace(/process\.env\.CLAWDBOT_GATEWAY_URL/g, JSON.stringify(gatewayUrl))
-          result = result.replace(/process\.env\.CLAWDBOT_GATEWAY_TOKEN/g, JSON.stringify(env.CLAWDBOT_GATEWAY_TOKEN || ''))
-          result = result.replace(/process\.env\.NODE_ENV/g, JSON.stringify(mode))
+          result = result.replace(
+            /process\.env\.CLAWDBOT_GATEWAY_URL/g,
+            JSON.stringify(gatewayUrl),
+          )
+          result = result.replace(
+            /process\.env\.CLAWDBOT_GATEWAY_TOKEN/g,
+            JSON.stringify(env.CLAWDBOT_GATEWAY_TOKEN || ''),
+          )
+          result = result.replace(
+            /process\.env\.NODE_ENV/g,
+            JSON.stringify(mode),
+          )
           result = result.replace(/process\.env/g, '{}')
           result = result.replace(/process\.platform/g, '"browser"')
           return result
