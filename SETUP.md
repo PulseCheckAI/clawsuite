@@ -76,9 +76,9 @@ CLAWDBOT_GATEWAY_TOKEN=<paste your token from above>
 
 ### Optional Variables
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `CLAWSUITE_PASSWORD` | _(empty)_ | Password-protect the web UI |
+| Variable                  | Default   | Purpose                                        |
+| ------------------------- | --------- | ---------------------------------------------- |
+| `CLAWSUITE_PASSWORD`      | _(empty)_ | Password-protect the web UI                    |
 | `CLAWSUITE_ALLOWED_HOSTS` | _(empty)_ | Allow non-localhost access (e.g. Tailscale IP) |
 
 ---
@@ -93,15 +93,15 @@ npm run dev
 
 ```
 VITE vX.X.X  ready in XXX ms
-  ➜  Local:   http://localhost:3000/
+  ➜  Local:   http://localhost:3010/
 ```
 
-Open `http://localhost:3000` in your browser.
+Open `http://localhost:3010` in your browser.
 
 **Verify it works:**
 
 ```bash
-curl -s http://localhost:3000 -o /dev/null -w "%{http_code}"
+curl -s http://localhost:3010 -o /dev/null -w "%{http_code}"
 # Expected: 200
 ```
 
@@ -146,7 +146,7 @@ If you already configured `.env` correctly, the wizard will auto-detect and conn
 
 ### Wrong port
 
-ControlSuite runs on port `3000` by default. The OCPlatform gateway runs on port `18789`. These are different services — don't mix them up.
+ControlSuite runs on port `3010` by default (per `vite dev --port 3010 --strictPort` in `package.json`). The OCPlatform gateway runs on port `18789`. These are different services — don't mix them up.
 
 ### Agent messed up the code
 
@@ -187,21 +187,21 @@ clawsuite/
 
 ### Available scripts
 
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Start dev server on port 3000 |
-| `npm run build` | Production build |
-| `npm run start` | Run production build |
-| `npm run lint` | Run ESLint |
-| `npm run test` | Run tests |
+| Command         | Purpose                       |
+| --------------- | ----------------------------- |
+| `npm run dev`   | Start dev server on port 3010 |
+| `npm run build` | Production build              |
+| `npm run start` | Run production build          |
+| `npm run lint`  | Run ESLint                    |
+| `npm run test`  | Run tests                     |
 
 ---
 
 ## Common `.env` Mistakes
 
-| Wrong | Right | Why |
-|-------|-------|-----|
-| `GATEWAY_URL=...` | `CLAWDBOT_GATEWAY_URL=...` | Variable name must include `CLAWDBOT_` prefix |
-| `CLAWDBOT_GATEWAY_URL=http://...` | `CLAWDBOT_GATEWAY_URL=ws://...` | Must use WebSocket protocol (`ws://` or `wss://`) |
-| `CLAWDBOT_GATEWAY_URL=ws://localhost:3000` | `CLAWDBOT_GATEWAY_URL=ws://127.0.0.1:18789` | Port 3000 is ControlSuite, port 18789 is the gateway |
-| No `.env` file at all | `cp .env.example .env` | The file must exist |
+| Wrong                                      | Right                                       | Why                                                        |
+| ------------------------------------------ | ------------------------------------------- | ---------------------------------------------------------- |
+| `GATEWAY_URL=...`                          | `CLAWDBOT_GATEWAY_URL=...`                  | Variable name must include `CLAWDBOT_` prefix              |
+| `CLAWDBOT_GATEWAY_URL=http://...`          | `CLAWDBOT_GATEWAY_URL=ws://...`             | Must use WebSocket protocol (`ws://` or `wss://`)          |
+| `CLAWDBOT_GATEWAY_URL=ws://localhost:3010` | `CLAWDBOT_GATEWAY_URL=ws://127.0.0.1:18789` | Port 3010 is ControlSuite (dev), port 18789 is the gateway |
+| No `.env` file at all                      | `cp .env.example .env`                      | The file must exist                                        |

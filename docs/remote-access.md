@@ -23,7 +23,7 @@ Tailscale creates a private mesh VPN — no port forwarding, no firewall config.
    npm install -g local-ssl-proxy
    local-ssl-proxy \
      --source 8443 \
-     --target 3000 \
+     --target 3010 \
      --cert erics-mbp.tail1234.ts.net.crt \
      --key erics-mbp.tail1234.ts.net.key
    ```
@@ -35,6 +35,7 @@ Tailscale creates a private mesh VPN — no port forwarding, no firewall config.
 ### Gateway Token
 
 If your OCPlatform gateway requires a token, set it in the ControlSuite settings or pass it as a query parameter:
+
 ```
 https://erics-mbp.tail1234.ts.net:8443?token=YOUR_GATEWAY_TOKEN
 ```
@@ -50,14 +51,14 @@ https://erics-mbp.tail1234.ts.net:8443?token=YOUR_GATEWAY_TOKEN
    ```
 2. Access from any device on the same network:
    ```
-   http://192.168.1.100:3000
+   http://192.168.1.100:3010
    ```
 
 > **Note:** HTTP (not HTTPS) works on LAN but some browser features (clipboard, notifications) require a secure context.
 
 ## Option 3: Docker
 
-The included `docker-compose.yml` exposes port 3000. For remote access, combine with Tailscale or a reverse proxy (nginx, Caddy, Traefik).
+The included `docker-compose.yml` exposes port 3000 (the production build defaults to PORT=3000; this is intentional and distinct from the dev server on 3010). For remote access, combine with Tailscale or a reverse proxy (nginx, Caddy, Traefik).
 
 ## Windows Notes
 
@@ -65,7 +66,7 @@ The included `docker-compose.yml` exposes port 3000. For remote access, combine 
 - Tailscale works on Windows natively — install on both WSL2 and Windows host
 - If using WSL2, you may need to forward the port:
   ```powershell
-  netsh interface portproxy add v4tov4 listenport=3000 listenaddress=0.0.0.0 connectport=3000 connectaddress=$(wsl hostname -I)
+  netsh interface portproxy add v4tov4 listenport=3010 listenaddress=0.0.0.0 connectport=3010 connectaddress=$(wsl hostname -I)
   ```
 
 ## Troubleshooting

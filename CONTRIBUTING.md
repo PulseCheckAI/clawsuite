@@ -26,7 +26,7 @@ npm install
 # Install Playwright browser
 npx playwright install chromium
 
-# Dev server (default: localhost:3000)
+# Dev server (default: localhost:3010)
 npm run dev
 
 # Type check
@@ -40,6 +40,7 @@ npm run build
 ```
 
 **First-time setup:**
+
 - Copy `.env.example` to `.env`
 - Set `CLAWDBOT_GATEWAY_URL` (default: `ws://127.0.0.1:18789`)
 - Set `CLAWDBOT_GATEWAY_TOKEN` (find with `openclaw config get gateway.auth.token`)

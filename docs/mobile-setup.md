@@ -19,6 +19,7 @@ ClawSuite is a web app — no App Store needed. You access it directly from your
 ### 1. Install Tailscale on the ClawSuite machine
 
 Download and install Tailscale on the machine running ClawSuite:
+
 - **macOS/Windows/Linux:** https://tailscale.com/download
 
 Sign in with your Tailscale account. Once connected, note the machine's Tailscale IP (e.g. `100.x.x.x`) — visible in the Tailscale app or dashboard.
@@ -35,10 +36,10 @@ Sign in with the **same Tailscale account** as your desktop. Both devices will n
 In your phone's browser, navigate to your ClawSuite URL using the Tailscale IP:
 
 ```
-http://<tailscale-ip>:3000
+http://<tailscale-ip>:3010
 ```
 
-Replace `<tailscale-ip>` with your desktop's Tailscale IP (e.g. `http://100.90.212.55:3000`).
+Replace `<tailscale-ip>` with your desktop's Tailscale IP (e.g. `http://100.90.212.55:3010`).
 
 > **Tip:** If you've set up a custom domain or reverse proxy, use that URL instead.
 
@@ -47,11 +48,13 @@ Replace `<tailscale-ip>` with your desktop's Tailscale IP (e.g. `http://100.90.2
 Install as a PWA for a native app experience:
 
 **iPhone / iPad:**
+
 1. Tap the **Share** icon (box with arrow)
 2. Scroll down → tap **"Add to Home Screen"**
 3. Tap **"Add"**
 
 **Android:**
+
 1. Tap the browser menu (⋮)
 2. Tap **"Add to Home screen"** or **"Install App"**
 3. Confirm
@@ -65,25 +68,25 @@ ClawSuite includes a built-in mobile setup wizard. After 45 seconds on desktop, 
 To trigger it manually, open ClawSuite and append `?mobile-preview=1` to the URL:
 
 ```
-http://localhost:3000?mobile-preview=1
+http://localhost:3010?mobile-preview=1
 ```
 
 ---
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
+| Issue                            | Solution                                                                                                      |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Can't reach ClawSuite from phone | Make sure both devices are connected to Tailscale (check the Tailscale app — both should show as "Connected") |
-| Tailscale IP not reachable | Try the machine's local IP (192.168.x.x) if on the same WiFi network |
-| Page loads but auth fails | ClawSuite auth tokens are stored per-browser — you'll need to log in on mobile separately |
-| PWA not installing | Make sure you're on HTTPS or localhost (some browsers block PWA install on plain HTTP) |
+| Tailscale IP not reachable       | Try the machine's local IP (192.168.x.x) if on the same WiFi network                                          |
+| Page loads but auth fails        | ClawSuite auth tokens are stored per-browser — you'll need to log in on mobile separately                     |
+| PWA not installing               | Make sure you're on HTTPS or localhost (some browsers block PWA install on plain HTTP)                        |
 
 ---
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_PING_URL` | Optional. If set, enables anonymous daily active user pings (no PII — SHA-256 fingerprint only). Leave unset to disable telemetry entirely. |
-| `NEXT_PUBLIC_APP_VERSION` | Optional. App version reported in telemetry pings. Defaults to `3.1.0`. |
+| Variable                  | Description                                                                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_PING_URL`    | Optional. If set, enables anonymous daily active user pings (no PII — SHA-256 fingerprint only). Leave unset to disable telemetry entirely. |
+| `NEXT_PUBLIC_APP_VERSION` | Optional. App version reported in telemetry pings. Defaults to `3.1.0`.                                                                     |

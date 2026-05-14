@@ -1,8 +1,16 @@
 # ClawSuite Workspace UX Architecture Spec
 
-**Generated:** 2026-03-10  
-**Target:** V4 Mockup (`orchestrator-mockup/v4.html`)  
-**Repo:** `/Users/aurora/.openclaw/workspace/clawsuite`
+> **ARCHIVED — historical 2026-03 spec, superseded by Mission Control.**
+> This doc was authored against a previous `/workspace` section that has since been
+> reorganized into `src/screens/mission-control/`, `src/screens/agents/`,
+> `src/screens/runs/`, `src/screens/teams/`, and `src/screens/skills/`. The
+> "Current Implementation Map" file paths below (`projects-screen.tsx`,
+> `mission-console-screen.tsx`, `review-queue-screen.tsx`, etc.) **no longer
+> exist in this repo** — kept for historical context only, not as a source of truth.
+
+**Generated:** 2026-03-10
+**Target:** V4 Mockup (`orchestrator-mockup/v4.html`)
+**Repo (original author's machine):** `/Users/aurora/.openclaw/workspace/clawsuite` — not this repo.
 
 ---
 
@@ -14,43 +22,44 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 
 ## V4 Mockup Screens (Reference)
 
-| ID | Screen Name | Hash/Route | V4 Purpose |
-|----|-------------|------------|------------|
-| S1 | Projects Dashboard | `#projects` (default) | KPIs, project cards, review inbox, agent capacity |
-| S2 | Project Detail | Inline view | Roadmap sidebar, policies, health, active mission |
-| S3 | Review Queue | `#review` | Filterable checkpoint list across all projects |
-| S4 | Mission Control | Query param `?missionId=` | Live terminals, task progress, activity log |
-| S5 | Checkpoint Detail | Navigated from S3/S4 | Diffs, verification matrix, actions |
-| S6 | Agents | `#agents` | Agent list + detail tabs (profile/model/prompt/skills/runs) |
-| S7 | Teams & Roles | `#teams` | Team cards, approval policy, audit log |
-| S8 | New Project Wizard | Modal from S1 | 5-step: Source → Spec → Agents → Policies → Create |
-| S9 | Plan Review | Query param `?plan=` | Task breakdown before mission launch |
-| S10 | Runs Console | `#runs` | Active + recent runs with filters |
-| S11 | Skills & Memory | `#skills` | Skills panel + Memory browser panel |
+| ID  | Screen Name        | Hash/Route                | V4 Purpose                                                  |
+| --- | ------------------ | ------------------------- | ----------------------------------------------------------- |
+| S1  | Projects Dashboard | `#projects` (default)     | KPIs, project cards, review inbox, agent capacity           |
+| S2  | Project Detail     | Inline view               | Roadmap sidebar, policies, health, active mission           |
+| S3  | Review Queue       | `#review`                 | Filterable checkpoint list across all projects              |
+| S4  | Mission Control    | Query param `?missionId=` | Live terminals, task progress, activity log                 |
+| S5  | Checkpoint Detail  | Navigated from S3/S4      | Diffs, verification matrix, actions                         |
+| S6  | Agents             | `#agents`                 | Agent list + detail tabs (profile/model/prompt/skills/runs) |
+| S7  | Teams & Roles      | `#teams`                  | Team cards, approval policy, audit log                      |
+| S8  | New Project Wizard | Modal from S1             | 5-step: Source → Spec → Agents → Policies → Create          |
+| S9  | Plan Review        | Query param `?plan=`      | Task breakdown before mission launch                        |
+| S10 | Runs Console       | `#runs`                   | Active + recent runs with filters                           |
+| S11 | Skills & Memory    | `#skills`                 | Skills panel + Memory browser panel                         |
 
 ---
 
 ## Current Implementation Map
 
-| V4 Screen | Current File | Status | Notes |
-|-----------|--------------|--------|-------|
-| S1 Dashboard | `projects-screen.tsx` (lines 1-300) | ✅ Implemented | KPIs, cards, inbox, capacity all present |
-| S2 Project Detail | `project-detail-view.tsx` + embedded in `projects-screen.tsx` | ⚠️ Partial | View exists but navigation is inline, not routed |
-| S3 Review Queue | `review-queue-screen.tsx` | ✅ Implemented | Filters, row actions, composer all work |
-| S4 Mission Control | `mission-console-screen.tsx` | ✅ Implemented | Terminals, task list, policy drawer present |
-| S5 Checkpoint Detail | `checkpoint-detail-modal.tsx` | ⚠️ Modal | Should be navigable screen, not modal |
-| S6 Agents | `agents-screen.tsx` | ✅ Implemented | List + detail tabs all functional |
-| S7 Teams | `teams-screen.tsx` | 🔴 Stub | Hardcoded data, no API integration |
-| S8 Wizard | `new-project-wizard.tsx` | ⚠️ Modal | Full wizard exists but not routed |
-| S9 Plan Review | `plan-review-screen.tsx` | ✅ Implemented | Task graph, waves, launch button all work |
-| S10 Runs Console | `runs-console-screen.tsx` | ✅ Implemented | Filters, run cards, status badges present |
-| S11 Skills & Memory | `workspace-skills-screen.tsx` | ✅ Implemented | Two-panel layout matches V4 |
+| V4 Screen            | Current File                                                  | Status         | Notes                                            |
+| -------------------- | ------------------------------------------------------------- | -------------- | ------------------------------------------------ |
+| S1 Dashboard         | `projects-screen.tsx` (lines 1-300)                           | ✅ Implemented | KPIs, cards, inbox, capacity all present         |
+| S2 Project Detail    | `project-detail-view.tsx` + embedded in `projects-screen.tsx` | ⚠️ Partial     | View exists but navigation is inline, not routed |
+| S3 Review Queue      | `review-queue-screen.tsx`                                     | ✅ Implemented | Filters, row actions, composer all work          |
+| S4 Mission Control   | `mission-console-screen.tsx`                                  | ✅ Implemented | Terminals, task list, policy drawer present      |
+| S5 Checkpoint Detail | `checkpoint-detail-modal.tsx`                                 | ⚠️ Modal       | Should be navigable screen, not modal            |
+| S6 Agents            | `agents-screen.tsx`                                           | ✅ Implemented | List + detail tabs all functional                |
+| S7 Teams             | `teams-screen.tsx`                                            | 🔴 Stub        | Hardcoded data, no API integration               |
+| S8 Wizard            | `new-project-wizard.tsx`                                      | ⚠️ Modal       | Full wizard exists but not routed                |
+| S9 Plan Review       | `plan-review-screen.tsx`                                      | ✅ Implemented | Task graph, waves, launch button all work        |
+| S10 Runs Console     | `runs-console-screen.tsx`                                     | ✅ Implemented | Filters, run cards, status badges present        |
+| S11 Skills & Memory  | `workspace-skills-screen.tsx`                                 | ✅ Implemented | Two-panel layout matches V4                      |
 
 ---
 
 ## Navigation Flows
 
 ### Current (workspace-layout.tsx)
+
 ```
 /workspace
 ├── #projects (default)
@@ -64,6 +73,7 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 ```
 
 ### Target (V4)
+
 ```
 /workspace
 ├── #projects (S1 Dashboard)
@@ -93,12 +103,15 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 ### P0: Critical Path (Required for MVP)
 
 #### P0-1: Extract Checkpoint Detail to Navigable View
-**Files:** 
+
+**Files:**
+
 - Create: `src/screens/checkpoints/checkpoint-detail-screen.tsx`
 - Modify: `src/screens/workspace/workspace-layout.tsx`
 - Modify: `src/screens/review/review-queue-screen.tsx`
 
 **What:**
+
 - Move checkpoint detail from modal to standalone screen
 - Add `?checkpointId=` query param support in workspace-layout
 - Add back navigation `← Review Queue` or `← Mission Control`
@@ -111,12 +124,15 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 ---
 
 #### P0-2: Wire Teams Screen to Real Data
+
 **Files:**
+
 - Modify: `src/screens/teams/teams-screen.tsx`
 - Add: API endpoint `/api/workspace/teams` (daemon-side)
 - Add: API endpoint `/api/workspace/audit-log` (daemon-side)
 
 **What:**
+
 - Replace hardcoded `TEAM_CARDS`, `APPROVAL_TIERS`, `AUDIT_LOG`
 - Fetch teams from workspace daemon
 - Display real audit log from activity events
@@ -131,11 +147,14 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 ### P1: Important (Post-MVP Polish)
 
 #### P1-1: Clean Project Detail Extraction
+
 **Files:**
+
 - Verify: `src/screens/projects/project-detail-view.tsx` (66KB!)
 - Modify: `src/screens/projects/projects-screen.tsx`
 
 **What:**
+
 - Ensure project detail view is cleanly separated (it already is in separate file)
 - Verify navigation works correctly with `?projectId=` param
 - Consider splitting project-detail-view.tsx if it has multiple concerns
@@ -147,11 +166,14 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 ---
 
 #### P1-2: Add Wizard Route Support
+
 **Files:**
+
 - Modify: `src/screens/workspace/workspace-layout.tsx`
 - Modify: `src/screens/projects/new-project-wizard.tsx`
 
 **What:**
+
 - Add `?wizard=true` or `#wizard` route to open wizard as full screen
 - Keep modal trigger as quick access
 - Support direct linking `/workspace?wizard=true`
@@ -163,11 +185,14 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 ---
 
 #### P1-3: Checkpoint Screen Visual Diffs
+
 **Files:**
+
 - Modify: `src/screens/checkpoints/checkpoint-detail-screen.tsx` (from P0-1)
 - May need: Monaco diff viewer integration
 
 **What:**
+
 - V4 mockup shows inline diffs with syntax highlighting
 - Current modal has diff stats but not visual diffs
 - Add collapsible per-file diff panels
@@ -179,10 +204,13 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 ---
 
 #### P1-4: Verification Matrix Display
+
 **Files:**
+
 - Modify: Checkpoint detail screen
 
 **What:**
+
 - V4 shows `✅ tsc`, `⚠️ tests`, `⚪ e2e` in verification grid
 - Add verification status to checkpoint response
 - Display pass/warn/na badges per check
@@ -196,10 +224,13 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 ### P2: Nice to Have (Future)
 
 #### P2-1: Skills Memory File Editor
+
 **Files:**
+
 - Modify: `src/screens/skills/workspace-skills-screen.tsx`
 
 **What:**
+
 - V4 shows textarea for `SOUL.md` editing
 - Add inline memory file editor
 - Support save/reset actions
@@ -209,10 +240,13 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 ---
 
 #### P2-2: Agent System Prompt Editor
+
 **Files:**
+
 - Modify: `src/screens/agents/agents-screen.tsx`
 
 **What:**
+
 - V4 shows editable system prompt textarea per agent
 - Add save/reset with version tracking
 - Show "v3 · edited 2h ago" metadata
@@ -222,10 +256,13 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 ---
 
 #### P2-3: Teams Policy Editor
+
 **Files:**
+
 - Modify: `src/screens/teams/teams-screen.tsx`
 
 **What:**
+
 - Edit approval policies (low/medium/high risk thresholds)
 - Add/remove team members
 - Configure per-agent capabilities
@@ -235,10 +272,13 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 ---
 
 #### P2-4: Review Queue Keyboard Navigation
+
 **Files:**
+
 - Modify: `src/screens/review/review-queue-screen.tsx`
 
 **What:**
+
 - V4 shows `A` approve, `R` revise, `X` reject, `J/K` nav
 - Add keyboard shortcuts
 - Show shortcut hints in UI
@@ -250,11 +290,13 @@ The workspace section (`/workspace`) implements 6 tab-based screens via hash nav
 ## File Impact Summary
 
 ### New Files
+
 ```
 src/screens/checkpoints/checkpoint-detail-screen.tsx  (P0-1)
 ```
 
 ### Heavy Modifications
+
 ```
 src/screens/workspace/workspace-layout.tsx           (P0-1, P1-2)
 src/screens/teams/teams-screen.tsx                   (P0-2)
@@ -262,6 +304,7 @@ src/screens/review/review-queue-screen.tsx           (P0-1)
 ```
 
 ### Light Modifications
+
 ```
 src/screens/projects/new-project-wizard.tsx          (P1-2)
 src/screens/projects/project-detail-view.tsx         (P1-1)
@@ -307,11 +350,11 @@ Then:
    - Add props: checkpointId, projectId, returnTo ('review' | 'mission')
    - Add breadcrumb: "← {returnTo}" with working navigation
    - Keep same layout/styling as modal
-   
+
 2. Modify workspace-layout.tsx
    - Add checkpointId to WorkspaceSearch type
    - Add conditional render for checkpoint screen when checkpointId present
-   
+
 3. Modify review-queue-screen.tsx
    - Change row click to navigate to /workspace?checkpointId=X&projectId=Y
    - Keep modal available via shift+click for quick preview
@@ -336,13 +379,13 @@ Then:
 2. Create API fetcher functions:
    - listWorkspaceTeams() → fetch /api/workspace/teams
    - listAuditLog(limit?: number) → fetch /api/workspace/events?type=audit
-   
+
 3. Modify teams-screen.tsx:
    - Replace TEAM_CARDS with useQuery(listWorkspaceTeams)
    - Replace AUDIT_LOG with useQuery(listAuditLog)
    - Keep APPROVAL_TIERS as config for now (policy editing is P2)
    - Add loading/error states
-   
+
 4. Run tsc --noEmit and fix any errors before committing
 ```
 

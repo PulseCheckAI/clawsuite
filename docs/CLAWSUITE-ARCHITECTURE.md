@@ -124,7 +124,7 @@ Transform ClawSuite from a "better ChatGPT UI" into a **complete AI agent develo
 **Tabs:**
 
 1. **Installed** - Skills in `~/.openclaw/workspace/skills/`
-2. **ClawdHub** - Browse 3,000+ community skills
+2. **ClawdHub** - Browse 2,000+ community skills
 3. **Marketplace** - Curated featured skills
 
 **Features:**
@@ -280,9 +280,11 @@ Transform ClawSuite from a "better ChatGPT UI" into a **complete AI agent develo
 
 ```typescript
 // Existing (already integrated)
-GET  /api/sessions
-GET  /api/sessions/:id/history
-POST /api/chat
+GET  /api/sessions                            // src/routes/api/sessions.ts
+GET  /api/sessions/:sessionKey/status         // src/routes/api/sessions/$sessionKey.status.ts
+POST /api/sessions/send                       // src/routes/api/sessions/send.ts
+GET  /api/chat-events                         // src/routes/api/chat-events.ts (SSE stream)
+POST /api/chat-abort                          // src/routes/api/chat-abort.ts
 
 // New (need to implement or discover)
 GET  /api/dashboard/widgets        // Widget data
