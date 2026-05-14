@@ -78,6 +78,9 @@ const PRIORITY_RANK: Record<string, number> = {
 const inflight = new Set<string>()
 
 // Lightweight state for /api/autonomy-status.
+// Counter fields are seeded from command_center.autonomy_stats at module
+// import (see hydrateStatsFromSupabase below) and async-flushed back after
+// every tick — so totals survive dev-server restarts.
 const state = {
   lastTickAt: 0 as number,
   lastTickResult: null as AutonomyTickResult | null,
@@ -85,9 +88,54 @@ const state = {
   totalDispatched: 0,
   totalFailed: 0,
   totalRescued: 0,
+  statsHydrated: false,
   enabledAtBoot:
     process.env.PULSEOS_AUTONOMY_LOOP_ENABLED === 'true' ||
     process.env.PULSEOS_AUTONOMY_LOOP_ENABLED === '1',
+}
+
+async function hydrateStatsFromSupabase(): Promise<void> {
+  if (state.statsHydrated) return
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/autonomy_stats?select=*&id=eq.singleton&limit=1`,
+      { headers: supabaseHeaders() },
+    )
+    if (!res.ok) return
+    const rows = (await res.json()) as Array<{
+      total_ticks: number
+      total_dispatched: number
+      total_failed: number
+      total_rescued: number
+    }>
+    if (rows.length === 1) {
+      state.totalTicks = Number(rows[0]!.total_ticks ?? 0)
+      state.totalDispatched = Number(rows[0]!.total_dispatched ?? 0)
+      state.totalFailed = Number(rows[0]!.total_failed ?? 0)
+      state.totalRescued = Number(rows[0]!.total_rescued ?? 0)
+    }
+    state.statsHydrated = true
+  } catch {
+    // best-effort; loop continues from zeros if rehydrate fails
+  }
+}
+
+async function flushStatsToSupabase(): Promise<void> {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/autonomy_stats?id=eq.singleton`, {
+      method: 'PATCH',
+      headers: supabaseHeaders(),
+      body: JSON.stringify({
+        total_ticks: state.totalTicks,
+        total_dispatched: state.totalDispatched,
+        total_failed: state.totalFailed,
+        total_rescued: state.totalRescued,
+        updated_at: new Date().toISOString(),
+      }),
+    })
+  } catch {
+    // best-effort; in-memory counter still tracks within this process
+  }
 }
 
 function supabaseHeaders(): Record<string, string> {
@@ -270,8 +318,12 @@ function pickTopByPriority(todos: Array<Todo>): Todo | null {
 }
 
 export async function autonomyTick(): Promise<AutonomyTickResult> {
+  await hydrateStatsFromSupabase()
   state.lastTickAt = Date.now()
   state.totalTicks += 1
+  // Async flush — don't await; we don't want stats write latency on the
+  // happy path. Loss of one update is acceptable; the next tick re-flushes.
+  void flushStatsToSupabase()
   try {
     // Step 0 — Stale-recovery sweep: rescue any in_progress rows that
     // ran longer than STALE_TIMEOUT_MS (process killed mid-dispatch,

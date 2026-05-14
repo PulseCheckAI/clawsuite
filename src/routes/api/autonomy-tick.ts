@@ -13,6 +13,25 @@ import {
 // Always-available regardless of PULSEOS_AUTONOMY_LOOP_ENABLED so operators
 // can drive the loop manually from the dashboard or curl during dev.
 // Rate-limited: 30 manual ticks/min/IP to prevent dispatch storms.
+//
+// Other methods (GET, PUT, DELETE, …) return 405 with an Allow: POST hint
+// so ops debugging with `curl` shows the right error instead of the SPA
+// fallback HTML.
+const methodNotAllowed = () =>
+  new Response(
+    JSON.stringify({
+      ok: false,
+      error: 'Method not allowed. Use POST.',
+    }),
+    {
+      status: 405,
+      headers: {
+        'Content-Type': 'application/json',
+        Allow: 'POST',
+      },
+    },
+  )
+
 export const Route = createFileRoute('/api/autonomy-tick')({
   server: {
     handlers: {
@@ -28,6 +47,10 @@ export const Route = createFileRoute('/api/autonomy-tick')({
         const result = await autonomyTick()
         return json(result)
       },
+      GET: methodNotAllowed,
+      PUT: methodNotAllowed,
+      PATCH: methodNotAllowed,
+      DELETE: methodNotAllowed,
     },
   },
 })
