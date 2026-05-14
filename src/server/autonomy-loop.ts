@@ -34,10 +34,21 @@ type Todo = {
   assignee: string
   track_status: string | null
   created_at: string
+  attempts: number
+  last_attempt_at: string | null
 }
 
+// Retry / recovery thresholds
+const MAX_ATTEMPTS = 3 // after this many failures the task is demoted to Off Track
+const STALE_TIMEOUT_MS = 10 * 60 * 1000 // in_progress rows older than this get rescued
+const DISPATCH_TIMEOUT_MS = 90 * 1000 // gateway 'agent' RPC ceiling per task
+
 export type AutonomyTickResult =
-  | { ok: true; picked: null; reason: 'no-pending-tasks' }
+  | {
+      ok: true
+      picked: null
+      reason: 'no-pending-tasks' | 'inflight-already' | 'lost-race-to-lock'
+    }
   | {
       ok: true
       picked: {
@@ -73,6 +84,7 @@ const state = {
   totalTicks: 0,
   totalDispatched: 0,
   totalFailed: 0,
+  totalRescued: 0,
   enabledAtBoot:
     process.env.PULSEOS_AUTONOMY_LOOP_ENABLED === 'true' ||
     process.env.PULSEOS_AUTONOMY_LOOP_ENABLED === '1',
@@ -112,7 +124,10 @@ async function lockTodo(id: string): Promise<boolean> {
     {
       method: 'PATCH',
       headers: supabaseHeaders(),
-      body: JSON.stringify({ status: 'in_progress' }),
+      body: JSON.stringify({
+        status: 'in_progress',
+        last_attempt_at: new Date().toISOString(),
+      }),
     },
   )
   if (!res.ok) return false
@@ -120,14 +135,61 @@ async function lockTodo(id: string): Promise<boolean> {
   return rows.length === 1
 }
 
-async function completeTodo(id: string, success: boolean): Promise<void> {
+// Stale-recovery sweep: any row stuck in_progress for longer than
+// STALE_TIMEOUT_MS gets demoted back to 'todo' with track_status='At Risk'
+// and attempts++. Runs at the top of every tick. Returns number rescued.
+async function rescueStaleInProgress(): Promise<number> {
+  const cutoff = new Date(Date.now() - STALE_TIMEOUT_MS).toISOString()
+  const url =
+    `${SUPABASE_URL}/rest/v1/todos` +
+    `?select=id,attempts` +
+    `&status=eq.in_progress` +
+    `&or=(last_attempt_at.lt.${encodeURIComponent(cutoff)},last_attempt_at.is.null)`
+  const listRes = await fetch(url, { headers: supabaseHeaders() })
+  if (!listRes.ok) return 0
+  const stale = (await listRes.json()) as Array<{
+    id: string
+    attempts: number
+  }>
+  if (stale.length === 0) return 0
+  await Promise.all(
+    stale.map((row) => {
+      const nextAttempts = (row.attempts ?? 0) + 1
+      const demote = nextAttempts >= MAX_ATTEMPTS
+      return fetch(
+        `${SUPABASE_URL}/rest/v1/todos?id=eq.${encodeURIComponent(row.id)}`,
+        {
+          method: 'PATCH',
+          headers: supabaseHeaders(),
+          body: JSON.stringify({
+            status: demote ? 'todo' : 'todo',
+            track_status: demote ? 'Off Track' : 'At Risk',
+            attempts: nextAttempts,
+          }),
+        },
+      )
+    }),
+  )
+  return stale.length
+}
+
+async function completeTodo(
+  id: string,
+  success: boolean,
+  attempts: number,
+): Promise<void> {
+  // On failure: bump attempts, demote to 'Off Track' if hit MAX_ATTEMPTS so
+  // the loop stops re-picking a permanently-broken task.
+  const newAttempts = attempts + 1
+  const demoted = !success && newAttempts >= MAX_ATTEMPTS
   await fetch(`${SUPABASE_URL}/rest/v1/todos?id=eq.${encodeURIComponent(id)}`, {
     method: 'PATCH',
     headers: supabaseHeaders(),
     body: JSON.stringify({
       status: success ? 'done' : 'todo',
       completed: success,
-      track_status: success ? 'On Track' : 'At Risk',
+      track_status: success ? 'On Track' : demoted ? 'Off Track' : 'At Risk',
+      attempts: newAttempts,
     }),
   })
 }
@@ -153,9 +215,15 @@ async function writeAgentLog(
 async function dispatchToAgent(
   agentId: string,
   prompt: string,
+  taskId: string,
+  attempt: number,
 ): Promise<{ ok: boolean; model: string; reply?: string; error?: string }> {
+  // Deterministic idempotency: same task + attempt → same key. The OpenClaw
+  // gateway can dedupe at the protocol level if it sees the same key twice.
+  // randomUUID() namespace ensures uniqueness across distinct tasks.
+  const idempotencyKey = `${taskId}:${attempt}:${randomUUID().slice(0, 8)}`
   try {
-    const res = await gatewayRpc<{
+    const rpcPromise = gatewayRpc<{
       reply?: string
       model?: string
       durationMs?: number
@@ -163,8 +231,16 @@ async function dispatchToAgent(
       agentId,
       message: prompt,
       thinking: 'minimal',
-      idempotencyKey: randomUUID(),
+      idempotencyKey,
     })
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(
+        () =>
+          reject(new Error(`dispatch timeout after ${DISPATCH_TIMEOUT_MS}ms`)),
+        DISPATCH_TIMEOUT_MS,
+      ),
+    )
+    const res = await Promise.race([rpcPromise, timeoutPromise])
     return {
       ok: true,
       model: res?.model ?? 'unknown',
@@ -197,6 +273,13 @@ export async function autonomyTick(): Promise<AutonomyTickResult> {
   state.lastTickAt = Date.now()
   state.totalTicks += 1
   try {
+    // Step 0 — Stale-recovery sweep: rescue any in_progress rows that
+    // ran longer than STALE_TIMEOUT_MS (process killed mid-dispatch,
+    // gateway hung, etc.). Each rescue bumps attempts and demotes to
+    // Off Track when MAX_ATTEMPTS reached.
+    const rescued = await rescueStaleInProgress()
+    if (rescued > 0) state.totalRescued += rescued
+
     const candidates = await listPendingTodos()
     const pick = pickTopByPriority(candidates)
     if (!pick) {
@@ -212,7 +295,7 @@ export async function autonomyTick(): Promise<AutonomyTickResult> {
       const r: AutonomyTickResult = {
         ok: true,
         picked: null,
-        reason: 'no-pending-tasks',
+        reason: 'inflight-already',
       }
       state.lastTickResult = r
       return r
@@ -225,18 +308,24 @@ export async function autonomyTick(): Promise<AutonomyTickResult> {
       const r: AutonomyTickResult = {
         ok: true,
         picked: null,
-        reason: 'no-pending-tasks',
+        reason: 'lost-race-to-lock',
       }
       state.lastTickResult = r
       return r
     }
 
     const agent = mapAgent(pick.category)
-    const prompt = `[Autonomy task #${pick.id.slice(0, 8)}] ${pick.title}\n\nCategory: ${pick.category}\nPriority: ${pick.priority}\n\nComplete this task and reply with a one-paragraph summary of what you did.`
+    const attemptNumber = (pick.attempts ?? 0) + 1
+    const prompt = `[Autonomy task #${pick.id.slice(0, 8)} attempt ${attemptNumber}] ${pick.title}\n\nCategory: ${pick.category}\nPriority: ${pick.priority}\n\nComplete this task and reply with a one-paragraph summary of what you did.`
 
-    const dispatch = await dispatchToAgent(agent, prompt)
+    const dispatch = await dispatchToAgent(
+      agent,
+      prompt,
+      pick.id,
+      attemptNumber,
+    )
     const success = dispatch.ok
-    await completeTodo(pick.id, success)
+    await completeTodo(pick.id, success, pick.attempts ?? 0)
     await writeAgentLog(
       agent,
       `Autonomy: ${pick.title}` +
@@ -279,6 +368,7 @@ export function getAutonomyState() {
     totalTicks: state.totalTicks,
     totalDispatched: state.totalDispatched,
     totalFailed: state.totalFailed,
+    totalRescued: state.totalRescued,
     inflightCount: inflight.size,
   }
 }
