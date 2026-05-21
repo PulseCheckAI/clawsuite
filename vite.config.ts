@@ -12,6 +12,48 @@ import tailwindcss from '@tailwindcss/vite'
 // nitro plugin removed (tanstackStart handles server runtime)
 import { defineConfig, loadEnv } from 'vite'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
+import {
+  isPasswordProtectionEnabled,
+  isValidSessionToken,
+} from './src/server/auth-middleware'
+
+// Strict app-wide CSP (the default for every route). The 3D graph viewers under
+// /graphs/* are the ONLY surface that needs external origins, so the loosening is
+// scoped to them by the 'pulseos-scoped-csp' plugin below — the React app keeps
+// strict 'self'.
+const STRICT_CSP = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "connect-src 'self' ws: wss: http: https:",
+  "worker-src 'self' blob:",
+  "media-src 'self' blob: data:",
+  "frame-src 'self' http: https:",
+].join('; ')
+// /graphs/* (static Three.js viewers): allow pinned jsdelivr modules + Google
+// Fonts, and frame-ancestors 'self' so the PulseOS /graph route can embed them.
+const GRAPHS_CSP = STRICT_CSP.replace(
+  "frame-ancestors 'none'",
+  "frame-ancestors 'self'",
+)
+  .replace(
+    "script-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+  )
+  .replace(
+    "style-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  )
+  .replace(
+    "font-src 'self' data:",
+    "font-src 'self' data: https://fonts.gstatic.com",
+  )
 
 const config = defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -260,6 +302,10 @@ const config = defineConfig(({ mode, command }) => {
       // the page), but they harden the surface and signal modern best-practice
       // policy to user agents.
       headers: {
+        // Content-Security-Policy is set per-path by the 'pulseos-scoped-csp'
+        // plugin below: strict 'self' for the app, relaxed only for /graphs/*
+        // (the static Three.js viewers). Keeping it out of this static map lets
+        // a single middleware branch on the request path.
         // Permissions-Policy: deny APIs we don't need, including unload semantics.
         // unload=() tells the browser the document does NOT want unload-style
         // lifecycle events; doesn't disable extension listeners but signals intent.
@@ -310,6 +356,25 @@ const config = defineConfig(({ mode, command }) => {
           changeOrigin: false,
           ws: true,
           rewrite: (path) => path.replace(/^\/ws-gateway/, ''),
+          configure: (proxy) => {
+            // Gate WS upgrade on a valid clawsuite-auth cookie when password
+            // protection is enabled. Without this, anyone reachable on the
+            // dev-server host could open a raw WS to the gateway with
+            // operator.admin scope.
+            proxy.on('proxyReqWs', (_proxyReq, req, socket) => {
+              if (!isPasswordProtectionEnabled()) return
+              const cookieHeader = req.headers.cookie || ''
+              const match = cookieHeader
+                .split(';')
+                .map((c) => c.trim())
+                .find((c) => c.startsWith('clawsuite-auth='))
+              const token = match ? match.slice('clawsuite-auth='.length) : null
+              if (!token || !isValidSessionToken(token)) {
+                socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
+                socket.destroy()
+              }
+            })
+          },
         },
         // REST API proxy: all /api/gateway/* calls proxied through ClawSuite server
         '/api/gateway-proxy': {
@@ -338,6 +403,41 @@ const config = defineConfig(({ mode, command }) => {
       },
     },
     plugins: [
+      // Path-scoped CSP: strict 'self' for the app, relaxed (jsdelivr + Google
+      // Fonts + frame-ancestors 'self') only for the static /graphs/* 3D viewers.
+      {
+        name: 'pulseos-scoped-csp',
+        configureServer(server) {
+          server.middlewares.use(
+            (
+              req: import('node:http').IncomingMessage,
+              res: import('node:http').ServerResponse,
+              next: (err?: unknown) => void,
+            ) => {
+              res.setHeader(
+                'Content-Security-Policy',
+                req.url?.startsWith('/graphs/') ? GRAPHS_CSP : STRICT_CSP,
+              )
+              next()
+            },
+          )
+        },
+        configurePreviewServer(server) {
+          server.middlewares.use(
+            (
+              req: import('node:http').IncomingMessage,
+              res: import('node:http').ServerResponse,
+              next: (err?: unknown) => void,
+            ) => {
+              res.setHeader(
+                'Content-Security-Policy',
+                req.url?.startsWith('/graphs/') ? GRAPHS_CSP : STRICT_CSP,
+              )
+              next()
+            },
+          )
+        },
+      },
       // devtools(),
       // this is the plugin that enables path aliases
       viteTsConfigPaths({
@@ -494,10 +594,10 @@ const config = defineConfig(({ mode, command }) => {
             /process\.env\.CLAWDBOT_GATEWAY_URL/g,
             JSON.stringify(gatewayUrl),
           )
-          result = result.replace(
-            /process\.env\.CLAWDBOT_GATEWAY_TOKEN/g,
-            JSON.stringify(env.CLAWDBOT_GATEWAY_TOKEN || ''),
-          )
+          // CLAWDBOT_GATEWAY_TOKEN intentionally NOT replaced — token must never
+          // leak into the client bundle. The /ws-gateway proxy holds the token
+          // server-side; client code that referenced process.env.CLAWDBOT_GATEWAY_TOKEN
+          // will resolve to undefined via the {} fallback below.
           result = result.replace(
             /process\.env\.NODE_ENV/g,
             JSON.stringify(mode),
