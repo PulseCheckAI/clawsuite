@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PulseCheck Knowledge Graph — 3D</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#070a11;--surface:#0d131d;--light:#eef2f7;--mid:#8b97a8;--cyan:#00e5ff;
+  --red:#e63946;--orange:#ff6b35;--amber:#ff9f1c;--yellow:#ffd166;
+  --pulse:linear-gradient(120deg,#e63946,#ff6b35 40%,#ff9f1c 70%,#ffd166);
+  --mono:ui-monospace,SFMono-Regular,'JetBrains Mono',Menlo,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--navy);color:var(--light);overflow:hidden;-webkit-font-smoothing:antialiased}
+#scene{position:fixed;inset:0}
+.label{font-family:'Inter',sans-serif;font-size:11px;font-weight:500;letter-spacing:.01em;color:#fff;text-shadow:0 1px 6px #000,0 0 12px rgba(0,229,255,.25);pointer-events:none;white-space:nowrap;opacity:.92}
+/* liquid-glass control panel (iOS 26 language, web translation) */
+.panel{position:fixed;top:16px;left:16px;width:296px;max-height:calc(100vh - 32px);overflow-y:auto;
+  background:rgba(13,19,29,.55);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
+  border:1px solid rgba(255,255,255,.10);border-radius:20px;padding:22px;
+  box-shadow:0 16px 50px rgba(0,0,0,.55),inset 0 1px 1px rgba(255,255,255,.30),inset 0 -2px 8px rgba(0,0,0,.30)}
+.panel::-webkit-scrollbar{width:6px}.panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:3px}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--cyan);text-decoration:none;margin-bottom:14px;padding:7px 13px;border-radius:999px;background:rgba(0,229,255,.10);border:1px solid rgba(0,229,255,.25);transition:background .2s,transform .2s}
+.back:hover{background:rgba(0,229,255,.20);transform:translateX(-2px)}
+.panel h1{font-family:'Bricolage Grotesque',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.01em;margin-bottom:6px}
+.panel .sub{color:var(--mid);font-size:12px;line-height:1.55;margin-bottom:22px}
+.sec{margin-bottom:22px}
+.sec h3{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#cdd6e2;margin-bottom:13px;display:flex;align-items:center;gap:8px}
+.sec h3::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+.seed-input{width:100%;background:rgba(255,255,255,.05);color:#fff;padding:10px;border-radius:10px;font-family:var(--mono);font-size:14px;text-align:center;border:1px solid rgba(255,255,255,.10);margin-bottom:9px;outline:none}
+.seed-input:focus{border-color:var(--cyan)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.cg{margin-bottom:14px}.cg label{display:block;font-size:12px;color:#aeb8c6;margin-bottom:7px}
+.sl{display:flex;align-items:center;gap:10px}
+.sl input[type=range]{flex:1;height:4px;background:rgba(255,255,255,.12);border-radius:2px;-webkit-appearance:none;outline:none}
+.sl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;background:var(--cyan);border-radius:50%;cursor:pointer;box-shadow:0 0 10px rgba(0,229,255,.6)}
+.val{font-family:var(--mono);font-size:11px;color:var(--mid);min-width:40px;text-align:right}
+.btn{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.12);padding:10px 12px;border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;width:100%;transition:background .2s,border-color .2s,transform .2s}
+.btn:hover{background:rgba(255,255,255,.12);border-color:rgba(0,229,255,.40);transform:translateY(-1px)}
+.btn.b{background:rgba(0,229,255,.14);border:1px solid rgba(0,229,255,.35);color:#bff5ff}.btn.b:hover{background:rgba(0,229,255,.24)}
+.btn.g{background:var(--pulse);border:none;color:#fff;font-weight:600}.btn.g:hover{filter:brightness(1.08)}
+.legend{font-size:11.5px;color:var(--mid);line-height:1.9}.legend .d{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:middle}
+.cgrp{display:flex;align-items:center;gap:9px;margin-bottom:9px;font-size:12px;color:var(--mid);font-family:var(--mono)}
+.cgrp input[type=color]{width:28px;height:28px;border:none;border-radius:8px;background:none;padding:0;cursor:pointer}
+.hint{position:fixed;bottom:14px;right:16px;font-size:11px;color:var(--mid);font-family:var(--mono);background:rgba(13,19,29,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:6px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.08)}
+.toggle{display:flex;align-items:center;gap:8px;font-size:12px;color:#aeb8c6;cursor:pointer}.toggle input{accent-color:var(--cyan)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.seg button{background:rgba(255,255,255,.06);color:#aeb8c6;border:1px solid rgba(255,255,255,.12);padding:8px 4px;border-radius:9px;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.seg button:hover{background:rgba(255,255,255,.12)}
+.seg button.active{background:rgba(0,229,255,.16);border-color:rgba(0,229,255,.45);color:#bff5ff}
+</style></head>
+<body>
+<div id="scene"></div>
+<div class="hint" id="hud">drag to orbit · scroll to zoom</div>
+<div class="panel">
+  <h1>Knowledge Graph 3D</h1>
+  <div class="sub">PulseCheck OS — the LightRAG entity graph in space. Particles stream along real relationships. 181 nodes · 165 edges · 2026-05-21 13:48</div>
+  <div class="sec"><h3>Seed</h3>
+    <input id="seed" class="seed-input" type="number" value="12345" onchange="setSeed()">
+    <div class="row2"><button class="btn b" onclick="seedDelta(-1)">&larr; Prev</button><button class="btn b" onclick="seedDelta(1)">Next &rarr;</button></div>
+    <button class="btn g" onclick="seedRand()">&#8635; Random</button>
+  </div>
+  <div class="sec"><h3>Layout & Flow</h3>
+    <div class="cg"><label>Link distance</label><div class="sl"><input type="range" id="linkDist" min="8" max="50" step="1" value="18" oninput="setP('linkDist',this.value,0)"><span class="val" id="linkDist-v">18</span></div></div>
+    <div class="cg"><label>Repulsion</label><div class="sl"><input type="range" id="repulsion" min="0.3" max="3" step="0.1" value="1" oninput="setP('repulsion',this.value,1)"><span class="val" id="repulsion-v">1.0</span></div></div>
+    <div class="cg"><label>Flow speed</label><div class="sl"><input type="range" id="flowSpeed" min="0.1" max="3" step="0.1" value="1" oninput="setP('flowSpeed',this.value,1)"><span class="val" id="flowSpeed-v">1.0</span></div></div>
+    <div class="cg"><label>Node scale</label><div class="sl"><input type="range" id="nodeScale" min="0.4" max="3" step="0.1" value="1" oninput="setNodeScale(this.value)"><span class="val" id="nodeScale-v">1.0</span></div></div>
+    <div class="cg"><label>Glow (bloom)</label><div class="sl"><input type="range" id="bloom" min="0" max="2.5" step="0.1" value="1.1" oninput="setBloom(this.value)"><span class="val" id="bloom-v">1.1</span></div></div>
+    <label class="toggle"><input type="checkbox" id="autorot" checked onchange="params.autorot=this.checked"> auto-rotate</label>
+  </div>
+  <div class="sec"><h3>Labels</h3>
+    <div class="seg" id="labelSeg">
+      <button data-m="all" onclick="setLabelMode('all')">All</button>
+      <button data-m="important" class="active" onclick="setLabelMode('important')">Important</button>
+      <button data-m="hover" onclick="setLabelMode('hover')">Hover</button>
+      <button data-m="none" onclick="setLabelMode('none')">None</button>
+    </div>
+  </div>
+  <div class="sec"><h3>Particle palette</h3>
+    <div class="cgrp"><input type="color" id="c0" value="#00e5ff" onchange="setColor(0,this.value)"><span id="c0-v">#00e5ff</span></div>
+    <div class="cgrp"><input type="color" id="c1" value="#ff6b35" onchange="setColor(1,this.value)"><span id="c1-v">#ff6b35</span></div>
+    <div class="cgrp"><input type="color" id="c2" value="#ffd166" onchange="setColor(2,this.value)"><span id="c2-v">#ffd166</span></div>
+  </div>
+  <div class="sec"><h3>Node types</h3><div class="legend" id="legend"></div></div>
+  <div class="sec"><div class="row2"><button class="btn" onclick="rebuild()">Reset layout</button><button class="btn b" onclick="snap()">Save PNG</button></div></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.183.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.183.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+const GRAPH = {"nodes": [{"id": "Anomaly Detection Algorithms", "type": "UNKNOWN", "deg": 1}, {"id": "Acropolis", "type": "product", "deg": 1}, {"id": "Dedupe_hash", "type": "concept", "deg": 1}, {"id": "Sidecar Process", "type": "system", "deg": 1}, {"id": "Intel Pipeline", "type": "system", "deg": 3}, {"id": "Engagement Loop", "type": "concept", "deg": 2}, {"id": "Overture", "type": "product", "deg": 1}, {"id": "RAG", "type": "concept", "deg": 2}, {"id": "Content Operating Loop", "type": "concept", "deg": 10}, {"id": "Vite", "type": "tool", "deg": 1}, {"id": "Decision Engine", "type": "engine", "deg": 4}, {"id": "Confidence", "type": "concept", "deg": 2}, {"id": "Z-Score", "type": "category", "deg": 2}, {"id": "Tokyo", "type": "location", "deg": 1}, {"id": "Scale", "type": "concept", "deg": 1}, {"id": "GG-006", "type": "concept", "deg": 2}, {"id": "Exa", "type": "product", "deg": 1}, {"id": "hosted product", "type": "organization", "deg": 1}, {"id": "Crm-MCP", "type": "service", "deg": 1}, {"id": "Network Guards", "type": "method", "deg": 1}, {"id": "Supabase", "type": "organization", "deg": 2}, {"id": "Thompson Sampling", "type": "method", "deg": 2}, {"id": "Intelligence Graph", "type": "concept", "deg": 1}, {"id": "Labor Optimization", "type": "category", "deg": 2}, {"id": "LightRAG", "type": "organization", "deg": 12}, {"id": "Property Memory", "type": "artifact", "deg": 2}, {"id": "Turnover Rate (Managers)", "type": "kpi", "deg": 1}, {"id": "Integrations-Mcp", "type": "service", "deg": 1}, {"id": "file/JSON store", "type": "artifact", "deg": 1}, {"id": "qwen2.5:3b", "type": "model", "deg": 1}, {"id": "Noah Carter", "type": "person", "deg": 4}, {"id": "100m Sprint Record", "type": "category", "deg": 1}, {"id": "Beta-Bernoulli", "type": "method", "deg": 1}, {"id": "Pipeline CRM", "type": "organization", "deg": 1}, {"id": "Signal Allowlist", "type": "artifact", "deg": 1}, {"id": "intel.drafts", "type": "data", "deg": 1}, {"id": "Idempotent", "type": "concept", "deg": 2}, {"id": "Email", "type": "communication", "deg": 1}, {"id": "Obsidian", "type": "software", "deg": 1}, {"id": "Priority Score", "type": "category", "deg": 2}, {"id": "PulseCheck", "type": "artifact", "deg": 1}, {"id": "Delusional Technology Syndrome", "type": "category", "deg": 2}, {"id": "intel.entities", "type": "data", "deg": 3}, {"id": "Pulse Command Center", "type": "system", "deg": 1}, {"id": "Postgres", "type": "database", "deg": 3}, {"id": "RAG engines", "type": "UNKNOWN", "deg": 1}, {"id": "Current", "type": "category", "deg": 2}, {"id": "Market Selloff", "type": "UNKNOWN", "deg": 1}, {"id": "Anomaly Detection Engine", "type": "engine", "deg": 3}, {"id": "Find_Lookalikes", "type": "process", "deg": 1}, {"id": "LLM-council", "type": "system", "deg": 1}, {"id": "Postiz Post", "type": "product", "deg": 1}, {"id": "Discover", "type": "module", "deg": 3}, {"id": "intel.stories", "type": "data", "deg": 2}, {"id": "*.test.ts", "type": "file", "deg": 1}, {"id": "Firmographic Features", "type": "concept", "deg": 1}, {"id": "Real-POS Ingest", "type": "process", "deg": 1}, {"id": "Four Digital Data Disorders", "type": "category", "deg": 1}, {"id": "Content/Social Stack", "type": "product", "deg": 1}, {"id": "intel.items", "type": "UNKNOWN", "deg": 5}, {"id": "World Athletics Federation", "type": "organization", "deg": 1}, {"id": "Semantic Dedup", "type": "method", "deg": 1}, {"id": "Dashboard", "type": "product", "deg": 1}, {"id": "Google", "type": "company", "deg": 1}, {"id": "Triggers", "type": "concept", "deg": 1}, {"id": "PulseCheck AI", "type": "organization", "deg": 5}, {"id": "Draft", "type": "concept", "deg": 2}, {"id": "PulseCheck OS", "type": "concept", "deg": 32}, {"id": "ZeroBounce", "type": "service", "deg": 2}, {"id": "CRM cross-wire", "type": "concept", "deg": 1}, {"id": "Feedback", "type": "concept", "deg": 1}, {"id": "Telegram", "type": "organization", "deg": 1}, {"id": "fixture", "type": "concept", "deg": 1}, {"id": "Cloud", "type": "location", "deg": 3}, {"id": "Network Memory", "type": "artifact", "deg": 2}, {"id": "Cockpit", "type": "UNKNOWN", "deg": 1}, {"id": "Relevance Scoring", "type": "concept", "deg": 1}, {"id": "Firebase Auth", "type": "method", "deg": 1}, {"id": "21K notes", "type": "data", "deg": 1}, {"id": "knowledge-mcp", "type": "system", "deg": 1}, {"id": "Risk Compliance", "type": "category", "deg": 4}, {"id": "Content-Mcp", "type": "service", "deg": 1}, {"id": "MCP Services", "type": "service", "deg": 1}, {"id": "Database Schema", "type": "concept", "deg": 1}, {"id": "Validation", "type": "concept", "deg": 1}, {"id": "Batch", "type": "concept", "deg": 1}, {"id": "POS Market Share", "type": "data", "deg": 1}, {"id": "NotebookLM", "type": "organization", "deg": 2}, {"id": "Carbon-Fiber Spikes", "type": "equipment", "deg": 1}, {"id": "intel.item_entities", "type": "data", "deg": 1}, {"id": "Lead-Gen Engine", "type": "product", "deg": 1}, {"id": "Group Memory", "type": "artifact", "deg": 2}, {"id": "Guest Experience", "type": "category", "deg": 2}, {"id": "Restaurant Density Heatmap", "type": "content", "deg": 1}, {"id": "Firebase", "type": "organization", "deg": 1}, {"id": "Relationship Memory", "type": "architecture", "deg": 1}, {"id": "Auto-Execute Threshold", "type": "category", "deg": 1}, {"id": "intel.* pgvector", "type": "database", "deg": 1}, {"id": "NRA Grades", "type": "data", "deg": 1}, {"id": "Per-item status", "type": "concept", "deg": 1}, {"id": "SSRFP posture", "type": "concept", "deg": 1}, {"id": "Phased Build Order", "type": "concept", "deg": 2}, {"id": "wiki_llm.py", "type": "method", "deg": 1}, {"id": "Statistical Functions", "type": "UNKNOWN", "deg": 1}, {"id": "Item_ai", "type": "concept", "deg": 1}, {"id": "TanStack Start", "type": "organization", "deg": 1}, {"id": "GG-005", "type": "concept", "deg": 2}, {"id": "Margin Killers", "type": "concept", "deg": 1}, {"id": "RSSHub", "type": "organization", "deg": 2}, {"id": "Disorder 3 (Data Atrophy)", "type": "category", "deg": 2}, {"id": "Global Tech Index", "type": "UNKNOWN", "deg": 1}, {"id": "Marginops-MCP", "type": "service", "deg": 1}, {"id": "RSS Autopost Ticker", "type": "script", "deg": 1}, {"id": "World Athletics Championship", "type": "event", "deg": 2}, {"id": "Route Handlers", "type": "method", "deg": 2}, {"id": "nomic-embed-text", "type": "software", "deg": 1}, {"id": "CRM", "type": "organization", "deg": 2}, {"id": "Error Envelopes", "type": "concept", "deg": 1}, {"id": "Ollama", "type": "organization", "deg": 7}, {"id": "PM2", "type": "system", "deg": 1}, {"id": "intel.briefs", "type": "data", "deg": 1}, {"id": "Target MAPE", "type": "category", "deg": 2}, {"id": "GG-003", "type": "concept", "deg": 2}, {"id": "Intelligence", "type": "concept", "deg": 1}, {"id": "Arms", "type": "concept", "deg": 1}, {"id": "Time Series Algorithms", "type": "UNKNOWN", "deg": 1}, {"id": "Data", "type": "category", "deg": 2}, {"id": "Metro", "type": "location", "deg": 1}, {"id": "Semantic Search", "type": "method", "deg": 1}, {"id": "Four Domains Alignment", "type": "category", "deg": 3}, {"id": "Toast, Square, Clover, Legacy", "type": "organization", "deg": 1}, {"id": "GG-002", "type": "concept", "deg": 1}, {"id": "Bulk Drain", "type": "process", "deg": 1}, {"id": "Daily AI Brief", "type": "concept", "deg": 1}, {"id": "Prospect Features", "type": "concept", "deg": 1}, {"id": "GG-009", "type": "concept", "deg": 1}, {"id": "Slack", "type": "organization", "deg": 2}, {"id": "pgvector", "type": "service", "deg": 5}, {"id": "Reader List", "type": "category", "deg": 1}, {"id": "Vitest", "type": "tool", "deg": 2}, {"id": "Prospect-MCP", "type": "service", "deg": 1}, {"id": "intel.watches", "type": "data", "deg": 1}, {"id": "Auth", "type": "method", "deg": 1}, {"id": "Supabase Realtime", "type": "service", "deg": 1}, {"id": "GG-007", "type": "concept", "deg": 2}, {"id": "Demand Forecasting", "type": "category", "deg": 3}, {"id": "Intel Cockpit", "type": "concept", "deg": 9}, {"id": "Payment Intelligence", "type": "category", "deg": 2}, {"id": "Demand Forecasting Engine", "type": "engine", "deg": 2}, {"id": "operator", "type": "UNKNOWN", "deg": 2}, {"id": "Hidden Stars", "type": "concept", "deg": 1}, {"id": "10,000 Sends", "type": "data", "deg": 1}, {"id": "Yelp", "type": "service", "deg": 2}, {"id": "Enrich", "type": "module", "deg": 1}, {"id": "Cost Guard", "type": "concept", "deg": 1}, {"id": "GG-008", "type": "concept", "deg": 2}, {"id": "Anomaly Detection", "type": "category", "deg": 3}, {"id": "Reward Signal", "type": "data", "deg": 1}, {"id": "Consent Ledger", "type": "artifact", "deg": 2}, {"id": "Outreach-MCP", "type": "service", "deg": 1}, {"id": "Corner Table", "type": "artifact", "deg": 1}, {"id": "Pulse-Data-Mcp", "type": "service", "deg": 1}, {"id": "Turnover Rate (FSR Hourly)", "type": "kpi", "deg": 1}, {"id": "PulseCheck Implementation", "type": "project", "deg": 2}, {"id": "Entity Graph", "type": "concept", "deg": 1}, {"id": "Integration", "type": "concept", "deg": 1}, {"id": "Convergence", "type": "concept", "deg": 1}, {"id": "Agent Swarm", "type": "system", "deg": 3}, {"id": "LinUCB Contextual Bandits", "type": "method", "deg": 1}, {"id": "Synthetic", "type": "concept", "deg": 1}, {"id": "LLM resilience", "type": "concept", "deg": 2}, {"id": "ROI Readout", "type": "category", "deg": 1}, {"id": "Postiz", "type": "organization", "deg": 1}, {"id": "Interest Profile", "type": "concept", "deg": 1}, {"id": "intel.engagement", "type": "data", "deg": 1}, {"id": "Holt-Winters (Multiplicative)", "type": "category", "deg": 1}, {"id": "Isolation Forest", "type": "category", "deg": 2}, {"id": "intel.feedback", "type": "data", "deg": 1}, {"id": "HubSpot", "type": "company", "deg": 1}, {"id": "Margin Intelligence Product", "type": "product", "deg": 1}, {"id": "GG-004", "type": "concept", "deg": 2}], "edges": [{"s": "Anomaly Detection Algorithms", "t": "Isolation Forest", "w": 1.0}, {"s": "Acropolis", "t": "PulseCheck OS", "w": 1.0}, {"s": "Dedupe_hash", "t": "Idempotent", "w": 1.0}, {"s": "Intel Pipeline", "t": "Sidecar Process", "w": 1.0}, {"s": "Intel Pipeline", "t": "PM2", "w": 1.0}, {"s": "Intel Pipeline", "t": "RSS Autopost Ticker", "w": 1.0}, {"s": "Draft", "t": "Engagement Loop", "w": 1.0}, {"s": "Engagement Loop", "t": "Triggers", "w": 1.0}, {"s": "Overture", "t": "PulseCheck OS", "w": 1.0}, {"s": "Content Operating Loop", "t": "RAG", "w": 1.0}, {"s": "Phased Build Order", "t": "RAG", "w": 1.0}, {"s": "Content Operating Loop", "t": "Intel Cockpit", "w": 1.0}, {"s": "Content Operating Loop", "t": "Slack", "w": 1.0}, {"s": "Content Operating Loop", "t": "Daily AI Brief", "w": 1.0}, {"s": "Content Operating Loop", "t": "Semantic Dedup", "w": 1.0}, {"s": "Content Operating Loop", "t": "Entity Graph", "w": 1.0}, {"s": "Content Operating Loop", "t": "Postiz", "w": 1.0}, {"s": "Content Operating Loop", "t": "Interest Profile", "w": 1.0}, {"s": "CRM", "t": "Content Operating Loop", "w": 1.0}, {"s": "Content Operating Loop", "t": "Semantic Search", "w": 1.0}, {"s": "Intel Cockpit", "t": "Vite", "w": 1.0}, {"s": "Decision Engine", "t": "Demand Forecasting Engine", "w": 1.0}, {"s": "Decision Engine", "t": "Labor Optimization", "w": 1.0}, {"s": "Decision Engine", "t": "Guest Experience", "w": 1.0}, {"s": "Decision Engine", "t": "Payment Intelligence", "w": 1.0}, {"s": "Confidence", "t": "Priority Score", "w": 1.0}, {"s": "Confidence", "t": "Consent Ledger", "w": 1.0}, {"s": "Anomaly Detection Engine", "t": "Z-Score", "w": 1.0}, {"s": "Statistical Functions", "t": "Z-Score", "w": 1.0}, {"s": "Tokyo", "t": "World Athletics Championship", "w": 2.0}, {"s": "Scale", "t": "operator", "w": 1.0}, {"s": "GG-005", "t": "GG-006", "w": 1.0}, {"s": "GG-006", "t": "GG-007", "w": 1.0}, {"s": "Exa", "t": "PulseCheck OS", "w": 1.0}, {"s": "NotebookLM", "t": "hosted product", "w": 1.0}, {"s": "Crm-MCP", "t": "PulseCheck OS", "w": 1.0}, {"s": "Network Guards", "t": "SSRFP posture", "w": 1.0}, {"s": "Intel Cockpit", "t": "Supabase", "w": 1.0}, {"s": "Auth", "t": "Supabase", "w": 1.0}, {"s": "Beta-Bernoulli", "t": "Thompson Sampling", "w": 1.0}, {"s": "LinUCB Contextual Bandits", "t": "Thompson Sampling", "w": 1.0}, {"s": "Intelligence Graph", "t": "pgvector", "w": 1.0}, {"s": "Labor Optimization", "t": "PulseCheck AI", "w": 1.0}, {"s": "LightRAG", "t": "pgvector", "w": 1.0}, {"s": "LightRAG", "t": "Ollama", "w": 1.0}, {"s": "LightRAG", "t": "Postgres", "w": 3.0}, {"s": "LightRAG", "t": "file/JSON store", "w": 1.0}, {"s": "LightRAG", "t": "wiki_llm.py", "w": 1.0}, {"s": "LightRAG", "t": "RAG engines", "w": 1.0}, {"s": "LightRAG", "t": "Obsidian", "w": 1.0}, {"s": "LightRAG", "t": "intel.* pgvector", "w": 2.0}, {"s": "Cockpit", "t": "LightRAG", "w": 1.0}, {"s": "LightRAG", "t": "knowledge-mcp", "w": 1.0}, {"s": "LLM-council", "t": "LightRAG", "w": 1.0}, {"s": "LightRAG", "t": "NotebookLM", "w": 1.0}, {"s": "Group Memory", "t": "Property Memory", "w": 1.0}, {"s": "Network Memory", "t": "Property Memory", "w": 1.0}, {"s": "Turnover Rate (FSR Hourly)", "t": "Turnover Rate (Managers)", "w": 1.0}, {"s": "Integrations-Mcp", "t": "PulseCheck OS", "w": 1.0}, {"s": "Ollama", "t": "qwen2.5:3b", "w": 1.0}, {"s": "Noah Carter", "t": "World Athletics Championship", "w": 1.0}, {"s": "100m Sprint Record", "t": "Noah Carter", "w": 2.0}, {"s": "Carbon-Fiber Spikes", "t": "Noah Carter", "w": 2.0}, {"s": "Noah Carter", "t": "World Athletics Federation", "w": 1.0}, {"s": "CRM", "t": "Pipeline CRM", "w": 1.0}, {"s": "Consent Ledger", "t": "Signal Allowlist", "w": 1.0}, {"s": "intel.drafts", "t": "intel.items", "w": 1.0}, {"s": "Idempotent", "t": "Item_ai", "w": 1.0}, {"s": "Email", "t": "PulseCheck OS", "w": 1.0}, {"s": "Priority Score", "t": "Risk Compliance", "w": 1.0}, {"s": "PulseCheck", "t": "Relationship Memory", "w": 1.0}, {"s": "Delusional Technology Syndrome", "t": "Four Domains Alignment", "w": 1.0}, {"s": "Delusional Technology Syndrome", "t": "PulseCheck AI", "w": 1.0}, {"s": "intel.entities", "t": "intel.items", "w": 1.0}, {"s": "intel.entities", "t": "intel.item_entities", "w": 1.0}, {"s": "intel.entities", "t": "intel.watches", "w": 1.0}, {"s": "Agent Swarm", "t": "Pulse Command Center", "w": 1.0}, {"s": "Postgres", "t": "pgvector", "w": 1.0}, {"s": "Integration", "t": "Postgres", "w": 1.0}, {"s": "Current", "t": "Demand Forecasting", "w": 1.0}, {"s": "Anomaly Detection", "t": "Current", "w": 1.0}, {"s": "Global Tech Index", "t": "Market Selloff", "w": 1.0}, {"s": "Anomaly Detection Engine", "t": "Demand Forecasting Engine", "w": 1.0}, {"s": "Anomaly Detection Engine", "t": "Isolation Forest", "w": 1.0}, {"s": "Find_Lookalikes", "t": "PulseCheck OS", "w": 1.0}, {"s": "Postiz Post", "t": "PulseCheck OS", "w": 1.0}, {"s": "Discover", "t": "Yelp", "w": 1.0}, {"s": "Discover", "t": "ZeroBounce", "w": 1.0}, {"s": "Agent Swarm", "t": "Discover", "w": 1.0}, {"s": "intel.items", "t": "intel.stories", "w": 1.0}, {"s": "intel.briefs", "t": "intel.stories", "w": 1.0}, {"s": "*.test.ts", "t": "Vitest", "w": 1.0}, {"s": "Firmographic Features", "t": "Prospect Features", "w": 1.0}, {"s": "PulseCheck OS", "t": "Real-POS Ingest", "w": 1.0}, {"s": "Disorder 3 (Data Atrophy)", "t": "Four Digital Data Disorders", "w": 1.0}, {"s": "Content/Social Stack", "t": "PulseCheck OS", "w": 1.0}, {"s": "intel.feedback", "t": "intel.items", "w": 1.0}, {"s": "intel.engagement", "t": "intel.items", "w": 1.0}, {"s": "Dashboard", "t": "PulseCheck OS", "w": 1.0}, {"s": "Google", "t": "PulseCheck OS", "w": 1.0}, {"s": "PulseCheck AI", "t": "ROI Readout", "w": 1.0}, {"s": "Demand Forecasting", "t": "PulseCheck AI", "w": 1.0}, {"s": "Anomaly Detection", "t": "PulseCheck AI", "w": 1.0}, {"s": "Draft", "t": "Feedback", "w": 1.0}, {"s": "Intel Cockpit", "t": "PulseCheck OS", "w": 1.0}, {"s": "Margin Intelligence Product", "t": "PulseCheck OS", "w": 1.0}, {"s": "Lead-Gen Engine", "t": "PulseCheck OS", "w": 1.0}, {"s": "MCP Services", "t": "PulseCheck OS", "w": 1.0}, {"s": "Corner Table", "t": "PulseCheck OS", "w": 1.0}, {"s": "NRA Grades", "t": "PulseCheck OS", "w": 1.0}, {"s": "Bulk Drain", "t": "PulseCheck OS", "w": 1.0}, {"s": "PulseCheck OS", "t": "Yelp", "w": 1.0}, {"s": "PulseCheck OS", "t": "RSSHub", "w": 1.0}, {"s": "PulseCheck OS", "t": "pgvector", "w": 1.0}, {"s": "PulseCheck OS", "t": "Supabase Realtime", "w": 1.0}, {"s": "Marginops-MCP", "t": "PulseCheck OS", "w": 1.0}, {"s": "Prospect-MCP", "t": "PulseCheck OS", "w": 1.0}, {"s": "Content-Mcp", "t": "PulseCheck OS", "w": 1.0}, {"s": "Outreach-MCP", "t": "PulseCheck OS", "w": 1.0}, {"s": "Pulse-Data-Mcp", "t": "PulseCheck OS", "w": 1.0}, {"s": "Ollama", "t": "PulseCheck OS", "w": 1.0}, {"s": "PulseCheck OS", "t": "Slack", "w": 1.0}, {"s": "PulseCheck OS", "t": "Telegram", "w": 1.0}, {"s": "HubSpot", "t": "PulseCheck OS", "w": 1.0}, {"s": "Data", "t": "ZeroBounce", "w": 1.0}, {"s": "CRM cross-wire", "t": "operator", "w": 1.0}, {"s": "Relevance Scoring", "t": "fixture", "w": 1.0}, {"s": "Cloud", "t": "Ollama", "w": 1.0}, {"s": "Cloud", "t": "LLM resilience", "w": 1.0}, {"s": "Cloud", "t": "Cost Guard", "w": 1.0}, {"s": "Group Memory", "t": "Network Memory", "w": 1.0}, {"s": "Firebase", "t": "Firebase Auth", "w": 1.0}, {"s": "21K notes", "t": "Ollama", "w": 1.0}, {"s": "Guest Experience", "t": "Risk Compliance", "w": 1.0}, {"s": "Payment Intelligence", "t": "Risk Compliance", "w": 1.0}, {"s": "Auto-Execute Threshold", "t": "Risk Compliance", "w": 1.0}, {"s": "Database Schema", "t": "Intel Cockpit", "w": 1.0}, {"s": "Route Handlers", "t": "Validation", "w": 1.0}, {"s": "Batch", "t": "Per-item status", "w": 1.0}, {"s": "POS Market Share", "t": "Toast, Square, Clover, Legacy", "w": 1.0}, {"s": "Metro", "t": "Restaurant Density Heatmap", "w": 1.0}, {"s": "Phased Build Order", "t": "Reader List", "w": 1.0}, {"s": "Intel Cockpit", "t": "TanStack Start", "w": 1.0}, {"s": "GG-004", "t": "GG-005", "w": 1.0}, {"s": "Hidden Stars", "t": "Margin Killers", "w": 1.0}, {"s": "Intel Cockpit", "t": "RSSHub", "w": 1.0}, {"s": "Disorder 3 (Data Atrophy)", "t": "PulseCheck Implementation", "w": 1.0}, {"s": "Error Envelopes", "t": "Route Handlers", "w": 1.0}, {"s": "Ollama", "t": "nomic-embed-text", "w": 1.0}, {"s": "LLM resilience", "t": "Ollama", "w": 1.0}, {"s": "Demand Forecasting", "t": "Target MAPE", "w": 1.0}, {"s": "Anomaly Detection", "t": "Target MAPE", "w": 1.0}, {"s": "GG-002", "t": "GG-003", "w": 1.0}, {"s": "GG-003", "t": "GG-004", "w": 1.0}, {"s": "Intelligence", "t": "Synthetic", "w": 1.0}, {"s": "Arms", "t": "Reward Signal", "w": 1.0}, {"s": "Holt-Winters (Multiplicative)", "t": "Time Series Algorithms", "w": 1.0}, {"s": "Data", "t": "Four Domains Alignment", "w": 1.0}, {"s": "Four Domains Alignment", "t": "PulseCheck Implementation", "w": 1.0}, {"s": "GG-008", "t": "GG-009", "w": 1.0}, {"s": "Intel Cockpit", "t": "pgvector", "w": 1.0}, {"s": "Intel Cockpit", "t": "Vitest", "w": 1.0}, {"s": "GG-007", "t": "GG-008", "w": 1.0}, {"s": "10,000 Sends", "t": "Convergence", "w": 1.0}, {"s": "Agent Swarm", "t": "Enrich", "w": 1.0}]};
+const TYPE_COLORS = {
+  /* entity-graph types — PulseCheck pulse-gradient + cyan accent */
+  organization:'#00e5ff',person:'#ff6b35',geo:'#ffd166',location:'#ffd166',event:'#e63946',
+  category:'#8b97a8',technology:'#2dd4bf',product:'#ff9f1c',concept:'#5ea8ff',data:'#34d399',service:'#ff9f1c',
+  /* code-graph folder types — fixed, legible per-folder colors */
+  screens:'#00e5ff',routes:'#ff6b35',components:'#ffd166',server:'#2dd4bf',
+  hooks:'#e63946',lib:'#5ea8ff',stores:'#ff9f1c',types:'#8b97a8'};
+window.params = {seed:12345,linkDist:18,repulsion:1.0,flowSpeed:1.0,nodeScale:1.0,bloom:1.1,autorot:true,labelMode:'important',impCutoff:6,palette:['#00e5ff','#ff6b35','#ffd166']};
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+let rng=mulberry32(params.seed);
+function hashStr(s){let h=0;for(let i=0;i<(s||'').length;i++)h=((h<<5)-h+s.charCodeAt(i))|0;return h}
+function colForType(t){const k=(t||'').toLowerCase();if(TYPE_COLORS[k])return TYPE_COLORS[k];return params.palette[Math.abs(hashStr(t))%params.palette.length]}
+function labelVisible(n){const m=params.labelMode;return m==='all'?true:((m==='none'||m==='hover')?false:n.deg>=(params.impCutoff||6))}
+
+const host=document.getElementById('scene');
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x070a11,0.0006);
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,1,4000);camera.position.set(0,0,360);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;renderer.outputColorSpace=THREE.SRGBColorSpace;
+host.appendChild(renderer.domElement);
+const labelRenderer=new CSS2DRenderer();labelRenderer.setSize(innerWidth,innerHeight);
+labelRenderer.domElement.style.position='absolute';labelRenderer.domElement.style.top='0';labelRenderer.domElement.style.pointerEvents='none';host.appendChild(labelRenderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=0.07;controls.autoRotate=false;
+// hover labels: raycast the node meshes, reveal only the hovered node's name
+const raycaster=new THREE.Raycaster();const mouseNDC=new THREE.Vector2(-2,-2);let hoveredMesh=null;
+renderer.domElement.addEventListener('pointermove',e=>{mouseNDC.x=(e.clientX/innerWidth)*2-1;mouseNDC.y=-(e.clientY/innerHeight)*2+1});
+renderer.domElement.addEventListener('pointerleave',()=>{mouseNDC.set(-2,-2)});
+function updateHover(){
+  if(params.labelMode!=='hover'){return}
+  raycaster.setFromCamera(mouseNDC,camera);
+  const hit=raycaster.intersectObjects(group.children,false)[0];const m=hit?hit.object:null;
+  if(m!==hoveredMesh){
+    if(hoveredMesh&&hoveredMesh.userData.node)hoveredMesh.userData.node.label.visible=false;
+    if(m&&m.userData.node)m.userData.node.label.visible=true;
+    hoveredMesh=m;renderer.domElement.style.cursor=m?'pointer':'default';
+  }
+}
+scene.add(new THREE.AmbientLight(0xffffff,0.7));const dl=new THREE.PointLight(0xffffff,0.6);dl.position.set(300,300,400);scene.add(dl);
+const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));
+const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),params.bloom,0.5,0.0);composer.addPass(bloom);
+
+const sphereGeo=new THREE.SphereGeometry(1,18,14);
+let nodes=[],edges=[],group=new THREE.Group(),lineSeg=null,points=null,settle=0;
+function clearGroup(){if(group){scene.remove(group);group.traverse(o=>{if(o.material)o.material.dispose?.()});}group=new THREE.Group();scene.add(group);}
+
+function build(){
+  rng=mulberry32(params.seed);settle=0;clearGroup();hoveredMesh=null;
+  const idx={};
+  nodes=GRAPH.nodes.map((n,i)=>{idx[n.id]=i;
+    const r=(4.5+Math.sqrt(n.deg)*3.4)*params.nodeScale;
+    const mat=new THREE.MeshStandardMaterial({color:colForType(n.type),emissive:new THREE.Color(colForType(n.type)),emissiveIntensity:0.8,roughness:0.4,metalness:0.1});
+    const m=new THREE.Mesh(sphereGeo,mat);m.scale.setScalar(r);
+    m.position.set((rng()-0.5)*210,(rng()-0.5)*210,(rng()-0.5)*210);
+    group.add(m);
+    const d=document.createElement('div');d.className='label';d.textContent=n.id.length>30?n.id.slice(0,29)+'…':n.id;
+    const label=new CSS2DObject(d);label.position.set(0,(r+5)/r,0);m.add(label);
+    const nd={id:n.id,type:n.type,deg:n.deg,r,mesh:m,label,vx:0,vy:0,vz:0};m.userData.node=nd;label.visible=labelVisible(nd);
+    return nd;
+  });
+  // "Important" = top ~12% of nodes by degree (capped 6–28) so it stays selective on any graph density
+  {const degs=nodes.map(n=>n.deg).sort((a,b)=>b-a);const K=Math.max(6,Math.min(28,Math.ceil(nodes.length*0.12)));
+   params.impCutoff=degs.length?degs[Math.min(K-1,degs.length-1)]:6;
+   nodes.forEach(n=>{n.label.visible=labelVisible(n)});}
+  edges=GRAPH.edges.filter(e=>e.s in idx&&e.t in idx).map(e=>({a:idx[e.s],b:idx[e.t],w:e.w||1}));
+  // edge lines
+  const lpos=new Float32Array(edges.length*6);
+  const lgeo=new THREE.BufferGeometry();lgeo.setAttribute('position',new THREE.BufferAttribute(lpos,3));
+  if(lineSeg){scene.remove(lineSeg);lineSeg.geometry.dispose();lineSeg.material.dispose();}
+  lineSeg=new THREE.LineSegments(lgeo,new THREE.LineBasicMaterial({color:0x4d6a85,transparent:true,opacity:0.18}));scene.add(lineSeg);
+  // particles
+  const PC=Math.max(1,edges.length*4);
+  const ppos=new Float32Array(PC*3),pcol=new Float32Array(PC*3);
+  particleMeta=[];for(let i=0;i<PC;i++){const e=edges[Math.floor(rng()*edges.length)]||{a:0,b:0,w:1};particleMeta.push({e,t:rng()});const c=new THREE.Color(params.palette[Math.floor(rng()*params.palette.length)]);pcol[i*3]=c.r;pcol[i*3+1]=c.g;pcol[i*3+2]=c.b;}
+  const pgeo=new THREE.BufferGeometry();pgeo.setAttribute('position',new THREE.BufferAttribute(ppos,3));pgeo.setAttribute('color',new THREE.BufferAttribute(pcol,3));
+  if(points){scene.remove(points);points.geometry.dispose();points.material.dispose();}
+  points=new THREE.Points(pgeo,new THREE.PointsMaterial({size:5.5,vertexColors:true,transparent:true,opacity:0.95,blending:THREE.AdditiveBlending,depthWrite:false}));scene.add(points);
+  buildLegend();
+}
+let particleMeta=[];
+function buildLegend(){const seen={};nodes.forEach(n=>seen[n.type]=(seen[n.type]||0)+1);const top=Object.entries(seen).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  document.getElementById('legend').innerHTML=top.map(([t,c])=>`<span class="d" style="background:${colForType(t)}"></span>${t} (${c})`).join('<br>');}
+
+function step(){
+  const k=params.linkDist*6, rep=2600*params.repulsion, N=nodes.length, s=Math.max(1,Math.floor(N/55));
+  for(let i=0;i<N;i++){const a=nodes[i];let fx=0,fy=0,fz=0;
+    for(let j=(i*7)%s;j<N;j+=s){if(j===i)continue;const b=nodes[j];let dx=a.mesh.position.x-b.mesh.position.x,dy=a.mesh.position.y-b.mesh.position.y,dz=a.mesh.position.z-b.mesh.position.z;let d2=dx*dx+dy*dy+dz*dz+1;let f=rep/d2;fx+=dx*f;fy+=dy*f;fz+=dz*f}
+    const cp=a.deg<=1?0.02:0.01;fx-=a.mesh.position.x*cp;fy-=a.mesh.position.y*cp;fz-=a.mesh.position.z*cp;
+    a.vx=(a.vx+fx)*0.8;a.vy=(a.vy+fy)*0.8;a.vz=(a.vz+fz)*0.8;
+  }
+  for(const e of edges){const a=nodes[e.a].mesh.position,b=nodes[e.b].mesh.position;let dx=b.x-a.x,dy=b.y-a.y,dz=b.z-a.z;let d=Math.sqrt(dx*dx+dy*dy+dz*dz)+0.01;let f=(d-k)*0.008*e.w;let ux=dx/d,uy=dy/d,uz=dz/d;nodes[e.a].vx+=ux*f;nodes[e.a].vy+=uy*f;nodes[e.a].vz+=uz*f;nodes[e.b].vx-=ux*f;nodes[e.b].vy-=uy*f;nodes[e.b].vz-=uz*f}
+  for(const n of nodes){const cl=v=>Math.max(-9,Math.min(9,v));n.mesh.position.x+=cl(n.vx);n.mesh.position.y+=cl(n.vy);n.mesh.position.z+=cl(n.vz)}
+}
+function updateEdgeLines(){const p=lineSeg.geometry.attributes.position.array;for(let i=0;i<edges.length;i++){const a=nodes[edges[i].a].mesh.position,b=nodes[edges[i].b].mesh.position;p[i*6]=a.x;p[i*6+1]=a.y;p[i*6+2]=a.z;p[i*6+3]=b.x;p[i*6+4]=b.y;p[i*6+5]=b.z}lineSeg.geometry.attributes.position.needsUpdate=true}
+function updateParticles(){const p=points.geometry.attributes.position.array;for(let i=0;i<particleMeta.length;i++){const m=particleMeta[i],a=nodes[m.e.a].mesh.position,b=nodes[m.e.b].mesh.position;m.t+=0.006*params.flowSpeed*(0.5+m.e.w*0.5);if(m.t>1)m.t-=1;p[i*3]=a.x+(b.x-a.x)*m.t;p[i*3+1]=a.y+(b.y-a.y)*m.t;p[i*3+2]=a.z+(b.z-a.z)*m.t}points.geometry.attributes.position.needsUpdate=true}
+
+renderer.setAnimationLoop(()=>{
+  if(settle<300){for(let s2=0;s2<2;s2++)step();settle++}else step();
+  updateEdgeLines();updateParticles();updateHover();
+  if(params.autorot)group.rotation.y+=0.0009;
+  if(lineSeg)lineSeg.rotation.y=group.rotation.y;if(points)points.rotation.y=group.rotation.y;
+  controls.update();composer.render();labelRenderer.render(scene,camera);
+  document.getElementById('hud').textContent=`seed ${params.seed} · ${nodes.length} nodes · ${edges.length} edges · drag to orbit · scroll to zoom`;
+});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);labelRenderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight)});
+
+// controls
+window.setP=(k,v,dp)=>{params[k]=parseFloat(v);document.getElementById(k+'-v').textContent=(+v).toFixed(dp)};
+window.setNodeScale=(v)=>{params.nodeScale=parseFloat(v);document.getElementById('nodeScale-v').textContent=(+v).toFixed(1);nodes.forEach((n)=>{n.r=(4.5+Math.sqrt(n.deg)*3.4)*params.nodeScale;n.mesh.scale.setScalar(n.r);if(n.label)n.label.position.set(0,(n.r+5)/n.r,0)})};
+window.setBloom=(v)=>{params.bloom=parseFloat(v);bloom.strength=params.bloom;document.getElementById('bloom-v').textContent=(+v).toFixed(1)};
+window.setColor=(i,v)=>{params.palette[i]=v;document.getElementById('c'+i+'-v').textContent=v;build()};
+window.setSeed=()=>{const v=parseInt(document.getElementById('seed').value);if(v>0){params.seed=v;build()}};
+window.seedDelta=(d)=>{params.seed=Math.max(1,params.seed+d);document.getElementById('seed').value=params.seed;build()};
+window.seedRand=()=>{params.seed=Math.floor(Math.random()*999999)+1;document.getElementById('seed').value=params.seed;build()};
+window.rebuild=()=>build();
+window.setLabelMode=(m)=>{params.labelMode=m;nodes.forEach(n=>{if(n.label)n.label.visible=labelVisible(n)});document.querySelectorAll('#labelSeg button').forEach(b=>b.classList.toggle('active',b.dataset.m===m))};
+window.snap=()=>{composer.render();const a=document.createElement('a');a.download='pulsecheck-knowledge-graph-3d-'+params.seed+'.png';a.href=renderer.domElement.toDataURL('image/png');a.click()};
+
+build();
+</script></body></html>
