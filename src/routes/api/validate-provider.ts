@@ -1,7 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
 import { isAuthenticated } from '../../server/auth-middleware'
-import { requireJsonContentType } from '../../server/rate-limit'
+import {
+  getClientIp,
+  rateLimit,
+  rateLimitResponse,
+  requireJsonContentType,
+} from '../../server/rate-limit'
 
 /**
  * POST /api/validate-provider
@@ -42,7 +47,8 @@ const PROVIDER_VALIDATORS: Record<string, ProviderConfig> = {
     method: 'POST',
     // 200 = valid (unlikely with max_tokens:1 but possible), 400 = valid auth but bad request
     // 401/403 = invalid key
-    successCheck: (status) => status === 200 || status === 400 || status === 429,
+    successCheck: (status) =>
+      status === 200 || status === 400 || status === 429,
   },
   openrouter: {
     url: 'https://openrouter.ai/api/v1/auth/key',
@@ -84,16 +90,26 @@ export const Route = createFileRoute('/api/validate-provider')({
         }
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck
+        const ip = getClientIp(request)
+        if (!rateLimit(`validate-provider:${ip}`, 20, 60_000)) {
+          return rateLimitResponse()
+        }
         try {
           const body = (await request.json().catch(() => ({}))) as ValidateBody
 
           if (!body.providerId || !body.apiKey) {
-            return json({ ok: false, error: 'Missing provider or API key' }, { status: 400 })
+            return json(
+              { ok: false, error: 'Missing provider or API key' },
+              { status: 400 },
+            )
           }
 
           const validator = PROVIDER_VALIDATORS[body.providerId]
           if (!validator) {
-            return json({ ok: false, error: `Unknown provider: ${body.providerId}` }, { status: 400 })
+            return json(
+              { ok: false, error: `Unknown provider: ${body.providerId}` },
+              { status: 400 },
+            )
           }
 
           const fetchOptions: RequestInit = {
@@ -115,7 +131,9 @@ export const Route = createFileRoute('/api/validate-provider')({
           // Try to extract error message
           let errorMsg = `Invalid API key (HTTP ${response.status})`
           try {
-            const data = (await response.json()) as { error?: { message?: string } }
+            const data = (await response.json()) as {
+              error?: { message?: string }
+            }
             if (data.error?.message) {
               errorMsg = data.error.message
             }
@@ -127,9 +145,15 @@ export const Route = createFileRoute('/api/validate-provider')({
         } catch (err) {
           const msg = err instanceof Error ? err.message : String(err)
           if (msg.includes('timeout') || msg.includes('abort')) {
-            return json({ ok: false, error: 'Request timed out — check your connection' })
+            return json({
+              ok: false,
+              error: 'Request timed out — check your connection',
+            })
           }
-          return json({ ok: false, error: `Validation error: ${msg}` }, { status: 500 })
+          return json(
+            { ok: false, error: `Validation error: ${msg}` },
+            { status: 500 },
+          )
         }
       },
     },

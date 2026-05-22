@@ -1,5 +1,6 @@
 import { HugeiconsIcon } from '@hugeicons/react'
 import {
+  AiMagicIcon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
   ArrowDown01Icon,
@@ -9,14 +10,19 @@ import {
   Chat01Icon,
   Clock01Icon,
   ComputerTerminal01Icon,
+  ConnectIcon,
+  DistributionIcon,
   File01Icon,
   Home01Icon,
+  Linkedin01Icon,
+  Mail01Icon,
   ListViewIcon,
   Notification03Icon,
   PencilEdit02Icon,
   PuzzleIcon,
   Rocket01Icon,
   Search01Icon,
+  Share01Icon,
   ApiIcon,
   Settings01Icon,
   SmartPhone01Icon,
@@ -537,6 +543,7 @@ function ChatSidebarComponent({
   const isAgentSwarmActive = pathname === '/conductor'
   const isNewSessionActive =
     pathname === '/new' || pathname.startsWith('/chat/new')
+  const isOperationsActive = pathname === '/operations'
   const isTerminalActive = pathname === '/terminal'
   const isTasksActive = pathname === '/tasks'
   // Gateway
@@ -553,11 +560,20 @@ function ChatSidebarComponent({
   const isDebugActive = pathname === '/debug'
   const isLogsActive = pathname === '/activity' || pathname === '/logs'
   const isGatewayLogsActive = pathname === '/gateway/logs'
+  const isLinkedInActive = pathname.startsWith('/linkedin')
+  const isMediaActive = pathname.startsWith('/media')
+  const isPostizActive = pathname.startsWith('/postiz')
+  const isHubSpotActive = pathname.startsWith('/hubspot')
+  const isGmailActive = pathname.startsWith('/gmail')
+  const isRssActive = pathname.startsWith('/rss')
+  const isGraphActive = pathname.startsWith('/graph')
+  const isIntegrationsActive = pathname.startsWith('/integrations')
 
   // Track last-visited route per section
   const suiteRoutes = [
     '/dashboard',
     '/conductor',
+    '/operations',
     '/new',
     '/terminal',
     '/tasks',
@@ -569,6 +585,12 @@ function ChatSidebarComponent({
     '/files',
     '/memory',
     '/costs',
+    '/linkedin',
+    '/hubspot',
+    '/gmail',
+    '/rss',
+    '/graph',
+    '/integrations',
   ]
   const gatewayRoutes = [
     '/channels',
@@ -604,10 +626,6 @@ function ChatSidebarComponent({
   // Collapsible section states
   const [suiteExpanded, toggleSuite] = usePersistedBool(
     'openclaw-sidebar-suite-expanded',
-    true,
-  )
-  const [missionExpanded, toggleMission] = usePersistedBool(
-    'openclaw-sidebar-mission-expanded',
     true,
   )
   const [systemExpanded, toggleSystem] = usePersistedBool(
@@ -792,6 +810,13 @@ function ChatSidebarComponent({
     },
     {
       kind: 'link',
+      to: '/operations',
+      icon: ApiIcon,
+      label: 'Operations',
+      active: isOperationsActive,
+    },
+    {
+      kind: 'link',
       to: '/terminal',
       icon: ComputerTerminal01Icon,
       label: 'Terminal',
@@ -824,7 +849,7 @@ function ChatSidebarComponent({
       kind: 'link',
       to: '/activity',
       icon: ListViewIcon,
-      label: 'Logs',
+      label: 'Activity Log',
       active: isLogsActive,
     },
     {
@@ -851,14 +876,68 @@ function ChatSidebarComponent({
     },
     {
       kind: 'link',
+      to: '/graph',
+      icon: ConnectIcon,
+      label: 'Knowledge Graph',
+      active: isGraphActive,
+    },
+    {
+      kind: 'link',
       to: '/costs',
       icon: ChartLineData02Icon,
       label: 'Cost & Usage',
       active: isCostsActive,
     },
+    {
+      kind: 'link',
+      to: '/integrations',
+      icon: DistributionIcon,
+      label: 'Integration Hub',
+      active: isIntegrationsActive,
+    },
+    {
+      kind: 'link',
+      to: '/linkedin',
+      icon: Linkedin01Icon,
+      label: 'LinkedIn',
+      active: isLinkedInActive,
+    },
+    {
+      kind: 'link',
+      to: '/media',
+      icon: AiMagicIcon,
+      label: 'Media Studio',
+      active: isMediaActive,
+    },
+    {
+      kind: 'link',
+      to: '/postiz',
+      icon: Share01Icon,
+      label: 'Postiz',
+      active: isPostizActive,
+    },
+    {
+      kind: 'link',
+      to: '/rss',
+      icon: ListViewIcon,
+      label: 'RSS Cockpit',
+      active: isRssActive,
+    },
+    {
+      kind: 'link',
+      to: '/hubspot',
+      icon: UserMultipleIcon,
+      label: 'HubSpot',
+      active: isHubSpotActive,
+    },
+    {
+      kind: 'link',
+      to: '/gmail',
+      icon: Mail01Icon,
+      label: 'Gmail',
+      active: isGmailActive,
+    },
   ]
-
-  const missionItems: NavItemDef[] = []
 
   const gatewayItems: NavItemDef[] = [
     {
@@ -900,7 +979,7 @@ function ChatSidebarComponent({
       kind: 'link',
       to: '/gateway/logs',
       icon: Notification03Icon,
-      label: 'Logs',
+      label: 'Gateway Logs',
       active: isGatewayLogsActive,
     },
   ]
@@ -1120,26 +1199,6 @@ function ChatSidebarComponent({
             </>
           )}
 
-          {/* MISSION — hidden when empty (Conductor moved to Suite) */}
-          {missionItems.length > 0 && (
-            <>
-              <SectionLabel
-                label="Mission"
-                isCollapsed={isVisuallyCollapsed}
-                transition={transition}
-                collapsible
-                expanded={missionExpanded}
-                onToggle={toggleMission}
-              />
-              <CollapsibleSection
-                expanded={missionExpanded}
-                items={missionItems}
-                isCollapsed={isVisuallyCollapsed}
-                transition={transition}
-                onSelectSession={onSelectSession}
-              />
-            </>
-          )}
           {/* GATEWAY */}
           <SectionLabel
             label="Gateway"

@@ -1,12 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { AgentsScreen } from '@/screens/gateway/agents-screen'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 
 export const Route = createFileRoute('/agent-swarm')({
   ssr: false,
   component: function AgentSwarmRoute() {
     usePageTitle('Conductor')
-    return <AgentsScreen />
+    return (
+      <div style={MC_STYLE} className="h-full">
+        <AgentsScreen />
+      </div>
+    )
   },
   errorComponent: function AgentSwarmError({ error }) {
     return (

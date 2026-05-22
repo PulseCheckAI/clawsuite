@@ -253,7 +253,11 @@ export function FileExplorerSidebar({
         form.append('action', 'upload')
         form.append('path', uploadTargetRef.current || '')
         form.append('file', file)
-        await fetch('/api/files', { method: 'POST', body: form })
+        await fetch('/api/files', {
+          method: 'POST',
+          body: form,
+          headers: { 'X-Clawsuite-Upload': '1' },
+        })
       }
       event.target.value = ''
       await refresh()

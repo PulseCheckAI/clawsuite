@@ -1,12 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { ActivityScreen } from '@/screens/activity/activity-screen'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 
 export const Route = createFileRoute('/activity')({
   ssr: false,
   component: function ActivityRoute() {
     usePageTitle('Activity Log')
-    return <ActivityScreen />
+    return (
+      <div style={MC_STYLE} className="h-full">
+        <ActivityScreen />
+      </div>
+    )
   },
   errorComponent: function ActivityError({ error }) {
     return (

@@ -12,9 +12,7 @@
 // ───────────────────────────────────────────────────────────────────────────
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
-
-const SUPABASE_URL = 'https://zcjgjfersccwwhjmaflw.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_krMU4pMkUZQNQT9bbO68jw_IahpZoEd'
+import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from './supabase-constants'
 
 const KEY = '__pulseos_supabase_client__' as const
 declare global {
@@ -31,7 +29,7 @@ export function getSupabaseClient(): SupabaseClient {
   // from this client. Constraining the schema generic at construction
   // narrows the return type and breaks the SupabaseClient default-export
   // alias used by callers.
-  const client = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  const client = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: { persistSession: false },
     realtime: { params: { eventsPerSecond: 5 } },
   })

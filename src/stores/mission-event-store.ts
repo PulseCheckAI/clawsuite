@@ -1,5 +1,8 @@
 import { create } from 'zustand'
-import type { MissionEvent, MissionEventInput } from '@/screens/gateway/lib/mission-events'
+import type {
+  MissionEvent,
+  MissionEventInput,
+} from '@/screens/gateway/lib/mission-events'
 
 const MAX_EVENTS = 500
 
@@ -35,7 +38,10 @@ export const useMissionEventStore = create<MissionEventStore>()((set, get) => ({
     set((state) => {
       const nextEvents =
         state.events.length >= MAX_EVENTS
-          ? [...state.events.slice(state.events.length - MAX_EVENTS + 1), nextEvent]
+          ? [
+              ...state.events.slice(state.events.length - MAX_EVENTS + 1),
+              nextEvent,
+            ]
           : [...state.events, nextEvent]
 
       return { events: nextEvents }
@@ -48,7 +54,15 @@ export const useMissionEventStore = create<MissionEventStore>()((set, get) => ({
     set({ events: [] })
   },
 
+  // WARNING: getAgentEvents returns a new array on every call. If you
+  // subscribe to it as a Zustand selector — `useMissionEventStore(s =>
+  // s.getAgentEvents(id))` — every unrelated event addition will trigger
+  // a re-render (Zustand compares output references). Prefer subscribing
+  // to `events` directly and memoizing the filter at the call site with
+  // useMemo.
   getAgentEvents: (agentId) =>
-    get().events.filter((event) => 'agentId' in event.payload && event.payload.agentId === agentId),
+    get().events.filter(
+      (event) =>
+        'agentId' in event.payload && event.payload.agentId === agentId,
+    ),
 }))
-

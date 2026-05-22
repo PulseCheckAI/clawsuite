@@ -16,11 +16,19 @@ import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SessionsRouteImport } from './routes/sessions'
+import { Route as RssRouteImport } from './routes/rss'
+import { Route as PostizRouteImport } from './routes/postiz'
 import { Route as OperationsRouteImport } from './routes/operations'
 import { Route as NodesRouteImport } from './routes/nodes'
 import { Route as NewRouteImport } from './routes/new'
 import { Route as MemoryRouteImport } from './routes/memory'
+import { Route as MediaRouteImport } from './routes/media'
 import { Route as LogsRouteImport } from './routes/logs'
+import { Route as LinkedinRouteImport } from './routes/linkedin'
+import { Route as IntegrationsRouteImport } from './routes/integrations'
+import { Route as HubspotRouteImport } from './routes/hubspot'
+import { Route as GraphRouteImport } from './routes/graph'
+import { Route as GmailRouteImport } from './routes/gmail'
 import { Route as GatewayRouteImport } from './routes/gateway'
 import { Route as FilesRouteImport } from './routes/files'
 import { Route as DebugRouteImport } from './routes/debug'
@@ -30,6 +38,7 @@ import { Route as CostsRouteImport } from './routes/costs'
 import { Route as ConnectRouteImport } from './routes/connect'
 import { Route as ConductorRouteImport } from './routes/conductor'
 import { Route as ChannelsRouteImport } from './routes/channels'
+import { Route as AskRouteImport } from './routes/ask'
 import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as AgentSwarmRouteImport } from './routes/agent-swarm'
 import { Route as ActivityRouteImport } from './routes/activity'
@@ -68,6 +77,7 @@ import { Route as ApiModelsRouteImport } from './routes/api/models'
 import { Route as ApiModelSwitchRouteImport } from './routes/api/model-switch'
 import { Route as ApiLocalSetupRouteImport } from './routes/api/local-setup'
 import { Route as ApiHistoryRouteImport } from './routes/api/history'
+import { Route as ApiGraphqlRouteImport } from './routes/api/graphql'
 import { Route as ApiGatewayRestartRouteImport } from './routes/api/gateway-restart'
 import { Route as ApiGatewayDiscoverRouteImport } from './routes/api/gateway-discover'
 import { Route as ApiGatewayConfigRouteImport } from './routes/api/gateway-config'
@@ -84,6 +94,8 @@ import { Route as ApiConductorSpawnRouteImport } from './routes/api/conductor-sp
 import { Route as ApiCliAgentsRouteImport } from './routes/api/cli-agents'
 import { Route as ApiChatEventsRouteImport } from './routes/api/chat-events'
 import { Route as ApiChatAbortRouteImport } from './routes/api/chat-abort'
+import { Route as ApiCcSidecarsRouteImport } from './routes/api/cc-sidecars'
+import { Route as ApiCcKvRouteImport } from './routes/api/cc-kv'
 import { Route as ApiBrowserRouteImport } from './routes/api/browser'
 import { Route as ApiAutonomyTickRouteImport } from './routes/api/autonomy-tick'
 import { Route as ApiAutonomyStatusRouteImport } from './routes/api/autonomy-status'
@@ -95,12 +107,51 @@ import { Route as ApiAgentKillRouteImport } from './routes/api/agent-kill'
 import { Route as ApiAgentDispatchRouteImport } from './routes/api/agent-dispatch'
 import { Route as ApiAgentActivityRouteImport } from './routes/api/agent-activity'
 import { Route as ApiTasksIndexRouteImport } from './routes/api/tasks/index'
+import { Route as ApiIntegrationsIndexRouteImport } from './routes/api/integrations/index'
 import { Route as ApiTasksTaskIdRouteImport } from './routes/api/tasks/$taskId'
+import { Route as ApiSocialDispatchRouteImport } from './routes/api/social/dispatch'
 import { Route as ApiSessionsSendRouteImport } from './routes/api/sessions/send'
+import { Route as ApiRssFeedRouteImport } from './routes/api/rss/feed'
+import { Route as ApiRssAutopostConfigRouteImport } from './routes/api/rss/autopost-config'
+import { Route as ApiRssAutopostRouteImport } from './routes/api/rss/autopost'
+import { Route as ApiPostizScheduledRouteImport } from './routes/api/postiz/scheduled'
+import { Route as ApiPostizPostRouteImport } from './routes/api/postiz/post'
+import { Route as ApiPostizOauthRouteImport } from './routes/api/postiz/oauth'
+import { Route as ApiPostizCoachRouteImport } from './routes/api/postiz/coach'
+import { Route as ApiPostizAnalyticsRouteImport } from './routes/api/postiz/analytics'
+import { Route as ApiPostizAccountsRouteImport } from './routes/api/postiz/accounts'
 import { Route as ApiMemoryWriteRouteImport } from './routes/api/memory/write'
 import { Route as ApiMemorySearchRouteImport } from './routes/api/memory/search'
 import { Route as ApiMemoryReadRouteImport } from './routes/api/memory/read'
 import { Route as ApiMemoryListRouteImport } from './routes/api/memory/list'
+import { Route as ApiMediaSkillsRouteImport } from './routes/api/media/skills'
+import { Route as ApiMediaGenerateRouteImport } from './routes/api/media/generate'
+import { Route as ApiLlmLocalRouteImport } from './routes/api/llm/local'
+import { Route as ApiLinkedinWebhookRouteImport } from './routes/api/linkedin/webhook'
+import { Route as ApiLinkedinUploadRouteImport } from './routes/api/linkedin/upload'
+import { Route as ApiLinkedinStatusRouteImport } from './routes/api/linkedin/status'
+import { Route as ApiLinkedinPostsRouteImport } from './routes/api/linkedin/posts'
+import { Route as ApiLinkedinPostRouteImport } from './routes/api/linkedin/post'
+import { Route as ApiLinkedinOutreachRouteImport } from './routes/api/linkedin/outreach'
+import { Route as ApiLinkedinMediaRouteImport } from './routes/api/linkedin/media'
+import { Route as ApiLinkedinIdentitiesRouteImport } from './routes/api/linkedin/identities'
+import { Route as ApiLinkedinConversionsRouteImport } from './routes/api/linkedin/conversions'
+import { Route as ApiLinkedinCommentsRouteImport } from './routes/api/linkedin/comments'
+import { Route as ApiLinkedinCoachRouteImport } from './routes/api/linkedin/coach'
+import { Route as ApiLinkedinAnalyticsRouteImport } from './routes/api/linkedin/analytics'
+import { Route as ApiIntelSourcesRouteImport } from './routes/api/intel/sources'
+import { Route as ApiIntelSearchRouteImport } from './routes/api/intel/search'
+import { Route as ApiIntelOpmlImportRouteImport } from './routes/api/intel/opml-import'
+import { Route as ApiIntelItemsRouteImport } from './routes/api/intel/items'
+import { Route as ApiIntelIngestRouteImport } from './routes/api/intel/ingest'
+import { Route as ApiIntelFeedbackRouteImport } from './routes/api/intel/feedback'
+import { Route as ApiIntelEnrichRouteImport } from './routes/api/intel/enrich'
+import { Route as ApiIntelAskRouteImport } from './routes/api/intel/ask'
+import { Route as ApiIntegrationsCatalogRouteImport } from './routes/api/integrations/catalog'
+import { Route as ApiHubspotOauthRouteImport } from './routes/api/hubspot/oauth'
+import { Route as ApiHubspotContactsRouteImport } from './routes/api/hubspot/contacts'
+import { Route as ApiGmailOauthRouteImport } from './routes/api/gmail/oauth'
+import { Route as ApiGmailMessagesRouteImport } from './routes/api/gmail/messages'
 import { Route as ApiGatewayUsageRouteImport } from './routes/api/gateway/usage'
 import { Route as ApiGatewayStatusRouteImport } from './routes/api/gateway/status'
 import { Route as ApiGatewaySessionsRouteImport } from './routes/api/gateway/sessions'
@@ -126,6 +177,17 @@ import { Route as ApiBrowserScreenshotRouteImport } from './routes/api/browser/s
 import { Route as ApiBrowserNavigateRouteImport } from './routes/api/browser/navigate'
 import { Route as ApiGatewayApprovalsIndexRouteImport } from './routes/api/gateway/approvals/index'
 import { Route as ApiSessionsSessionKeyStatusRouteImport } from './routes/api/sessions/$sessionKey.status'
+import { Route as ApiPostizOauthStatusRouteImport } from './routes/api/postiz/oauth.status'
+import { Route as ApiPostizOauthStartRouteImport } from './routes/api/postiz/oauth.start'
+import { Route as ApiPostizOauthCallbackRouteImport } from './routes/api/postiz/oauth.callback'
+import { Route as ApiMediaStatusJobIdRouteImport } from './routes/api/media/status.$jobId'
+import { Route as ApiLinkedinAuthStartRouteImport } from './routes/api/linkedin/auth.start'
+import { Route as ApiHubspotOauthStatusRouteImport } from './routes/api/hubspot/oauth.status'
+import { Route as ApiHubspotOauthStartRouteImport } from './routes/api/hubspot/oauth.start'
+import { Route as ApiHubspotOauthCallbackRouteImport } from './routes/api/hubspot/oauth.callback'
+import { Route as ApiGmailOauthStatusRouteImport } from './routes/api/gmail/oauth.status'
+import { Route as ApiGmailOauthStartRouteImport } from './routes/api/gmail/oauth.start'
+import { Route as ApiGmailOauthCallbackRouteImport } from './routes/api/gmail/oauth.callback'
 import { Route as ApiCronRunsJobIdRouteImport } from './routes/api/cron/runs/$jobId'
 import { Route as ApiCliAgentsPidKillRouteImport } from './routes/api/cli-agents.$pid.kill'
 import { Route as ApiGatewayApprovalsApprovalIdActionRouteImport } from './routes/api/gateway/approvals/$approvalId/$action'
@@ -165,6 +227,16 @@ const SessionsRoute = SessionsRouteImport.update({
   path: '/sessions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RssRoute = RssRouteImport.update({
+  id: '/rss',
+  path: '/rss',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostizRoute = PostizRouteImport.update({
+  id: '/postiz',
+  path: '/postiz',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OperationsRoute = OperationsRouteImport.update({
   id: '/operations',
   path: '/operations',
@@ -185,9 +257,39 @@ const MemoryRoute = MemoryRouteImport.update({
   path: '/memory',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MediaRoute = MediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LogsRoute = LogsRouteImport.update({
   id: '/logs',
   path: '/logs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LinkedinRoute = LinkedinRouteImport.update({
+  id: '/linkedin',
+  path: '/linkedin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsRoute = IntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubspotRoute = HubspotRouteImport.update({
+  id: '/hubspot',
+  path: '/hubspot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GraphRoute = GraphRouteImport.update({
+  id: '/graph',
+  path: '/graph',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GmailRoute = GmailRouteImport.update({
+  id: '/gmail',
+  path: '/gmail',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GatewayRoute = GatewayRouteImport.update({
@@ -233,6 +335,11 @@ const ConductorRoute = ConductorRouteImport.update({
 const ChannelsRoute = ChannelsRouteImport.update({
   id: '/channels',
   path: '/channels',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AskRoute = AskRouteImport.update({
+  id: '/ask',
+  path: '/ask',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AgentsRoute = AgentsRouteImport.update({
@@ -425,6 +532,11 @@ const ApiHistoryRoute = ApiHistoryRouteImport.update({
   path: '/api/history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGraphqlRoute = ApiGraphqlRouteImport.update({
+  id: '/api/graphql',
+  path: '/api/graphql',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGatewayRestartRoute = ApiGatewayRestartRouteImport.update({
   id: '/api/gateway-restart',
   path: '/api/gateway-restart',
@@ -505,6 +617,16 @@ const ApiChatAbortRoute = ApiChatAbortRouteImport.update({
   path: '/api/chat-abort',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCcSidecarsRoute = ApiCcSidecarsRouteImport.update({
+  id: '/api/cc-sidecars',
+  path: '/api/cc-sidecars',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCcKvRoute = ApiCcKvRouteImport.update({
+  id: '/api/cc-kv',
+  path: '/api/cc-kv',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBrowserRoute = ApiBrowserRouteImport.update({
   id: '/api/browser',
   path: '/api/browser',
@@ -560,15 +682,70 @@ const ApiTasksIndexRoute = ApiTasksIndexRouteImport.update({
   path: '/api/tasks/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiIntegrationsIndexRoute = ApiIntegrationsIndexRouteImport.update({
+  id: '/api/integrations/',
+  path: '/api/integrations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTasksTaskIdRoute = ApiTasksTaskIdRouteImport.update({
   id: '/api/tasks/$taskId',
   path: '/api/tasks/$taskId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSocialDispatchRoute = ApiSocialDispatchRouteImport.update({
+  id: '/api/social/dispatch',
+  path: '/api/social/dispatch',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSessionsSendRoute = ApiSessionsSendRouteImport.update({
   id: '/send',
   path: '/send',
   getParentRoute: () => ApiSessionsRoute,
+} as any)
+const ApiRssFeedRoute = ApiRssFeedRouteImport.update({
+  id: '/api/rss/feed',
+  path: '/api/rss/feed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRssAutopostConfigRoute = ApiRssAutopostConfigRouteImport.update({
+  id: '/api/rss/autopost-config',
+  path: '/api/rss/autopost-config',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRssAutopostRoute = ApiRssAutopostRouteImport.update({
+  id: '/api/rss/autopost',
+  path: '/api/rss/autopost',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPostizScheduledRoute = ApiPostizScheduledRouteImport.update({
+  id: '/api/postiz/scheduled',
+  path: '/api/postiz/scheduled',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPostizPostRoute = ApiPostizPostRouteImport.update({
+  id: '/api/postiz/post',
+  path: '/api/postiz/post',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPostizOauthRoute = ApiPostizOauthRouteImport.update({
+  id: '/api/postiz/oauth',
+  path: '/api/postiz/oauth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPostizCoachRoute = ApiPostizCoachRouteImport.update({
+  id: '/api/postiz/coach',
+  path: '/api/postiz/coach',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPostizAnalyticsRoute = ApiPostizAnalyticsRouteImport.update({
+  id: '/api/postiz/analytics',
+  path: '/api/postiz/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPostizAccountsRoute = ApiPostizAccountsRouteImport.update({
+  id: '/api/postiz/accounts',
+  path: '/api/postiz/accounts',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMemoryWriteRoute = ApiMemoryWriteRouteImport.update({
   id: '/api/memory/write',
@@ -588,6 +765,146 @@ const ApiMemoryReadRoute = ApiMemoryReadRouteImport.update({
 const ApiMemoryListRoute = ApiMemoryListRouteImport.update({
   id: '/api/memory/list',
   path: '/api/memory/list',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMediaSkillsRoute = ApiMediaSkillsRouteImport.update({
+  id: '/api/media/skills',
+  path: '/api/media/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMediaGenerateRoute = ApiMediaGenerateRouteImport.update({
+  id: '/api/media/generate',
+  path: '/api/media/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLlmLocalRoute = ApiLlmLocalRouteImport.update({
+  id: '/api/llm/local',
+  path: '/api/llm/local',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinWebhookRoute = ApiLinkedinWebhookRouteImport.update({
+  id: '/api/linkedin/webhook',
+  path: '/api/linkedin/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinUploadRoute = ApiLinkedinUploadRouteImport.update({
+  id: '/api/linkedin/upload',
+  path: '/api/linkedin/upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinStatusRoute = ApiLinkedinStatusRouteImport.update({
+  id: '/api/linkedin/status',
+  path: '/api/linkedin/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinPostsRoute = ApiLinkedinPostsRouteImport.update({
+  id: '/api/linkedin/posts',
+  path: '/api/linkedin/posts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinPostRoute = ApiLinkedinPostRouteImport.update({
+  id: '/api/linkedin/post',
+  path: '/api/linkedin/post',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinOutreachRoute = ApiLinkedinOutreachRouteImport.update({
+  id: '/api/linkedin/outreach',
+  path: '/api/linkedin/outreach',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinMediaRoute = ApiLinkedinMediaRouteImport.update({
+  id: '/api/linkedin/media',
+  path: '/api/linkedin/media',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinIdentitiesRoute = ApiLinkedinIdentitiesRouteImport.update({
+  id: '/api/linkedin/identities',
+  path: '/api/linkedin/identities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinConversionsRoute = ApiLinkedinConversionsRouteImport.update({
+  id: '/api/linkedin/conversions',
+  path: '/api/linkedin/conversions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinCommentsRoute = ApiLinkedinCommentsRouteImport.update({
+  id: '/api/linkedin/comments',
+  path: '/api/linkedin/comments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinCoachRoute = ApiLinkedinCoachRouteImport.update({
+  id: '/api/linkedin/coach',
+  path: '/api/linkedin/coach',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinAnalyticsRoute = ApiLinkedinAnalyticsRouteImport.update({
+  id: '/api/linkedin/analytics',
+  path: '/api/linkedin/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIntelSourcesRoute = ApiIntelSourcesRouteImport.update({
+  id: '/api/intel/sources',
+  path: '/api/intel/sources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIntelSearchRoute = ApiIntelSearchRouteImport.update({
+  id: '/api/intel/search',
+  path: '/api/intel/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIntelOpmlImportRoute = ApiIntelOpmlImportRouteImport.update({
+  id: '/api/intel/opml-import',
+  path: '/api/intel/opml-import',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIntelItemsRoute = ApiIntelItemsRouteImport.update({
+  id: '/api/intel/items',
+  path: '/api/intel/items',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIntelIngestRoute = ApiIntelIngestRouteImport.update({
+  id: '/api/intel/ingest',
+  path: '/api/intel/ingest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIntelFeedbackRoute = ApiIntelFeedbackRouteImport.update({
+  id: '/api/intel/feedback',
+  path: '/api/intel/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIntelEnrichRoute = ApiIntelEnrichRouteImport.update({
+  id: '/api/intel/enrich',
+  path: '/api/intel/enrich',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIntelAskRoute = ApiIntelAskRouteImport.update({
+  id: '/api/intel/ask',
+  path: '/api/intel/ask',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIntegrationsCatalogRoute = ApiIntegrationsCatalogRouteImport.update({
+  id: '/api/integrations/catalog',
+  path: '/api/integrations/catalog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHubspotOauthRoute = ApiHubspotOauthRouteImport.update({
+  id: '/api/hubspot/oauth',
+  path: '/api/hubspot/oauth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHubspotContactsRoute = ApiHubspotContactsRouteImport.update({
+  id: '/api/hubspot/contacts',
+  path: '/api/hubspot/contacts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGmailOauthRoute = ApiGmailOauthRouteImport.update({
+  id: '/api/gmail/oauth',
+  path: '/api/gmail/oauth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGmailMessagesRoute = ApiGmailMessagesRouteImport.update({
+  id: '/api/gmail/messages',
+  path: '/api/gmail/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGatewayUsageRoute = ApiGatewayUsageRouteImport.update({
@@ -717,6 +1034,61 @@ const ApiSessionsSessionKeyStatusRoute =
     path: '/$sessionKey/status',
     getParentRoute: () => ApiSessionsRoute,
   } as any)
+const ApiPostizOauthStatusRoute = ApiPostizOauthStatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => ApiPostizOauthRoute,
+} as any)
+const ApiPostizOauthStartRoute = ApiPostizOauthStartRouteImport.update({
+  id: '/start',
+  path: '/start',
+  getParentRoute: () => ApiPostizOauthRoute,
+} as any)
+const ApiPostizOauthCallbackRoute = ApiPostizOauthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => ApiPostizOauthRoute,
+} as any)
+const ApiMediaStatusJobIdRoute = ApiMediaStatusJobIdRouteImport.update({
+  id: '/api/media/status/$jobId',
+  path: '/api/media/status/$jobId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLinkedinAuthStartRoute = ApiLinkedinAuthStartRouteImport.update({
+  id: '/api/linkedin/auth/start',
+  path: '/api/linkedin/auth/start',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiHubspotOauthStatusRoute = ApiHubspotOauthStatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => ApiHubspotOauthRoute,
+} as any)
+const ApiHubspotOauthStartRoute = ApiHubspotOauthStartRouteImport.update({
+  id: '/start',
+  path: '/start',
+  getParentRoute: () => ApiHubspotOauthRoute,
+} as any)
+const ApiHubspotOauthCallbackRoute = ApiHubspotOauthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => ApiHubspotOauthRoute,
+} as any)
+const ApiGmailOauthStatusRoute = ApiGmailOauthStatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => ApiGmailOauthRoute,
+} as any)
+const ApiGmailOauthStartRoute = ApiGmailOauthStartRouteImport.update({
+  id: '/start',
+  path: '/start',
+  getParentRoute: () => ApiGmailOauthRoute,
+} as any)
+const ApiGmailOauthCallbackRoute = ApiGmailOauthCallbackRouteImport.update({
+  id: '/callback',
+  path: '/callback',
+  getParentRoute: () => ApiGmailOauthRoute,
+} as any)
 const ApiCronRunsJobIdRoute = ApiCronRunsJobIdRouteImport.update({
   id: '/runs/$jobId',
   path: '/runs/$jobId',
@@ -740,6 +1112,7 @@ export interface FileRoutesByFullPath {
   '/activity': typeof ActivityRoute
   '/agent-swarm': typeof AgentSwarmRoute
   '/agents': typeof AgentsRoute
+  '/ask': typeof AskRoute
   '/channels': typeof ChannelsRoute
   '/conductor': typeof ConductorRoute
   '/connect': typeof ConnectRoute
@@ -749,11 +1122,19 @@ export interface FileRoutesByFullPath {
   '/debug': typeof DebugRoute
   '/files': typeof FilesRoute
   '/gateway': typeof GatewayRouteWithChildren
+  '/gmail': typeof GmailRoute
+  '/graph': typeof GraphRoute
+  '/hubspot': typeof HubspotRoute
+  '/integrations': typeof IntegrationsRoute
+  '/linkedin': typeof LinkedinRoute
   '/logs': typeof LogsRoute
+  '/media': typeof MediaRoute
   '/memory': typeof MemoryRoute
   '/new': typeof NewRoute
   '/nodes': typeof NodesRoute
   '/operations': typeof OperationsRoute
+  '/postiz': typeof PostizRoute
+  '/rss': typeof RssRoute
   '/sessions': typeof SessionsRoute
   '/settings': typeof SettingsRouteWithChildren
   '/skills': typeof SkillsRoute
@@ -771,6 +1152,8 @@ export interface FileRoutesByFullPath {
   '/api/autonomy-status': typeof ApiAutonomyStatusRoute
   '/api/autonomy-tick': typeof ApiAutonomyTickRoute
   '/api/browser': typeof ApiBrowserRouteWithChildren
+  '/api/cc-kv': typeof ApiCcKvRoute
+  '/api/cc-sidecars': typeof ApiCcSidecarsRoute
   '/api/chat-abort': typeof ApiChatAbortRoute
   '/api/chat-events': typeof ApiChatEventsRoute
   '/api/cli-agents': typeof ApiCliAgentsRouteWithChildren
@@ -787,6 +1170,7 @@ export interface FileRoutesByFullPath {
   '/api/gateway-config': typeof ApiGatewayConfigRoute
   '/api/gateway-discover': typeof ApiGatewayDiscoverRoute
   '/api/gateway-restart': typeof ApiGatewayRestartRoute
+  '/api/graphql': typeof ApiGraphqlRoute
   '/api/history': typeof ApiHistoryRoute
   '/api/local-setup': typeof ApiLocalSetupRoute
   '/api/model-switch': typeof ApiModelSwitchRoute
@@ -843,15 +1227,65 @@ export interface FileRoutesByFullPath {
   '/api/gateway/sessions': typeof ApiGatewaySessionsRoute
   '/api/gateway/status': typeof ApiGatewayStatusRoute
   '/api/gateway/usage': typeof ApiGatewayUsageRoute
+  '/api/gmail/messages': typeof ApiGmailMessagesRoute
+  '/api/gmail/oauth': typeof ApiGmailOauthRouteWithChildren
+  '/api/hubspot/contacts': typeof ApiHubspotContactsRoute
+  '/api/hubspot/oauth': typeof ApiHubspotOauthRouteWithChildren
+  '/api/integrations/catalog': typeof ApiIntegrationsCatalogRoute
+  '/api/intel/ask': typeof ApiIntelAskRoute
+  '/api/intel/enrich': typeof ApiIntelEnrichRoute
+  '/api/intel/feedback': typeof ApiIntelFeedbackRoute
+  '/api/intel/ingest': typeof ApiIntelIngestRoute
+  '/api/intel/items': typeof ApiIntelItemsRoute
+  '/api/intel/opml-import': typeof ApiIntelOpmlImportRoute
+  '/api/intel/search': typeof ApiIntelSearchRoute
+  '/api/intel/sources': typeof ApiIntelSourcesRoute
+  '/api/linkedin/analytics': typeof ApiLinkedinAnalyticsRoute
+  '/api/linkedin/coach': typeof ApiLinkedinCoachRoute
+  '/api/linkedin/comments': typeof ApiLinkedinCommentsRoute
+  '/api/linkedin/conversions': typeof ApiLinkedinConversionsRoute
+  '/api/linkedin/identities': typeof ApiLinkedinIdentitiesRoute
+  '/api/linkedin/media': typeof ApiLinkedinMediaRoute
+  '/api/linkedin/outreach': typeof ApiLinkedinOutreachRoute
+  '/api/linkedin/post': typeof ApiLinkedinPostRoute
+  '/api/linkedin/posts': typeof ApiLinkedinPostsRoute
+  '/api/linkedin/status': typeof ApiLinkedinStatusRoute
+  '/api/linkedin/upload': typeof ApiLinkedinUploadRoute
+  '/api/linkedin/webhook': typeof ApiLinkedinWebhookRoute
+  '/api/llm/local': typeof ApiLlmLocalRoute
+  '/api/media/generate': typeof ApiMediaGenerateRoute
+  '/api/media/skills': typeof ApiMediaSkillsRoute
   '/api/memory/list': typeof ApiMemoryListRoute
   '/api/memory/read': typeof ApiMemoryReadRoute
   '/api/memory/search': typeof ApiMemorySearchRoute
   '/api/memory/write': typeof ApiMemoryWriteRoute
+  '/api/postiz/accounts': typeof ApiPostizAccountsRoute
+  '/api/postiz/analytics': typeof ApiPostizAnalyticsRoute
+  '/api/postiz/coach': typeof ApiPostizCoachRoute
+  '/api/postiz/oauth': typeof ApiPostizOauthRouteWithChildren
+  '/api/postiz/post': typeof ApiPostizPostRoute
+  '/api/postiz/scheduled': typeof ApiPostizScheduledRoute
+  '/api/rss/autopost': typeof ApiRssAutopostRoute
+  '/api/rss/autopost-config': typeof ApiRssAutopostConfigRoute
+  '/api/rss/feed': typeof ApiRssFeedRoute
   '/api/sessions/send': typeof ApiSessionsSendRoute
+  '/api/social/dispatch': typeof ApiSocialDispatchRoute
   '/api/tasks/$taskId': typeof ApiTasksTaskIdRoute
+  '/api/integrations/': typeof ApiIntegrationsIndexRoute
   '/api/tasks/': typeof ApiTasksIndexRoute
   '/api/cli-agents/$pid/kill': typeof ApiCliAgentsPidKillRoute
   '/api/cron/runs/$jobId': typeof ApiCronRunsJobIdRoute
+  '/api/gmail/oauth/callback': typeof ApiGmailOauthCallbackRoute
+  '/api/gmail/oauth/start': typeof ApiGmailOauthStartRoute
+  '/api/gmail/oauth/status': typeof ApiGmailOauthStatusRoute
+  '/api/hubspot/oauth/callback': typeof ApiHubspotOauthCallbackRoute
+  '/api/hubspot/oauth/start': typeof ApiHubspotOauthStartRoute
+  '/api/hubspot/oauth/status': typeof ApiHubspotOauthStatusRoute
+  '/api/linkedin/auth/start': typeof ApiLinkedinAuthStartRoute
+  '/api/media/status/$jobId': typeof ApiMediaStatusJobIdRoute
+  '/api/postiz/oauth/callback': typeof ApiPostizOauthCallbackRoute
+  '/api/postiz/oauth/start': typeof ApiPostizOauthStartRoute
+  '/api/postiz/oauth/status': typeof ApiPostizOauthStatusRoute
   '/api/sessions/$sessionKey/status': typeof ApiSessionsSessionKeyStatusRoute
   '/api/gateway/approvals/': typeof ApiGatewayApprovalsIndexRoute
   '/api/gateway/approvals/$approvalId/$action': typeof ApiGatewayApprovalsApprovalIdActionRoute
@@ -862,6 +1296,7 @@ export interface FileRoutesByTo {
   '/activity': typeof ActivityRoute
   '/agent-swarm': typeof AgentSwarmRoute
   '/agents': typeof AgentsRoute
+  '/ask': typeof AskRoute
   '/channels': typeof ChannelsRoute
   '/conductor': typeof ConductorRoute
   '/connect': typeof ConnectRoute
@@ -871,11 +1306,19 @@ export interface FileRoutesByTo {
   '/debug': typeof DebugRoute
   '/files': typeof FilesRoute
   '/gateway': typeof GatewayRouteWithChildren
+  '/gmail': typeof GmailRoute
+  '/graph': typeof GraphRoute
+  '/hubspot': typeof HubspotRoute
+  '/integrations': typeof IntegrationsRoute
+  '/linkedin': typeof LinkedinRoute
   '/logs': typeof LogsRoute
+  '/media': typeof MediaRoute
   '/memory': typeof MemoryRoute
   '/new': typeof NewRoute
   '/nodes': typeof NodesRoute
   '/operations': typeof OperationsRoute
+  '/postiz': typeof PostizRoute
+  '/rss': typeof RssRoute
   '/sessions': typeof SessionsRoute
   '/skills': typeof SkillsRoute
   '/tasks': typeof TasksRoute
@@ -892,6 +1335,8 @@ export interface FileRoutesByTo {
   '/api/autonomy-status': typeof ApiAutonomyStatusRoute
   '/api/autonomy-tick': typeof ApiAutonomyTickRoute
   '/api/browser': typeof ApiBrowserRouteWithChildren
+  '/api/cc-kv': typeof ApiCcKvRoute
+  '/api/cc-sidecars': typeof ApiCcSidecarsRoute
   '/api/chat-abort': typeof ApiChatAbortRoute
   '/api/chat-events': typeof ApiChatEventsRoute
   '/api/cli-agents': typeof ApiCliAgentsRouteWithChildren
@@ -908,6 +1353,7 @@ export interface FileRoutesByTo {
   '/api/gateway-config': typeof ApiGatewayConfigRoute
   '/api/gateway-discover': typeof ApiGatewayDiscoverRoute
   '/api/gateway-restart': typeof ApiGatewayRestartRoute
+  '/api/graphql': typeof ApiGraphqlRoute
   '/api/history': typeof ApiHistoryRoute
   '/api/local-setup': typeof ApiLocalSetupRoute
   '/api/model-switch': typeof ApiModelSwitchRoute
@@ -964,15 +1410,65 @@ export interface FileRoutesByTo {
   '/api/gateway/sessions': typeof ApiGatewaySessionsRoute
   '/api/gateway/status': typeof ApiGatewayStatusRoute
   '/api/gateway/usage': typeof ApiGatewayUsageRoute
+  '/api/gmail/messages': typeof ApiGmailMessagesRoute
+  '/api/gmail/oauth': typeof ApiGmailOauthRouteWithChildren
+  '/api/hubspot/contacts': typeof ApiHubspotContactsRoute
+  '/api/hubspot/oauth': typeof ApiHubspotOauthRouteWithChildren
+  '/api/integrations/catalog': typeof ApiIntegrationsCatalogRoute
+  '/api/intel/ask': typeof ApiIntelAskRoute
+  '/api/intel/enrich': typeof ApiIntelEnrichRoute
+  '/api/intel/feedback': typeof ApiIntelFeedbackRoute
+  '/api/intel/ingest': typeof ApiIntelIngestRoute
+  '/api/intel/items': typeof ApiIntelItemsRoute
+  '/api/intel/opml-import': typeof ApiIntelOpmlImportRoute
+  '/api/intel/search': typeof ApiIntelSearchRoute
+  '/api/intel/sources': typeof ApiIntelSourcesRoute
+  '/api/linkedin/analytics': typeof ApiLinkedinAnalyticsRoute
+  '/api/linkedin/coach': typeof ApiLinkedinCoachRoute
+  '/api/linkedin/comments': typeof ApiLinkedinCommentsRoute
+  '/api/linkedin/conversions': typeof ApiLinkedinConversionsRoute
+  '/api/linkedin/identities': typeof ApiLinkedinIdentitiesRoute
+  '/api/linkedin/media': typeof ApiLinkedinMediaRoute
+  '/api/linkedin/outreach': typeof ApiLinkedinOutreachRoute
+  '/api/linkedin/post': typeof ApiLinkedinPostRoute
+  '/api/linkedin/posts': typeof ApiLinkedinPostsRoute
+  '/api/linkedin/status': typeof ApiLinkedinStatusRoute
+  '/api/linkedin/upload': typeof ApiLinkedinUploadRoute
+  '/api/linkedin/webhook': typeof ApiLinkedinWebhookRoute
+  '/api/llm/local': typeof ApiLlmLocalRoute
+  '/api/media/generate': typeof ApiMediaGenerateRoute
+  '/api/media/skills': typeof ApiMediaSkillsRoute
   '/api/memory/list': typeof ApiMemoryListRoute
   '/api/memory/read': typeof ApiMemoryReadRoute
   '/api/memory/search': typeof ApiMemorySearchRoute
   '/api/memory/write': typeof ApiMemoryWriteRoute
+  '/api/postiz/accounts': typeof ApiPostizAccountsRoute
+  '/api/postiz/analytics': typeof ApiPostizAnalyticsRoute
+  '/api/postiz/coach': typeof ApiPostizCoachRoute
+  '/api/postiz/oauth': typeof ApiPostizOauthRouteWithChildren
+  '/api/postiz/post': typeof ApiPostizPostRoute
+  '/api/postiz/scheduled': typeof ApiPostizScheduledRoute
+  '/api/rss/autopost': typeof ApiRssAutopostRoute
+  '/api/rss/autopost-config': typeof ApiRssAutopostConfigRoute
+  '/api/rss/feed': typeof ApiRssFeedRoute
   '/api/sessions/send': typeof ApiSessionsSendRoute
+  '/api/social/dispatch': typeof ApiSocialDispatchRoute
   '/api/tasks/$taskId': typeof ApiTasksTaskIdRoute
+  '/api/integrations': typeof ApiIntegrationsIndexRoute
   '/api/tasks': typeof ApiTasksIndexRoute
   '/api/cli-agents/$pid/kill': typeof ApiCliAgentsPidKillRoute
   '/api/cron/runs/$jobId': typeof ApiCronRunsJobIdRoute
+  '/api/gmail/oauth/callback': typeof ApiGmailOauthCallbackRoute
+  '/api/gmail/oauth/start': typeof ApiGmailOauthStartRoute
+  '/api/gmail/oauth/status': typeof ApiGmailOauthStatusRoute
+  '/api/hubspot/oauth/callback': typeof ApiHubspotOauthCallbackRoute
+  '/api/hubspot/oauth/start': typeof ApiHubspotOauthStartRoute
+  '/api/hubspot/oauth/status': typeof ApiHubspotOauthStatusRoute
+  '/api/linkedin/auth/start': typeof ApiLinkedinAuthStartRoute
+  '/api/media/status/$jobId': typeof ApiMediaStatusJobIdRoute
+  '/api/postiz/oauth/callback': typeof ApiPostizOauthCallbackRoute
+  '/api/postiz/oauth/start': typeof ApiPostizOauthStartRoute
+  '/api/postiz/oauth/status': typeof ApiPostizOauthStatusRoute
   '/api/sessions/$sessionKey/status': typeof ApiSessionsSessionKeyStatusRoute
   '/api/gateway/approvals': typeof ApiGatewayApprovalsIndexRoute
   '/api/gateway/approvals/$approvalId/$action': typeof ApiGatewayApprovalsApprovalIdActionRoute
@@ -984,6 +1480,7 @@ export interface FileRoutesById {
   '/activity': typeof ActivityRoute
   '/agent-swarm': typeof AgentSwarmRoute
   '/agents': typeof AgentsRoute
+  '/ask': typeof AskRoute
   '/channels': typeof ChannelsRoute
   '/conductor': typeof ConductorRoute
   '/connect': typeof ConnectRoute
@@ -993,11 +1490,19 @@ export interface FileRoutesById {
   '/debug': typeof DebugRoute
   '/files': typeof FilesRoute
   '/gateway': typeof GatewayRouteWithChildren
+  '/gmail': typeof GmailRoute
+  '/graph': typeof GraphRoute
+  '/hubspot': typeof HubspotRoute
+  '/integrations': typeof IntegrationsRoute
+  '/linkedin': typeof LinkedinRoute
   '/logs': typeof LogsRoute
+  '/media': typeof MediaRoute
   '/memory': typeof MemoryRoute
   '/new': typeof NewRoute
   '/nodes': typeof NodesRoute
   '/operations': typeof OperationsRoute
+  '/postiz': typeof PostizRoute
+  '/rss': typeof RssRoute
   '/sessions': typeof SessionsRoute
   '/settings': typeof SettingsRouteWithChildren
   '/skills': typeof SkillsRoute
@@ -1015,6 +1520,8 @@ export interface FileRoutesById {
   '/api/autonomy-status': typeof ApiAutonomyStatusRoute
   '/api/autonomy-tick': typeof ApiAutonomyTickRoute
   '/api/browser': typeof ApiBrowserRouteWithChildren
+  '/api/cc-kv': typeof ApiCcKvRoute
+  '/api/cc-sidecars': typeof ApiCcSidecarsRoute
   '/api/chat-abort': typeof ApiChatAbortRoute
   '/api/chat-events': typeof ApiChatEventsRoute
   '/api/cli-agents': typeof ApiCliAgentsRouteWithChildren
@@ -1031,6 +1538,7 @@ export interface FileRoutesById {
   '/api/gateway-config': typeof ApiGatewayConfigRoute
   '/api/gateway-discover': typeof ApiGatewayDiscoverRoute
   '/api/gateway-restart': typeof ApiGatewayRestartRoute
+  '/api/graphql': typeof ApiGraphqlRoute
   '/api/history': typeof ApiHistoryRoute
   '/api/local-setup': typeof ApiLocalSetupRoute
   '/api/model-switch': typeof ApiModelSwitchRoute
@@ -1087,15 +1595,65 @@ export interface FileRoutesById {
   '/api/gateway/sessions': typeof ApiGatewaySessionsRoute
   '/api/gateway/status': typeof ApiGatewayStatusRoute
   '/api/gateway/usage': typeof ApiGatewayUsageRoute
+  '/api/gmail/messages': typeof ApiGmailMessagesRoute
+  '/api/gmail/oauth': typeof ApiGmailOauthRouteWithChildren
+  '/api/hubspot/contacts': typeof ApiHubspotContactsRoute
+  '/api/hubspot/oauth': typeof ApiHubspotOauthRouteWithChildren
+  '/api/integrations/catalog': typeof ApiIntegrationsCatalogRoute
+  '/api/intel/ask': typeof ApiIntelAskRoute
+  '/api/intel/enrich': typeof ApiIntelEnrichRoute
+  '/api/intel/feedback': typeof ApiIntelFeedbackRoute
+  '/api/intel/ingest': typeof ApiIntelIngestRoute
+  '/api/intel/items': typeof ApiIntelItemsRoute
+  '/api/intel/opml-import': typeof ApiIntelOpmlImportRoute
+  '/api/intel/search': typeof ApiIntelSearchRoute
+  '/api/intel/sources': typeof ApiIntelSourcesRoute
+  '/api/linkedin/analytics': typeof ApiLinkedinAnalyticsRoute
+  '/api/linkedin/coach': typeof ApiLinkedinCoachRoute
+  '/api/linkedin/comments': typeof ApiLinkedinCommentsRoute
+  '/api/linkedin/conversions': typeof ApiLinkedinConversionsRoute
+  '/api/linkedin/identities': typeof ApiLinkedinIdentitiesRoute
+  '/api/linkedin/media': typeof ApiLinkedinMediaRoute
+  '/api/linkedin/outreach': typeof ApiLinkedinOutreachRoute
+  '/api/linkedin/post': typeof ApiLinkedinPostRoute
+  '/api/linkedin/posts': typeof ApiLinkedinPostsRoute
+  '/api/linkedin/status': typeof ApiLinkedinStatusRoute
+  '/api/linkedin/upload': typeof ApiLinkedinUploadRoute
+  '/api/linkedin/webhook': typeof ApiLinkedinWebhookRoute
+  '/api/llm/local': typeof ApiLlmLocalRoute
+  '/api/media/generate': typeof ApiMediaGenerateRoute
+  '/api/media/skills': typeof ApiMediaSkillsRoute
   '/api/memory/list': typeof ApiMemoryListRoute
   '/api/memory/read': typeof ApiMemoryReadRoute
   '/api/memory/search': typeof ApiMemorySearchRoute
   '/api/memory/write': typeof ApiMemoryWriteRoute
+  '/api/postiz/accounts': typeof ApiPostizAccountsRoute
+  '/api/postiz/analytics': typeof ApiPostizAnalyticsRoute
+  '/api/postiz/coach': typeof ApiPostizCoachRoute
+  '/api/postiz/oauth': typeof ApiPostizOauthRouteWithChildren
+  '/api/postiz/post': typeof ApiPostizPostRoute
+  '/api/postiz/scheduled': typeof ApiPostizScheduledRoute
+  '/api/rss/autopost': typeof ApiRssAutopostRoute
+  '/api/rss/autopost-config': typeof ApiRssAutopostConfigRoute
+  '/api/rss/feed': typeof ApiRssFeedRoute
   '/api/sessions/send': typeof ApiSessionsSendRoute
+  '/api/social/dispatch': typeof ApiSocialDispatchRoute
   '/api/tasks/$taskId': typeof ApiTasksTaskIdRoute
+  '/api/integrations/': typeof ApiIntegrationsIndexRoute
   '/api/tasks/': typeof ApiTasksIndexRoute
   '/api/cli-agents/$pid/kill': typeof ApiCliAgentsPidKillRoute
   '/api/cron/runs/$jobId': typeof ApiCronRunsJobIdRoute
+  '/api/gmail/oauth/callback': typeof ApiGmailOauthCallbackRoute
+  '/api/gmail/oauth/start': typeof ApiGmailOauthStartRoute
+  '/api/gmail/oauth/status': typeof ApiGmailOauthStatusRoute
+  '/api/hubspot/oauth/callback': typeof ApiHubspotOauthCallbackRoute
+  '/api/hubspot/oauth/start': typeof ApiHubspotOauthStartRoute
+  '/api/hubspot/oauth/status': typeof ApiHubspotOauthStatusRoute
+  '/api/linkedin/auth/start': typeof ApiLinkedinAuthStartRoute
+  '/api/media/status/$jobId': typeof ApiMediaStatusJobIdRoute
+  '/api/postiz/oauth/callback': typeof ApiPostizOauthCallbackRoute
+  '/api/postiz/oauth/start': typeof ApiPostizOauthStartRoute
+  '/api/postiz/oauth/status': typeof ApiPostizOauthStatusRoute
   '/api/sessions/$sessionKey/status': typeof ApiSessionsSessionKeyStatusRoute
   '/api/gateway/approvals/': typeof ApiGatewayApprovalsIndexRoute
   '/api/gateway/approvals/$approvalId/$action': typeof ApiGatewayApprovalsApprovalIdActionRoute
@@ -1108,6 +1666,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/agent-swarm'
     | '/agents'
+    | '/ask'
     | '/channels'
     | '/conductor'
     | '/connect'
@@ -1117,11 +1676,19 @@ export interface FileRouteTypes {
     | '/debug'
     | '/files'
     | '/gateway'
+    | '/gmail'
+    | '/graph'
+    | '/hubspot'
+    | '/integrations'
+    | '/linkedin'
     | '/logs'
+    | '/media'
     | '/memory'
     | '/new'
     | '/nodes'
     | '/operations'
+    | '/postiz'
+    | '/rss'
     | '/sessions'
     | '/settings'
     | '/skills'
@@ -1139,6 +1706,8 @@ export interface FileRouteTypes {
     | '/api/autonomy-status'
     | '/api/autonomy-tick'
     | '/api/browser'
+    | '/api/cc-kv'
+    | '/api/cc-sidecars'
     | '/api/chat-abort'
     | '/api/chat-events'
     | '/api/cli-agents'
@@ -1155,6 +1724,7 @@ export interface FileRouteTypes {
     | '/api/gateway-config'
     | '/api/gateway-discover'
     | '/api/gateway-restart'
+    | '/api/graphql'
     | '/api/history'
     | '/api/local-setup'
     | '/api/model-switch'
@@ -1211,15 +1781,65 @@ export interface FileRouteTypes {
     | '/api/gateway/sessions'
     | '/api/gateway/status'
     | '/api/gateway/usage'
+    | '/api/gmail/messages'
+    | '/api/gmail/oauth'
+    | '/api/hubspot/contacts'
+    | '/api/hubspot/oauth'
+    | '/api/integrations/catalog'
+    | '/api/intel/ask'
+    | '/api/intel/enrich'
+    | '/api/intel/feedback'
+    | '/api/intel/ingest'
+    | '/api/intel/items'
+    | '/api/intel/opml-import'
+    | '/api/intel/search'
+    | '/api/intel/sources'
+    | '/api/linkedin/analytics'
+    | '/api/linkedin/coach'
+    | '/api/linkedin/comments'
+    | '/api/linkedin/conversions'
+    | '/api/linkedin/identities'
+    | '/api/linkedin/media'
+    | '/api/linkedin/outreach'
+    | '/api/linkedin/post'
+    | '/api/linkedin/posts'
+    | '/api/linkedin/status'
+    | '/api/linkedin/upload'
+    | '/api/linkedin/webhook'
+    | '/api/llm/local'
+    | '/api/media/generate'
+    | '/api/media/skills'
     | '/api/memory/list'
     | '/api/memory/read'
     | '/api/memory/search'
     | '/api/memory/write'
+    | '/api/postiz/accounts'
+    | '/api/postiz/analytics'
+    | '/api/postiz/coach'
+    | '/api/postiz/oauth'
+    | '/api/postiz/post'
+    | '/api/postiz/scheduled'
+    | '/api/rss/autopost'
+    | '/api/rss/autopost-config'
+    | '/api/rss/feed'
     | '/api/sessions/send'
+    | '/api/social/dispatch'
     | '/api/tasks/$taskId'
+    | '/api/integrations/'
     | '/api/tasks/'
     | '/api/cli-agents/$pid/kill'
     | '/api/cron/runs/$jobId'
+    | '/api/gmail/oauth/callback'
+    | '/api/gmail/oauth/start'
+    | '/api/gmail/oauth/status'
+    | '/api/hubspot/oauth/callback'
+    | '/api/hubspot/oauth/start'
+    | '/api/hubspot/oauth/status'
+    | '/api/linkedin/auth/start'
+    | '/api/media/status/$jobId'
+    | '/api/postiz/oauth/callback'
+    | '/api/postiz/oauth/start'
+    | '/api/postiz/oauth/status'
     | '/api/sessions/$sessionKey/status'
     | '/api/gateway/approvals/'
     | '/api/gateway/approvals/$approvalId/$action'
@@ -1230,6 +1850,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/agent-swarm'
     | '/agents'
+    | '/ask'
     | '/channels'
     | '/conductor'
     | '/connect'
@@ -1239,11 +1860,19 @@ export interface FileRouteTypes {
     | '/debug'
     | '/files'
     | '/gateway'
+    | '/gmail'
+    | '/graph'
+    | '/hubspot'
+    | '/integrations'
+    | '/linkedin'
     | '/logs'
+    | '/media'
     | '/memory'
     | '/new'
     | '/nodes'
     | '/operations'
+    | '/postiz'
+    | '/rss'
     | '/sessions'
     | '/skills'
     | '/tasks'
@@ -1260,6 +1889,8 @@ export interface FileRouteTypes {
     | '/api/autonomy-status'
     | '/api/autonomy-tick'
     | '/api/browser'
+    | '/api/cc-kv'
+    | '/api/cc-sidecars'
     | '/api/chat-abort'
     | '/api/chat-events'
     | '/api/cli-agents'
@@ -1276,6 +1907,7 @@ export interface FileRouteTypes {
     | '/api/gateway-config'
     | '/api/gateway-discover'
     | '/api/gateway-restart'
+    | '/api/graphql'
     | '/api/history'
     | '/api/local-setup'
     | '/api/model-switch'
@@ -1332,15 +1964,65 @@ export interface FileRouteTypes {
     | '/api/gateway/sessions'
     | '/api/gateway/status'
     | '/api/gateway/usage'
+    | '/api/gmail/messages'
+    | '/api/gmail/oauth'
+    | '/api/hubspot/contacts'
+    | '/api/hubspot/oauth'
+    | '/api/integrations/catalog'
+    | '/api/intel/ask'
+    | '/api/intel/enrich'
+    | '/api/intel/feedback'
+    | '/api/intel/ingest'
+    | '/api/intel/items'
+    | '/api/intel/opml-import'
+    | '/api/intel/search'
+    | '/api/intel/sources'
+    | '/api/linkedin/analytics'
+    | '/api/linkedin/coach'
+    | '/api/linkedin/comments'
+    | '/api/linkedin/conversions'
+    | '/api/linkedin/identities'
+    | '/api/linkedin/media'
+    | '/api/linkedin/outreach'
+    | '/api/linkedin/post'
+    | '/api/linkedin/posts'
+    | '/api/linkedin/status'
+    | '/api/linkedin/upload'
+    | '/api/linkedin/webhook'
+    | '/api/llm/local'
+    | '/api/media/generate'
+    | '/api/media/skills'
     | '/api/memory/list'
     | '/api/memory/read'
     | '/api/memory/search'
     | '/api/memory/write'
+    | '/api/postiz/accounts'
+    | '/api/postiz/analytics'
+    | '/api/postiz/coach'
+    | '/api/postiz/oauth'
+    | '/api/postiz/post'
+    | '/api/postiz/scheduled'
+    | '/api/rss/autopost'
+    | '/api/rss/autopost-config'
+    | '/api/rss/feed'
     | '/api/sessions/send'
+    | '/api/social/dispatch'
     | '/api/tasks/$taskId'
+    | '/api/integrations'
     | '/api/tasks'
     | '/api/cli-agents/$pid/kill'
     | '/api/cron/runs/$jobId'
+    | '/api/gmail/oauth/callback'
+    | '/api/gmail/oauth/start'
+    | '/api/gmail/oauth/status'
+    | '/api/hubspot/oauth/callback'
+    | '/api/hubspot/oauth/start'
+    | '/api/hubspot/oauth/status'
+    | '/api/linkedin/auth/start'
+    | '/api/media/status/$jobId'
+    | '/api/postiz/oauth/callback'
+    | '/api/postiz/oauth/start'
+    | '/api/postiz/oauth/status'
     | '/api/sessions/$sessionKey/status'
     | '/api/gateway/approvals'
     | '/api/gateway/approvals/$approvalId/$action'
@@ -1351,6 +2033,7 @@ export interface FileRouteTypes {
     | '/activity'
     | '/agent-swarm'
     | '/agents'
+    | '/ask'
     | '/channels'
     | '/conductor'
     | '/connect'
@@ -1360,11 +2043,19 @@ export interface FileRouteTypes {
     | '/debug'
     | '/files'
     | '/gateway'
+    | '/gmail'
+    | '/graph'
+    | '/hubspot'
+    | '/integrations'
+    | '/linkedin'
     | '/logs'
+    | '/media'
     | '/memory'
     | '/new'
     | '/nodes'
     | '/operations'
+    | '/postiz'
+    | '/rss'
     | '/sessions'
     | '/settings'
     | '/skills'
@@ -1382,6 +2073,8 @@ export interface FileRouteTypes {
     | '/api/autonomy-status'
     | '/api/autonomy-tick'
     | '/api/browser'
+    | '/api/cc-kv'
+    | '/api/cc-sidecars'
     | '/api/chat-abort'
     | '/api/chat-events'
     | '/api/cli-agents'
@@ -1398,6 +2091,7 @@ export interface FileRouteTypes {
     | '/api/gateway-config'
     | '/api/gateway-discover'
     | '/api/gateway-restart'
+    | '/api/graphql'
     | '/api/history'
     | '/api/local-setup'
     | '/api/model-switch'
@@ -1454,15 +2148,65 @@ export interface FileRouteTypes {
     | '/api/gateway/sessions'
     | '/api/gateway/status'
     | '/api/gateway/usage'
+    | '/api/gmail/messages'
+    | '/api/gmail/oauth'
+    | '/api/hubspot/contacts'
+    | '/api/hubspot/oauth'
+    | '/api/integrations/catalog'
+    | '/api/intel/ask'
+    | '/api/intel/enrich'
+    | '/api/intel/feedback'
+    | '/api/intel/ingest'
+    | '/api/intel/items'
+    | '/api/intel/opml-import'
+    | '/api/intel/search'
+    | '/api/intel/sources'
+    | '/api/linkedin/analytics'
+    | '/api/linkedin/coach'
+    | '/api/linkedin/comments'
+    | '/api/linkedin/conversions'
+    | '/api/linkedin/identities'
+    | '/api/linkedin/media'
+    | '/api/linkedin/outreach'
+    | '/api/linkedin/post'
+    | '/api/linkedin/posts'
+    | '/api/linkedin/status'
+    | '/api/linkedin/upload'
+    | '/api/linkedin/webhook'
+    | '/api/llm/local'
+    | '/api/media/generate'
+    | '/api/media/skills'
     | '/api/memory/list'
     | '/api/memory/read'
     | '/api/memory/search'
     | '/api/memory/write'
+    | '/api/postiz/accounts'
+    | '/api/postiz/analytics'
+    | '/api/postiz/coach'
+    | '/api/postiz/oauth'
+    | '/api/postiz/post'
+    | '/api/postiz/scheduled'
+    | '/api/rss/autopost'
+    | '/api/rss/autopost-config'
+    | '/api/rss/feed'
     | '/api/sessions/send'
+    | '/api/social/dispatch'
     | '/api/tasks/$taskId'
+    | '/api/integrations/'
     | '/api/tasks/'
     | '/api/cli-agents/$pid/kill'
     | '/api/cron/runs/$jobId'
+    | '/api/gmail/oauth/callback'
+    | '/api/gmail/oauth/start'
+    | '/api/gmail/oauth/status'
+    | '/api/hubspot/oauth/callback'
+    | '/api/hubspot/oauth/start'
+    | '/api/hubspot/oauth/status'
+    | '/api/linkedin/auth/start'
+    | '/api/media/status/$jobId'
+    | '/api/postiz/oauth/callback'
+    | '/api/postiz/oauth/start'
+    | '/api/postiz/oauth/status'
     | '/api/sessions/$sessionKey/status'
     | '/api/gateway/approvals/'
     | '/api/gateway/approvals/$approvalId/$action'
@@ -1474,6 +2218,7 @@ export interface RootRouteChildren {
   ActivityRoute: typeof ActivityRoute
   AgentSwarmRoute: typeof AgentSwarmRoute
   AgentsRoute: typeof AgentsRoute
+  AskRoute: typeof AskRoute
   ChannelsRoute: typeof ChannelsRoute
   ConductorRoute: typeof ConductorRoute
   ConnectRoute: typeof ConnectRoute
@@ -1483,11 +2228,19 @@ export interface RootRouteChildren {
   DebugRoute: typeof DebugRoute
   FilesRoute: typeof FilesRoute
   GatewayRoute: typeof GatewayRouteWithChildren
+  GmailRoute: typeof GmailRoute
+  GraphRoute: typeof GraphRoute
+  HubspotRoute: typeof HubspotRoute
+  IntegrationsRoute: typeof IntegrationsRoute
+  LinkedinRoute: typeof LinkedinRoute
   LogsRoute: typeof LogsRoute
+  MediaRoute: typeof MediaRoute
   MemoryRoute: typeof MemoryRoute
   NewRoute: typeof NewRoute
   NodesRoute: typeof NodesRoute
   OperationsRoute: typeof OperationsRoute
+  PostizRoute: typeof PostizRoute
+  RssRoute: typeof RssRoute
   SessionsRoute: typeof SessionsRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   SkillsRoute: typeof SkillsRoute
@@ -1505,6 +2258,8 @@ export interface RootRouteChildren {
   ApiAutonomyStatusRoute: typeof ApiAutonomyStatusRoute
   ApiAutonomyTickRoute: typeof ApiAutonomyTickRoute
   ApiBrowserRoute: typeof ApiBrowserRouteWithChildren
+  ApiCcKvRoute: typeof ApiCcKvRoute
+  ApiCcSidecarsRoute: typeof ApiCcSidecarsRoute
   ApiChatAbortRoute: typeof ApiChatAbortRoute
   ApiChatEventsRoute: typeof ApiChatEventsRoute
   ApiCliAgentsRoute: typeof ApiCliAgentsRouteWithChildren
@@ -1521,6 +2276,7 @@ export interface RootRouteChildren {
   ApiGatewayConfigRoute: typeof ApiGatewayConfigRoute
   ApiGatewayDiscoverRoute: typeof ApiGatewayDiscoverRoute
   ApiGatewayRestartRoute: typeof ApiGatewayRestartRoute
+  ApiGraphqlRoute: typeof ApiGraphqlRoute
   ApiHistoryRoute: typeof ApiHistoryRoute
   ApiLocalSetupRoute: typeof ApiLocalSetupRoute
   ApiModelSwitchRoute: typeof ApiModelSwitchRoute
@@ -1563,12 +2319,53 @@ export interface RootRouteChildren {
   ApiGatewaySessionsRoute: typeof ApiGatewaySessionsRoute
   ApiGatewayStatusRoute: typeof ApiGatewayStatusRoute
   ApiGatewayUsageRoute: typeof ApiGatewayUsageRoute
+  ApiGmailMessagesRoute: typeof ApiGmailMessagesRoute
+  ApiGmailOauthRoute: typeof ApiGmailOauthRouteWithChildren
+  ApiHubspotContactsRoute: typeof ApiHubspotContactsRoute
+  ApiHubspotOauthRoute: typeof ApiHubspotOauthRouteWithChildren
+  ApiIntegrationsCatalogRoute: typeof ApiIntegrationsCatalogRoute
+  ApiIntelAskRoute: typeof ApiIntelAskRoute
+  ApiIntelEnrichRoute: typeof ApiIntelEnrichRoute
+  ApiIntelFeedbackRoute: typeof ApiIntelFeedbackRoute
+  ApiIntelIngestRoute: typeof ApiIntelIngestRoute
+  ApiIntelItemsRoute: typeof ApiIntelItemsRoute
+  ApiIntelOpmlImportRoute: typeof ApiIntelOpmlImportRoute
+  ApiIntelSearchRoute: typeof ApiIntelSearchRoute
+  ApiIntelSourcesRoute: typeof ApiIntelSourcesRoute
+  ApiLinkedinAnalyticsRoute: typeof ApiLinkedinAnalyticsRoute
+  ApiLinkedinCoachRoute: typeof ApiLinkedinCoachRoute
+  ApiLinkedinCommentsRoute: typeof ApiLinkedinCommentsRoute
+  ApiLinkedinConversionsRoute: typeof ApiLinkedinConversionsRoute
+  ApiLinkedinIdentitiesRoute: typeof ApiLinkedinIdentitiesRoute
+  ApiLinkedinMediaRoute: typeof ApiLinkedinMediaRoute
+  ApiLinkedinOutreachRoute: typeof ApiLinkedinOutreachRoute
+  ApiLinkedinPostRoute: typeof ApiLinkedinPostRoute
+  ApiLinkedinPostsRoute: typeof ApiLinkedinPostsRoute
+  ApiLinkedinStatusRoute: typeof ApiLinkedinStatusRoute
+  ApiLinkedinUploadRoute: typeof ApiLinkedinUploadRoute
+  ApiLinkedinWebhookRoute: typeof ApiLinkedinWebhookRoute
+  ApiLlmLocalRoute: typeof ApiLlmLocalRoute
+  ApiMediaGenerateRoute: typeof ApiMediaGenerateRoute
+  ApiMediaSkillsRoute: typeof ApiMediaSkillsRoute
   ApiMemoryListRoute: typeof ApiMemoryListRoute
   ApiMemoryReadRoute: typeof ApiMemoryReadRoute
   ApiMemorySearchRoute: typeof ApiMemorySearchRoute
   ApiMemoryWriteRoute: typeof ApiMemoryWriteRoute
+  ApiPostizAccountsRoute: typeof ApiPostizAccountsRoute
+  ApiPostizAnalyticsRoute: typeof ApiPostizAnalyticsRoute
+  ApiPostizCoachRoute: typeof ApiPostizCoachRoute
+  ApiPostizOauthRoute: typeof ApiPostizOauthRouteWithChildren
+  ApiPostizPostRoute: typeof ApiPostizPostRoute
+  ApiPostizScheduledRoute: typeof ApiPostizScheduledRoute
+  ApiRssAutopostRoute: typeof ApiRssAutopostRoute
+  ApiRssAutopostConfigRoute: typeof ApiRssAutopostConfigRoute
+  ApiRssFeedRoute: typeof ApiRssFeedRoute
+  ApiSocialDispatchRoute: typeof ApiSocialDispatchRoute
   ApiTasksTaskIdRoute: typeof ApiTasksTaskIdRoute
+  ApiIntegrationsIndexRoute: typeof ApiIntegrationsIndexRoute
   ApiTasksIndexRoute: typeof ApiTasksIndexRoute
+  ApiLinkedinAuthStartRoute: typeof ApiLinkedinAuthStartRoute
+  ApiMediaStatusJobIdRoute: typeof ApiMediaStatusJobIdRoute
   ApiGatewayApprovalsIndexRoute: typeof ApiGatewayApprovalsIndexRoute
   ApiGatewayApprovalsApprovalIdActionRoute: typeof ApiGatewayApprovalsApprovalIdActionRoute
 }
@@ -1624,6 +2421,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SessionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rss': {
+      id: '/rss'
+      path: '/rss'
+      fullPath: '/rss'
+      preLoaderRoute: typeof RssRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/postiz': {
+      id: '/postiz'
+      path: '/postiz'
+      fullPath: '/postiz'
+      preLoaderRoute: typeof PostizRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/operations': {
       id: '/operations'
       path: '/operations'
@@ -1652,11 +2463,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MemoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/media': {
+      id: '/media'
+      path: '/media'
+      fullPath: '/media'
+      preLoaderRoute: typeof MediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/logs': {
       id: '/logs'
       path: '/logs'
       fullPath: '/logs'
       preLoaderRoute: typeof LogsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/linkedin': {
+      id: '/linkedin'
+      path: '/linkedin'
+      fullPath: '/linkedin'
+      preLoaderRoute: typeof LinkedinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations': {
+      id: '/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof IntegrationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hubspot': {
+      id: '/hubspot'
+      path: '/hubspot'
+      fullPath: '/hubspot'
+      preLoaderRoute: typeof HubspotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/graph': {
+      id: '/graph'
+      path: '/graph'
+      fullPath: '/graph'
+      preLoaderRoute: typeof GraphRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gmail': {
+      id: '/gmail'
+      path: '/gmail'
+      fullPath: '/gmail'
+      preLoaderRoute: typeof GmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gateway': {
@@ -1720,6 +2573,13 @@ declare module '@tanstack/react-router' {
       path: '/channels'
       fullPath: '/channels'
       preLoaderRoute: typeof ChannelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ask': {
+      id: '/ask'
+      path: '/ask'
+      fullPath: '/ask'
+      preLoaderRoute: typeof AskRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/agents': {
@@ -1988,6 +2848,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/graphql': {
+      id: '/api/graphql'
+      path: '/api/graphql'
+      fullPath: '/api/graphql'
+      preLoaderRoute: typeof ApiGraphqlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/gateway-restart': {
       id: '/api/gateway-restart'
       path: '/api/gateway-restart'
@@ -2100,6 +2967,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatAbortRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cc-sidecars': {
+      id: '/api/cc-sidecars'
+      path: '/api/cc-sidecars'
+      fullPath: '/api/cc-sidecars'
+      preLoaderRoute: typeof ApiCcSidecarsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cc-kv': {
+      id: '/api/cc-kv'
+      path: '/api/cc-kv'
+      fullPath: '/api/cc-kv'
+      preLoaderRoute: typeof ApiCcKvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/browser': {
       id: '/api/browser'
       path: '/api/browser'
@@ -2177,11 +3058,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTasksIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/integrations/': {
+      id: '/api/integrations/'
+      path: '/api/integrations'
+      fullPath: '/api/integrations/'
+      preLoaderRoute: typeof ApiIntegrationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/tasks/$taskId': {
       id: '/api/tasks/$taskId'
       path: '/api/tasks/$taskId'
       fullPath: '/api/tasks/$taskId'
       preLoaderRoute: typeof ApiTasksTaskIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/social/dispatch': {
+      id: '/api/social/dispatch'
+      path: '/api/social/dispatch'
+      fullPath: '/api/social/dispatch'
+      preLoaderRoute: typeof ApiSocialDispatchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/sessions/send': {
@@ -2190,6 +3085,69 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/sessions/send'
       preLoaderRoute: typeof ApiSessionsSendRouteImport
       parentRoute: typeof ApiSessionsRoute
+    }
+    '/api/rss/feed': {
+      id: '/api/rss/feed'
+      path: '/api/rss/feed'
+      fullPath: '/api/rss/feed'
+      preLoaderRoute: typeof ApiRssFeedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/rss/autopost-config': {
+      id: '/api/rss/autopost-config'
+      path: '/api/rss/autopost-config'
+      fullPath: '/api/rss/autopost-config'
+      preLoaderRoute: typeof ApiRssAutopostConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/rss/autopost': {
+      id: '/api/rss/autopost'
+      path: '/api/rss/autopost'
+      fullPath: '/api/rss/autopost'
+      preLoaderRoute: typeof ApiRssAutopostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/postiz/scheduled': {
+      id: '/api/postiz/scheduled'
+      path: '/api/postiz/scheduled'
+      fullPath: '/api/postiz/scheduled'
+      preLoaderRoute: typeof ApiPostizScheduledRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/postiz/post': {
+      id: '/api/postiz/post'
+      path: '/api/postiz/post'
+      fullPath: '/api/postiz/post'
+      preLoaderRoute: typeof ApiPostizPostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/postiz/oauth': {
+      id: '/api/postiz/oauth'
+      path: '/api/postiz/oauth'
+      fullPath: '/api/postiz/oauth'
+      preLoaderRoute: typeof ApiPostizOauthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/postiz/coach': {
+      id: '/api/postiz/coach'
+      path: '/api/postiz/coach'
+      fullPath: '/api/postiz/coach'
+      preLoaderRoute: typeof ApiPostizCoachRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/postiz/analytics': {
+      id: '/api/postiz/analytics'
+      path: '/api/postiz/analytics'
+      fullPath: '/api/postiz/analytics'
+      preLoaderRoute: typeof ApiPostizAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/postiz/accounts': {
+      id: '/api/postiz/accounts'
+      path: '/api/postiz/accounts'
+      fullPath: '/api/postiz/accounts'
+      preLoaderRoute: typeof ApiPostizAccountsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/memory/write': {
       id: '/api/memory/write'
@@ -2217,6 +3175,202 @@ declare module '@tanstack/react-router' {
       path: '/api/memory/list'
       fullPath: '/api/memory/list'
       preLoaderRoute: typeof ApiMemoryListRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/media/skills': {
+      id: '/api/media/skills'
+      path: '/api/media/skills'
+      fullPath: '/api/media/skills'
+      preLoaderRoute: typeof ApiMediaSkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/media/generate': {
+      id: '/api/media/generate'
+      path: '/api/media/generate'
+      fullPath: '/api/media/generate'
+      preLoaderRoute: typeof ApiMediaGenerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/llm/local': {
+      id: '/api/llm/local'
+      path: '/api/llm/local'
+      fullPath: '/api/llm/local'
+      preLoaderRoute: typeof ApiLlmLocalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/webhook': {
+      id: '/api/linkedin/webhook'
+      path: '/api/linkedin/webhook'
+      fullPath: '/api/linkedin/webhook'
+      preLoaderRoute: typeof ApiLinkedinWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/upload': {
+      id: '/api/linkedin/upload'
+      path: '/api/linkedin/upload'
+      fullPath: '/api/linkedin/upload'
+      preLoaderRoute: typeof ApiLinkedinUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/status': {
+      id: '/api/linkedin/status'
+      path: '/api/linkedin/status'
+      fullPath: '/api/linkedin/status'
+      preLoaderRoute: typeof ApiLinkedinStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/posts': {
+      id: '/api/linkedin/posts'
+      path: '/api/linkedin/posts'
+      fullPath: '/api/linkedin/posts'
+      preLoaderRoute: typeof ApiLinkedinPostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/post': {
+      id: '/api/linkedin/post'
+      path: '/api/linkedin/post'
+      fullPath: '/api/linkedin/post'
+      preLoaderRoute: typeof ApiLinkedinPostRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/outreach': {
+      id: '/api/linkedin/outreach'
+      path: '/api/linkedin/outreach'
+      fullPath: '/api/linkedin/outreach'
+      preLoaderRoute: typeof ApiLinkedinOutreachRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/media': {
+      id: '/api/linkedin/media'
+      path: '/api/linkedin/media'
+      fullPath: '/api/linkedin/media'
+      preLoaderRoute: typeof ApiLinkedinMediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/identities': {
+      id: '/api/linkedin/identities'
+      path: '/api/linkedin/identities'
+      fullPath: '/api/linkedin/identities'
+      preLoaderRoute: typeof ApiLinkedinIdentitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/conversions': {
+      id: '/api/linkedin/conversions'
+      path: '/api/linkedin/conversions'
+      fullPath: '/api/linkedin/conversions'
+      preLoaderRoute: typeof ApiLinkedinConversionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/comments': {
+      id: '/api/linkedin/comments'
+      path: '/api/linkedin/comments'
+      fullPath: '/api/linkedin/comments'
+      preLoaderRoute: typeof ApiLinkedinCommentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/coach': {
+      id: '/api/linkedin/coach'
+      path: '/api/linkedin/coach'
+      fullPath: '/api/linkedin/coach'
+      preLoaderRoute: typeof ApiLinkedinCoachRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/analytics': {
+      id: '/api/linkedin/analytics'
+      path: '/api/linkedin/analytics'
+      fullPath: '/api/linkedin/analytics'
+      preLoaderRoute: typeof ApiLinkedinAnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/intel/sources': {
+      id: '/api/intel/sources'
+      path: '/api/intel/sources'
+      fullPath: '/api/intel/sources'
+      preLoaderRoute: typeof ApiIntelSourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/intel/search': {
+      id: '/api/intel/search'
+      path: '/api/intel/search'
+      fullPath: '/api/intel/search'
+      preLoaderRoute: typeof ApiIntelSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/intel/opml-import': {
+      id: '/api/intel/opml-import'
+      path: '/api/intel/opml-import'
+      fullPath: '/api/intel/opml-import'
+      preLoaderRoute: typeof ApiIntelOpmlImportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/intel/items': {
+      id: '/api/intel/items'
+      path: '/api/intel/items'
+      fullPath: '/api/intel/items'
+      preLoaderRoute: typeof ApiIntelItemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/intel/ingest': {
+      id: '/api/intel/ingest'
+      path: '/api/intel/ingest'
+      fullPath: '/api/intel/ingest'
+      preLoaderRoute: typeof ApiIntelIngestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/intel/feedback': {
+      id: '/api/intel/feedback'
+      path: '/api/intel/feedback'
+      fullPath: '/api/intel/feedback'
+      preLoaderRoute: typeof ApiIntelFeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/intel/enrich': {
+      id: '/api/intel/enrich'
+      path: '/api/intel/enrich'
+      fullPath: '/api/intel/enrich'
+      preLoaderRoute: typeof ApiIntelEnrichRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/intel/ask': {
+      id: '/api/intel/ask'
+      path: '/api/intel/ask'
+      fullPath: '/api/intel/ask'
+      preLoaderRoute: typeof ApiIntelAskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/integrations/catalog': {
+      id: '/api/integrations/catalog'
+      path: '/api/integrations/catalog'
+      fullPath: '/api/integrations/catalog'
+      preLoaderRoute: typeof ApiIntegrationsCatalogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/hubspot/oauth': {
+      id: '/api/hubspot/oauth'
+      path: '/api/hubspot/oauth'
+      fullPath: '/api/hubspot/oauth'
+      preLoaderRoute: typeof ApiHubspotOauthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/hubspot/contacts': {
+      id: '/api/hubspot/contacts'
+      path: '/api/hubspot/contacts'
+      fullPath: '/api/hubspot/contacts'
+      preLoaderRoute: typeof ApiHubspotContactsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/gmail/oauth': {
+      id: '/api/gmail/oauth'
+      path: '/api/gmail/oauth'
+      fullPath: '/api/gmail/oauth'
+      preLoaderRoute: typeof ApiGmailOauthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/gmail/messages': {
+      id: '/api/gmail/messages'
+      path: '/api/gmail/messages'
+      fullPath: '/api/gmail/messages'
+      preLoaderRoute: typeof ApiGmailMessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/gateway/usage': {
@@ -2394,6 +3548,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiSessionsSessionKeyStatusRouteImport
       parentRoute: typeof ApiSessionsRoute
     }
+    '/api/postiz/oauth/status': {
+      id: '/api/postiz/oauth/status'
+      path: '/status'
+      fullPath: '/api/postiz/oauth/status'
+      preLoaderRoute: typeof ApiPostizOauthStatusRouteImport
+      parentRoute: typeof ApiPostizOauthRoute
+    }
+    '/api/postiz/oauth/start': {
+      id: '/api/postiz/oauth/start'
+      path: '/start'
+      fullPath: '/api/postiz/oauth/start'
+      preLoaderRoute: typeof ApiPostizOauthStartRouteImport
+      parentRoute: typeof ApiPostizOauthRoute
+    }
+    '/api/postiz/oauth/callback': {
+      id: '/api/postiz/oauth/callback'
+      path: '/callback'
+      fullPath: '/api/postiz/oauth/callback'
+      preLoaderRoute: typeof ApiPostizOauthCallbackRouteImport
+      parentRoute: typeof ApiPostizOauthRoute
+    }
+    '/api/media/status/$jobId': {
+      id: '/api/media/status/$jobId'
+      path: '/api/media/status/$jobId'
+      fullPath: '/api/media/status/$jobId'
+      preLoaderRoute: typeof ApiMediaStatusJobIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/linkedin/auth/start': {
+      id: '/api/linkedin/auth/start'
+      path: '/api/linkedin/auth/start'
+      fullPath: '/api/linkedin/auth/start'
+      preLoaderRoute: typeof ApiLinkedinAuthStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/hubspot/oauth/status': {
+      id: '/api/hubspot/oauth/status'
+      path: '/status'
+      fullPath: '/api/hubspot/oauth/status'
+      preLoaderRoute: typeof ApiHubspotOauthStatusRouteImport
+      parentRoute: typeof ApiHubspotOauthRoute
+    }
+    '/api/hubspot/oauth/start': {
+      id: '/api/hubspot/oauth/start'
+      path: '/start'
+      fullPath: '/api/hubspot/oauth/start'
+      preLoaderRoute: typeof ApiHubspotOauthStartRouteImport
+      parentRoute: typeof ApiHubspotOauthRoute
+    }
+    '/api/hubspot/oauth/callback': {
+      id: '/api/hubspot/oauth/callback'
+      path: '/callback'
+      fullPath: '/api/hubspot/oauth/callback'
+      preLoaderRoute: typeof ApiHubspotOauthCallbackRouteImport
+      parentRoute: typeof ApiHubspotOauthRoute
+    }
+    '/api/gmail/oauth/status': {
+      id: '/api/gmail/oauth/status'
+      path: '/status'
+      fullPath: '/api/gmail/oauth/status'
+      preLoaderRoute: typeof ApiGmailOauthStatusRouteImport
+      parentRoute: typeof ApiGmailOauthRoute
+    }
+    '/api/gmail/oauth/start': {
+      id: '/api/gmail/oauth/start'
+      path: '/start'
+      fullPath: '/api/gmail/oauth/start'
+      preLoaderRoute: typeof ApiGmailOauthStartRouteImport
+      parentRoute: typeof ApiGmailOauthRoute
+    }
+    '/api/gmail/oauth/callback': {
+      id: '/api/gmail/oauth/callback'
+      path: '/callback'
+      fullPath: '/api/gmail/oauth/callback'
+      preLoaderRoute: typeof ApiGmailOauthCallbackRouteImport
+      parentRoute: typeof ApiGmailOauthRoute
+    }
     '/api/cron/runs/$jobId': {
       id: '/api/cron/runs/$jobId'
       path: '/runs/$jobId'
@@ -2522,12 +3753,61 @@ const ApiSessionsRouteWithChildren = ApiSessionsRoute._addFileChildren(
   ApiSessionsRouteChildren,
 )
 
+interface ApiGmailOauthRouteChildren {
+  ApiGmailOauthCallbackRoute: typeof ApiGmailOauthCallbackRoute
+  ApiGmailOauthStartRoute: typeof ApiGmailOauthStartRoute
+  ApiGmailOauthStatusRoute: typeof ApiGmailOauthStatusRoute
+}
+
+const ApiGmailOauthRouteChildren: ApiGmailOauthRouteChildren = {
+  ApiGmailOauthCallbackRoute: ApiGmailOauthCallbackRoute,
+  ApiGmailOauthStartRoute: ApiGmailOauthStartRoute,
+  ApiGmailOauthStatusRoute: ApiGmailOauthStatusRoute,
+}
+
+const ApiGmailOauthRouteWithChildren = ApiGmailOauthRoute._addFileChildren(
+  ApiGmailOauthRouteChildren,
+)
+
+interface ApiHubspotOauthRouteChildren {
+  ApiHubspotOauthCallbackRoute: typeof ApiHubspotOauthCallbackRoute
+  ApiHubspotOauthStartRoute: typeof ApiHubspotOauthStartRoute
+  ApiHubspotOauthStatusRoute: typeof ApiHubspotOauthStatusRoute
+}
+
+const ApiHubspotOauthRouteChildren: ApiHubspotOauthRouteChildren = {
+  ApiHubspotOauthCallbackRoute: ApiHubspotOauthCallbackRoute,
+  ApiHubspotOauthStartRoute: ApiHubspotOauthStartRoute,
+  ApiHubspotOauthStatusRoute: ApiHubspotOauthStatusRoute,
+}
+
+const ApiHubspotOauthRouteWithChildren = ApiHubspotOauthRoute._addFileChildren(
+  ApiHubspotOauthRouteChildren,
+)
+
+interface ApiPostizOauthRouteChildren {
+  ApiPostizOauthCallbackRoute: typeof ApiPostizOauthCallbackRoute
+  ApiPostizOauthStartRoute: typeof ApiPostizOauthStartRoute
+  ApiPostizOauthStatusRoute: typeof ApiPostizOauthStatusRoute
+}
+
+const ApiPostizOauthRouteChildren: ApiPostizOauthRouteChildren = {
+  ApiPostizOauthCallbackRoute: ApiPostizOauthCallbackRoute,
+  ApiPostizOauthStartRoute: ApiPostizOauthStartRoute,
+  ApiPostizOauthStatusRoute: ApiPostizOauthStatusRoute,
+}
+
+const ApiPostizOauthRouteWithChildren = ApiPostizOauthRoute._addFileChildren(
+  ApiPostizOauthRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
   ActivityRoute: ActivityRoute,
   AgentSwarmRoute: AgentSwarmRoute,
   AgentsRoute: AgentsRoute,
+  AskRoute: AskRoute,
   ChannelsRoute: ChannelsRoute,
   ConductorRoute: ConductorRoute,
   ConnectRoute: ConnectRoute,
@@ -2537,11 +3817,19 @@ const rootRouteChildren: RootRouteChildren = {
   DebugRoute: DebugRoute,
   FilesRoute: FilesRoute,
   GatewayRoute: GatewayRouteWithChildren,
+  GmailRoute: GmailRoute,
+  GraphRoute: GraphRoute,
+  HubspotRoute: HubspotRoute,
+  IntegrationsRoute: IntegrationsRoute,
+  LinkedinRoute: LinkedinRoute,
   LogsRoute: LogsRoute,
+  MediaRoute: MediaRoute,
   MemoryRoute: MemoryRoute,
   NewRoute: NewRoute,
   NodesRoute: NodesRoute,
   OperationsRoute: OperationsRoute,
+  PostizRoute: PostizRoute,
+  RssRoute: RssRoute,
   SessionsRoute: SessionsRoute,
   SettingsRoute: SettingsRouteWithChildren,
   SkillsRoute: SkillsRoute,
@@ -2559,6 +3847,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAutonomyStatusRoute: ApiAutonomyStatusRoute,
   ApiAutonomyTickRoute: ApiAutonomyTickRoute,
   ApiBrowserRoute: ApiBrowserRouteWithChildren,
+  ApiCcKvRoute: ApiCcKvRoute,
+  ApiCcSidecarsRoute: ApiCcSidecarsRoute,
   ApiChatAbortRoute: ApiChatAbortRoute,
   ApiChatEventsRoute: ApiChatEventsRoute,
   ApiCliAgentsRoute: ApiCliAgentsRouteWithChildren,
@@ -2575,6 +3865,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGatewayConfigRoute: ApiGatewayConfigRoute,
   ApiGatewayDiscoverRoute: ApiGatewayDiscoverRoute,
   ApiGatewayRestartRoute: ApiGatewayRestartRoute,
+  ApiGraphqlRoute: ApiGraphqlRoute,
   ApiHistoryRoute: ApiHistoryRoute,
   ApiLocalSetupRoute: ApiLocalSetupRoute,
   ApiModelSwitchRoute: ApiModelSwitchRoute,
@@ -2617,12 +3908,53 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGatewaySessionsRoute: ApiGatewaySessionsRoute,
   ApiGatewayStatusRoute: ApiGatewayStatusRoute,
   ApiGatewayUsageRoute: ApiGatewayUsageRoute,
+  ApiGmailMessagesRoute: ApiGmailMessagesRoute,
+  ApiGmailOauthRoute: ApiGmailOauthRouteWithChildren,
+  ApiHubspotContactsRoute: ApiHubspotContactsRoute,
+  ApiHubspotOauthRoute: ApiHubspotOauthRouteWithChildren,
+  ApiIntegrationsCatalogRoute: ApiIntegrationsCatalogRoute,
+  ApiIntelAskRoute: ApiIntelAskRoute,
+  ApiIntelEnrichRoute: ApiIntelEnrichRoute,
+  ApiIntelFeedbackRoute: ApiIntelFeedbackRoute,
+  ApiIntelIngestRoute: ApiIntelIngestRoute,
+  ApiIntelItemsRoute: ApiIntelItemsRoute,
+  ApiIntelOpmlImportRoute: ApiIntelOpmlImportRoute,
+  ApiIntelSearchRoute: ApiIntelSearchRoute,
+  ApiIntelSourcesRoute: ApiIntelSourcesRoute,
+  ApiLinkedinAnalyticsRoute: ApiLinkedinAnalyticsRoute,
+  ApiLinkedinCoachRoute: ApiLinkedinCoachRoute,
+  ApiLinkedinCommentsRoute: ApiLinkedinCommentsRoute,
+  ApiLinkedinConversionsRoute: ApiLinkedinConversionsRoute,
+  ApiLinkedinIdentitiesRoute: ApiLinkedinIdentitiesRoute,
+  ApiLinkedinMediaRoute: ApiLinkedinMediaRoute,
+  ApiLinkedinOutreachRoute: ApiLinkedinOutreachRoute,
+  ApiLinkedinPostRoute: ApiLinkedinPostRoute,
+  ApiLinkedinPostsRoute: ApiLinkedinPostsRoute,
+  ApiLinkedinStatusRoute: ApiLinkedinStatusRoute,
+  ApiLinkedinUploadRoute: ApiLinkedinUploadRoute,
+  ApiLinkedinWebhookRoute: ApiLinkedinWebhookRoute,
+  ApiLlmLocalRoute: ApiLlmLocalRoute,
+  ApiMediaGenerateRoute: ApiMediaGenerateRoute,
+  ApiMediaSkillsRoute: ApiMediaSkillsRoute,
   ApiMemoryListRoute: ApiMemoryListRoute,
   ApiMemoryReadRoute: ApiMemoryReadRoute,
   ApiMemorySearchRoute: ApiMemorySearchRoute,
   ApiMemoryWriteRoute: ApiMemoryWriteRoute,
+  ApiPostizAccountsRoute: ApiPostizAccountsRoute,
+  ApiPostizAnalyticsRoute: ApiPostizAnalyticsRoute,
+  ApiPostizCoachRoute: ApiPostizCoachRoute,
+  ApiPostizOauthRoute: ApiPostizOauthRouteWithChildren,
+  ApiPostizPostRoute: ApiPostizPostRoute,
+  ApiPostizScheduledRoute: ApiPostizScheduledRoute,
+  ApiRssAutopostRoute: ApiRssAutopostRoute,
+  ApiRssAutopostConfigRoute: ApiRssAutopostConfigRoute,
+  ApiRssFeedRoute: ApiRssFeedRoute,
+  ApiSocialDispatchRoute: ApiSocialDispatchRoute,
   ApiTasksTaskIdRoute: ApiTasksTaskIdRoute,
+  ApiIntegrationsIndexRoute: ApiIntegrationsIndexRoute,
   ApiTasksIndexRoute: ApiTasksIndexRoute,
+  ApiLinkedinAuthStartRoute: ApiLinkedinAuthStartRoute,
+  ApiMediaStatusJobIdRoute: ApiMediaStatusJobIdRoute,
   ApiGatewayApprovalsIndexRoute: ApiGatewayApprovalsIndexRoute,
   ApiGatewayApprovalsApprovalIdActionRoute:
     ApiGatewayApprovalsApprovalIdActionRoute,

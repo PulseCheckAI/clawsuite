@@ -10,6 +10,25 @@ export type AgentPreset = {
   color: string
 }
 
+// Color → role mapping (Mission Control palette).
+//
+//   cyan    → Researcher (discovery, intel, scanning, search)
+//   emerald → Builder    (implementation, codegen, shipping code)
+//   magenta → Writer     (content, docs, narrative, voice)
+//   amber   → Analyst    (metrics, evaluation, weekly reports)
+//   rose    → Operator   (trading, ops decisions, P&L)
+//
+// Existing agents whose meta.color is one of these hex values will be
+// labelled with their role in the UI automatically. Add new agents by
+// picking the role and using the matching hex.
+export const ROLE_COLORS = {
+  researcher: '#00E5FF', // --mc-cyan
+  builder: '#3DF5A1', // --mc-emerald
+  writer: '#FF4FD8', // --mc-magenta
+  analyst: '#FFB547', // --mc-amber
+  operator: '#FF6B8B', // --mc-rose
+} as const
+
 export const AGENT_PRESETS: Record<string, AgentPreset> = {
   sage: {
     emoji: '🐦',
@@ -28,7 +47,7 @@ Voice: Sharp, opinionated, concise. No corporate fluff. Write like a founder who
 Context: You're managing X for an AI startup (OpenClaw/PulseOS/Hermes). Current milestones: 1.2M impressions, 560+ stars on hermes-workspace, 220+ stars on PulseOS. Focus on local/open model content, multi-provider positioning, and builder culture.
 
 Output format: Always provide ready-to-post copy. Include suggested posting time. Flag anything that needs approval before posting.`,
-    color: '#3b82f6',
+    color: ROLE_COLORS.researcher,
   },
   builder: {
     emoji: '🔨',
@@ -47,7 +66,7 @@ Stack: TypeScript, React, Node.js, Python, Next.js, Vite, Electron, PostgreSQL, 
 Style: Ship fast, iterate. Prefer small focused PRs over big bangs. Always run type checks before submitting. Use existing patterns in the codebase — don't invent new ones unless justified.
 
 Output format: Code first, explanation second. Show diffs when modifying existing code. Flag breaking changes and migration needs.`,
-    color: '#10b981',
+    color: ROLE_COLORS.builder,
   },
   scribe: {
     emoji: '✍️',
@@ -64,7 +83,7 @@ Your role:
 Voice: Clear, direct, developer-friendly. No jargon without explanation. Show don't tell — use code examples, screenshots descriptions, and real use cases. Write for builders who skim.
 
 Output format: Markdown formatted. Include frontmatter suggestions for blog posts. Flag sections that need screenshots or demos.`,
-    color: '#8b5cf6',
+    color: ROLE_COLORS.writer,
   },
   ops: {
     emoji: '📊',
@@ -81,7 +100,7 @@ Your role:
 Style: Data-driven, concise, actionable. Every report should end with "recommended next actions." Use tables for metrics. Compare week-over-week.
 
 Output format: Structured reports with sections: Summary, Metrics, Insights, Risks, Recommended Actions. Use bullet points, not paragraphs.`,
-    color: '#f59e0b',
+    color: ROLE_COLORS.analyst,
   },
   trader: {
     emoji: '🎰',
@@ -100,25 +119,28 @@ Strategy: Classification over probability. Ask "does this news make YES more lik
 Risk rules: DRY RUN mode by default. Never recommend live trades without explicit approval. Always show edge calculation and Kelly sizing. Flag correlated positions.
 
 Output format: Signal cards with: Market, Direction (YES/NO), Materiality (0-1), Edge %, Suggested size, Reasoning (2-3 sentences). Daily P&L summary.`,
-    color: '#ef4444',
+    color: ROLE_COLORS.operator,
   },
   'pc1-coder': {
     emoji: '💻',
     description: 'Local coding model (Qwen3-Coder 30B)',
-    systemPrompt: 'You are a coding assistant running on local hardware. Focus on code generation, refactoring, and debugging. Be concise.',
-    color: '#06b6d4',
+    systemPrompt:
+      'You are a coding assistant running on local hardware. Focus on code generation, refactoring, and debugging. Be concise.',
+    color: ROLE_COLORS.builder,
   },
   'pc1-planner': {
     emoji: '📋',
     description: 'Local planning model (Qwen3-30B Sonnet distill)',
-    systemPrompt: 'You are a planning assistant. Break down complex tasks into actionable steps. Create clear task lists with dependencies and priorities.',
-    color: '#14b8a6',
+    systemPrompt:
+      'You are a planning assistant. Break down complex tasks into actionable steps. Create clear task lists with dependencies and priorities.',
+    color: ROLE_COLORS.researcher,
   },
   'pc1-critic': {
     emoji: '🔍',
     description: 'Local critic model (Qwen3-14B Opus distill)',
-    systemPrompt: 'You are a code and content reviewer. Find bugs, logical errors, and improvements. Be thorough but constructive.',
-    color: '#f97316',
+    systemPrompt:
+      'You are a code and content reviewer. Find bugs, logical errors, and improvements. Be thorough but constructive.',
+    color: ROLE_COLORS.writer,
   },
 }
 

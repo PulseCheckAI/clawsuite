@@ -104,10 +104,16 @@ export const Route = createFileRoute('/api/sessions/send')({
             sessionKey = 'main'
           }
 
-          const idempotencyKey =
-            typeof body.idempotencyKey === 'string' &&
-            body.idempotencyKey.trim().length > 0
+          // Cap caller-supplied idempotency keys at 100 chars to prevent
+          // pathological inputs being forwarded to gateway RPC. UUIDs are
+          // 36 chars; 100 leaves room for prefixes like `mission:abc:retry-3`.
+          const rawIdempotencyKey =
+            typeof body.idempotencyKey === 'string'
               ? body.idempotencyKey.trim()
+              : ''
+          const idempotencyKey =
+            rawIdempotencyKey.length > 0
+              ? rawIdempotencyKey.slice(0, 100)
               : randomUUID()
 
           const result = await sendMessageViaGateway({

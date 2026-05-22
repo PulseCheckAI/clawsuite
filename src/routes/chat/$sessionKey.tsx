@@ -3,6 +3,7 @@ import { Suspense, lazy, useCallback, useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { ErrorBoundary } from '@/components/error-boundary'
 import { moveHistoryMessages } from '../../screens/chat/chat-queries'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 
 const ChatScreen = lazy(async () => {
   const module = await import('../../screens/chat/chat-screen')
@@ -35,7 +36,8 @@ export const Route = createFileRoute('/chat/$sessionKey')({
             </button>
             <button
               onClick={() => {
-                if (typeof window !== 'undefined') window.location.href = '/chat/main'
+                if (typeof window !== 'undefined')
+                  window.location.href = '/chat/main'
               }}
               className="px-4 py-2 border border-primary-300 text-primary-700 rounded-lg hover:bg-primary-100 transition-colors"
             >
@@ -65,9 +67,10 @@ function ChatRoute() {
   const activeFriendlyId =
     typeof params.sessionKey === 'string' ? params.sessionKey : 'main'
   const isNewChat = activeFriendlyId === 'new'
-  const forcedSessionKey = forcedSession && forcedSession.friendlyId === activeFriendlyId
-    ? forcedSession.sessionKey
-    : undefined
+  const forcedSessionKey =
+    forcedSession && forcedSession.friendlyId === activeFriendlyId
+      ? forcedSession.sessionKey
+      : undefined
 
   // Clear history cache when navigating to new chat
   useEffect(() => {
@@ -110,21 +113,26 @@ function ChatRoute() {
   }
 
   return (
-    <ErrorBoundary>
-      <Suspense
-        fallback={
-          <div className="flex h-full items-center justify-center text-primary-400">
-            Loading chat…
-          </div>
-        }
-      >
-        <ChatScreen
-          activeFriendlyId={activeFriendlyId}
-          isNewChat={isNewChat}
-          forcedSessionKey={forcedSessionKey}
-          onSessionResolved={isNewChat ? handleSessionResolved : undefined}
-        />
-      </Suspense>
-    </ErrorBoundary>
+    <div style={MC_STYLE} className="h-full">
+      <ErrorBoundary>
+        <Suspense
+          fallback={
+            <div
+              className="flex h-full items-center justify-center"
+              style={{ color: 'var(--mc-text-dim)' }}
+            >
+              Loading chat…
+            </div>
+          }
+        >
+          <ChatScreen
+            activeFriendlyId={activeFriendlyId}
+            isNewChat={isNewChat}
+            forcedSessionKey={forcedSessionKey}
+            onSessionResolved={isNewChat ? handleSessionResolved : undefined}
+          />
+        </Suspense>
+      </ErrorBoundary>
+    </div>
   )
 }

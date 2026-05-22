@@ -173,7 +173,8 @@ export const Route = createFileRoute('/api/sessions')({
 
           const returnedKeyRaw = payload.key
           const returnedKey =
-            typeof returnedKeyRaw === 'string' && returnedKeyRaw.trim().length > 0
+            typeof returnedKeyRaw === 'string' &&
+            returnedKeyRaw.trim().length > 0
               ? returnedKeyRaw.trim()
               : ''
           const resolvedSessionKey = returnedKey || friendlyId
@@ -231,7 +232,10 @@ export const Route = createFileRoute('/api/sessions')({
             ? thinkingRaw
             : undefined
           const hasFast = Object.prototype.hasOwnProperty.call(body, 'fast')
-          const hasVerbose = Object.prototype.hasOwnProperty.call(body, 'verbose')
+          const hasVerbose = Object.prototype.hasOwnProperty.call(
+            body,
+            'verbose',
+          )
           const hasReasoning = Object.prototype.hasOwnProperty.call(
             body,
             'reasoning',
@@ -295,6 +299,8 @@ export const Route = createFileRoute('/api/sessions')({
         if (!isAuthenticated(request)) {
           return json({ ok: false, error: 'Unauthorized' }, { status: 401 })
         }
+        const csrfCheck = requireJsonContentType(request)
+        if (csrfCheck) return csrfCheck
         try {
           const url = new URL(request.url)
           const rawSessionKey = url.searchParams.get('sessionKey') ?? ''

@@ -1,7 +1,21 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+// OperationsAgentCard — enterprise fleet-console row (2026-05-19).
+//
+// Replaces the casual 19rem chat-hero card with a slim 14rem command row:
+// status pulse + name + monospace model chip on top, description + metric
+// chips in the body, collapsible inline chat at the bottom (default closed,
+// last-message preview line when collapsed, persisted per-agent in
+// localStorage). The expandable cron-jobs panel is preserved with a slim,
+// palette-consistent toggle. All --mc-* tokens used directly.
+//
+// Behaviour preserved: useAgentChat, useMutation toggleCronJob / runCronJob,
+// onOpenSettings prop, play/pause semantics, error toasts.
+
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowRight01Icon,
+  ArrowUp01Icon,
+  Chat01Icon,
   Clock01Icon,
   PauseIcon,
   PlayIcon,
@@ -10,43 +24,61 @@ import {
 import { HugeiconsIcon } from '@hugeicons/react'
 import { AnimatePresence, motion } from 'motion/react'
 import { Button } from '@/components/ui/button'
-import { AgentProgress } from '@/components/agent-view/agent-progress'
-import { PixelAvatar } from '@/components/agent-swarm/pixel-avatar'
 import { Markdown } from '@/components/prompt-kit/markdown'
 import { toast } from '@/components/ui/toast'
 import { runCronJob, toggleCronJob } from '@/lib/cron-api'
 import { cn } from '@/lib/utils'
-import { useAgentChat, type OperationsChatMessage } from '../hooks/use-agent-chat'
+import { formatRelativeTime } from '@/screens/dashboard/lib/formatters'
+import {
+  useAgentChat,
+  type OperationsChatMessage,
+} from '../hooks/use-agent-chat'
 import type { OperationsAgent } from '../hooks/use-operations'
 
-function getStatusStyles(status: OperationsAgent['status']) {
-  if (status === 'error') {
+// ─── helpers ───────────────────────────────────────────────────────────────
+
+type StatusTone = 'active' | 'idle' | 'error'
+
+function getStatusTokens(status: OperationsAgent['status'], isPaused: boolean) {
+  // Paused agent reads as amber/idle even if status was 'active'.
+  const tone: StatusTone =
+    status === 'error'
+      ? 'error'
+      : status === 'active' && !isPaused
+        ? 'active'
+        : 'idle'
+
+  if (tone === 'error') {
     return {
-      dot: 'bg-red-500',
-      ring: 'text-red-500',
+      tone,
+      dot: 'var(--mc-rose)',
+      dotSoft: 'var(--mc-rose-soft)',
       label: 'Error',
+      pulse: false,
     }
   }
-
-  if (status === 'active') {
+  if (tone === 'active') {
     return {
-      dot: 'bg-emerald-500',
-      ring: 'text-emerald-500',
+      tone,
+      dot: 'var(--mc-cyan)',
+      dotSoft: 'var(--mc-cyan-soft)',
       label: 'Active',
+      pulse: true,
     }
   }
-
   return {
-    dot: 'bg-primary-300',
-    ring: 'text-primary-300',
+    tone,
+    dot: 'var(--mc-amber)',
+    dotSoft: 'var(--mc-amber-soft)',
     label: 'Idle',
+    pulse: false,
   }
 }
 
 function stripEmojiPrefix(value: string) {
   return value
     .replace(
-      /^((\p{Extended_Pictographic}|\p{Regional_Indicator}|\p{Emoji_Presentation}|\p{Emoji}\uFE0F)(\u200D(\p{Extended_Pictographic}|\p{Regional_Indicator}|\p{Emoji_Presentation}|\p{Emoji}\uFE0F))*)\s*/u,
+      /^((\p{Extended_Pictographic}|\p{Regional_Indicator}|\p{Emoji_Presentation}|\p{Emoji}️)(‍(\p{Extended_Pictographic}|\p{Regional_Indicator}|\p{Emoji_Presentation}|\p{Emoji}️))*)\s*/u,
       '',
     )
     .trim()
@@ -63,6 +95,118 @@ function displayJobName(jobName: string, agentId: string) {
 function describeJob(job: OperationsAgent['jobs'][number]) {
   return job.description?.trim() || job.schedule
 }
+
+function singleLinePreview(content: string, max = 96): string {
+  const normalized = content.replace(/\s+/g, ' ').trim()
+  if (!normalized) return ''
+  return normalized.length <= max
+    ? normalized
+    : `${normalized.slice(0, Math.max(0, max - 1)).trimEnd()}…`
+}
+
+function chatExpandedKey(agentId: string): string {
+  return `operations:agent:${agentId}:chatExpanded`
+}
+
+function readChatExpanded(agentId: string): boolean {
+  if (typeof window === 'undefined') return false
+  // Default COLLAPSED — first-time visitors see a compact card.
+  const v = window.localStorage.getItem(chatExpandedKey(agentId))
+  return v === '1'
+}
+
+// ─── tiny ui primitives (card-scoped, mirror operations-screen patterns) ───
+
+function MetricChip({
+  label,
+  value,
+  accent = 'cyan',
+}: {
+  label: string
+  value: ReactNode
+  accent?: 'cyan' | 'emerald' | 'amber' | 'magenta' | 'rose'
+}) {
+  const accentVar =
+    accent === 'emerald'
+      ? 'var(--mc-emerald)'
+      : accent === 'amber'
+        ? 'var(--mc-amber)'
+        : accent === 'magenta'
+          ? 'var(--mc-magenta)'
+          : accent === 'rose'
+            ? 'var(--mc-rose)'
+            : 'var(--mc-cyan)'
+  return (
+    <div
+      className="inline-flex items-baseline gap-1.5 rounded-md border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider"
+      style={{
+        borderColor: 'var(--mc-border)',
+        background: 'var(--mc-surface-2)',
+        color: 'var(--mc-text-dimmer)',
+      }}
+    >
+      <span>{label}</span>
+      <span
+        className="text-[11px] font-semibold normal-case tabular-nums"
+        style={{ color: accentVar }}
+      >
+        {value}
+      </span>
+    </div>
+  )
+}
+
+function ModelChip({ value }: { value: string }) {
+  return (
+    <span
+      className="inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider"
+      style={{
+        borderColor: 'var(--mc-border)',
+        background: 'var(--mc-surface-2)',
+        color: 'var(--mc-text-dim)',
+      }}
+      title={value}
+    >
+      {value}
+    </span>
+  )
+}
+
+// Color → role mapping mirrors ROLE_COLORS in agent-presets.ts. Renders
+// a colored function/job label next to the agent name so the operator
+// can see at a glance what each agent is for.
+function roleFromColor(
+  color: string | undefined,
+): { label: string; accent: string } | null {
+  if (!color) return null
+  const c = color.toLowerCase().trim()
+  if (c === '#00e5ff') return { label: 'Researcher', accent: 'var(--mc-cyan)' }
+  if (c === '#3df5a1') return { label: 'Builder', accent: 'var(--mc-emerald)' }
+  if (c === '#ff4fd8') return { label: 'Writer', accent: 'var(--mc-magenta)' }
+  if (c === '#ffb547') return { label: 'Analyst', accent: 'var(--mc-amber)' }
+  if (c === '#ff6b8b') return { label: 'Operator', accent: 'var(--mc-rose)' }
+  return null
+}
+
+function RoleChip({ color }: { color: string | undefined }) {
+  const role = roleFromColor(color)
+  if (!role) return null
+  return (
+    <span
+      className="inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider"
+      style={{
+        borderColor: role.accent,
+        background: `color-mix(in srgb, ${role.accent} 12%, transparent)`,
+        color: role.accent,
+      }}
+      title={`Role: ${role.label}`}
+    >
+      {role.label}
+    </span>
+  )
+}
+
+// ─── inline chat (collapsible, capped ~140px) ──────────────────────────────
 
 export function OperationsInlineChat({
   agentName,
@@ -95,28 +239,45 @@ export function OperationsInlineChat({
   }
 
   return (
-    <section className="flex min-h-0 flex-1 flex-col rounded-[1.25rem] border border-[var(--theme-border)] bg-white">
+    <section
+      className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border"
+      style={{
+        borderColor: 'var(--mc-border)',
+        background: 'var(--mc-surface-2)',
+      }}
+    >
       <div
         ref={scrollRef}
-        className="flex min-h-[100px] max-h-[160px] flex-1 flex-col justify-center overflow-y-auto px-3 py-3"
+        className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2 py-2"
+        style={{ maxHeight: 140 }}
       >
         {renderedMessages.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {renderedMessages.map((message) => {
               const isUser = message.role === 'user'
-
               return (
                 <div
                   key={message.id}
-                  className={cn('flex', isUser ? 'justify-end' : 'justify-start')}
+                  className={cn(
+                    'flex',
+                    isUser ? 'justify-end' : 'justify-start',
+                  )}
                 >
                   <div
-                    className={cn(
-                      'max-w-[92%] rounded-2xl px-3 py-2 text-xs leading-relaxed shadow-sm',
+                    className="max-w-[92%] rounded-md px-2 py-1.5 text-[11px] leading-relaxed"
+                    style={
                       isUser
-                        ? 'bg-[var(--theme-accent-soft)] text-[var(--theme-text)]'
-                        : 'bg-[var(--theme-card2)] text-[var(--theme-text)]',
-                    )}
+                        ? {
+                            background: 'var(--mc-cyan-soft)',
+                            color: 'var(--mc-text)',
+                            border: '1px solid var(--mc-border-bright)',
+                          }
+                        : {
+                            background: 'var(--mc-surface)',
+                            color: 'var(--mc-text)',
+                            border: '1px solid var(--mc-border)',
+                          }
+                    }
                   >
                     {message.role === 'assistant' ? (
                       <Markdown>{message.content}</Markdown>
@@ -129,15 +290,34 @@ export function OperationsInlineChat({
             })}
           </div>
         ) : (
-          <p className="text-center text-xs text-[var(--theme-muted)]">
-            Send a message...
+          <p
+            className="my-auto text-center font-mono text-[10px] uppercase tracking-wider"
+            style={{ color: 'var(--mc-text-dimmer)' }}
+          >
+            No messages yet
           </p>
         )}
       </div>
 
-      <div className="border-t border-[var(--theme-border)] px-3 py-3">
-        {error ? <p className="mb-2 text-xs text-red-400">{error}</p> : null}
-        <div className="flex items-center gap-2 rounded-[1rem] border border-[var(--theme-border)] bg-[var(--theme-bg)] p-2">
+      <div
+        className="border-t px-2 py-1.5"
+        style={{ borderColor: 'var(--mc-border)' }}
+      >
+        {error ? (
+          <p
+            className="mb-1 font-mono text-[10px] uppercase tracking-wider"
+            style={{ color: 'var(--mc-rose)' }}
+          >
+            {error}
+          </p>
+        ) : null}
+        <div
+          className="flex items-center gap-1.5 rounded border px-1.5 py-1"
+          style={{
+            borderColor: 'var(--mc-border)',
+            background: 'var(--mc-bg)',
+          }}
+        >
           <input
             type="text"
             value={draft}
@@ -148,23 +328,36 @@ export function OperationsInlineChat({
                 void handleSend()
               }
             }}
-            placeholder={`Message ${stripEmojiPrefix(agentName)}...`}
-            className="h-8 flex-1 bg-transparent px-1.5 text-xs text-[var(--theme-text)] outline-none placeholder:text-[var(--theme-muted)]"
+            placeholder={`Message ${stripEmojiPrefix(agentName)}…`}
+            className="h-6 flex-1 bg-transparent px-1 font-mono text-[11px] outline-none"
+            style={{ color: 'var(--mc-text)' }}
           />
           <Button
             size="icon-sm"
-            className="rounded-lg bg-[var(--theme-accent)] text-primary-950 hover:bg-[var(--theme-accent-strong)]"
+            className="h-6 w-6 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            style={{
+              background: 'var(--mc-cyan)',
+              color: 'var(--mc-bg)',
+              ['--tw-ring-color' as string]: 'var(--mc-cyan)',
+              ['--tw-ring-offset-color' as string]: 'var(--mc-bg)',
+            }}
             onClick={() => void handleSend()}
             disabled={!draft.trim() || isSending}
             aria-label={isSending ? 'Sending message' : 'Send message'}
           >
-            <HugeiconsIcon icon={ArrowRight01Icon} size={15} strokeWidth={1.8} />
+            <HugeiconsIcon
+              icon={ArrowRight01Icon}
+              size={13}
+              strokeWidth={1.9}
+            />
           </Button>
         </div>
       </div>
     </section>
   )
 }
+
+// ─── card ──────────────────────────────────────────────────────────────────
 
 export function OperationsAgentCard({
   agent,
@@ -174,13 +367,27 @@ export function OperationsAgentCard({
   onOpenSettings: (agentId: string) => void
 }) {
   const queryClient = useQueryClient()
-  const status = getStatusStyles(agent.status)
   const displayName = stripEmojiPrefix(agent.name)
   const [showCronPanel, setShowCronPanel] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
-  const { messages, sendMessage, isSending, error } = useAgentChat(agent.sessionKey)
+  const [chatExpanded, setChatExpanded] = useState(() =>
+    readChatExpanded(agent.id),
+  )
+  const { messages, sendMessage, isSending, error } = useAgentChat(
+    agent.sessionKey,
+  )
   const cronJobCount = agent.jobs.length
-  const isActive = agent.status === 'active' && !isPaused
+  const status = getStatusTokens(agent.status, isPaused)
+  const isActive = status.tone === 'active'
+
+  // Persist chat-expanded preference per-agent.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(
+      chatExpandedKey(agent.id),
+      chatExpanded ? '1' : '0',
+    )
+  }, [agent.id, chatExpanded])
 
   const toggleMutation = useMutation({
     mutationFn: async (payload: { jobId: string; enabled: boolean }) =>
@@ -206,7 +413,9 @@ export function OperationsAgentCard({
     },
     onError: (mutationError) => {
       toast(
-        mutationError instanceof Error ? mutationError.message : 'Failed to run cron job',
+        mutationError instanceof Error
+          ? mutationError.message
+          : 'Failed to run cron job',
         { type: 'error' },
       )
     },
@@ -217,205 +426,391 @@ export function OperationsAgentCard({
       setIsPaused(true)
       return
     }
-
     setIsPaused(false)
     await sendMessage('Run your primary task now')
   }
 
+  // Last assistant or user message preview for collapsed chat row.
+  const lastMessage = messages.length > 0 ? messages[messages.length - 1] : null
+  const lastMessagePreview = lastMessage
+    ? singleLinePreview(lastMessage.content)
+    : ''
+
+  const descriptionText = agent.meta.description?.trim() || '[no description]'
+
   return (
-    <article className="flex min-h-[19rem] flex-col rounded-[1.5rem] border border-[var(--theme-border)] bg-[var(--theme-card)] p-3 shadow-[0_20px_60px_color-mix(in_srgb,var(--theme-shadow)_14%,transparent)]">
-      <div className="relative flex min-h-8 items-center">
-        <div className="absolute left-0 flex items-center">
+    <article
+      className="flex min-h-[14rem] flex-col overflow-hidden rounded-lg border"
+      style={{
+        borderColor: 'var(--mc-border)',
+        background: 'var(--mc-surface)',
+        boxShadow:
+          '0 8px 24px -16px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.01)',
+      }}
+    >
+      {/* ─── header row ─────────────────────────────────────────────────── */}
+      <div
+        className="flex items-center gap-2 border-b px-3 py-2"
+        style={{ borderColor: 'var(--mc-border)' }}
+      >
+        <span
+          aria-hidden="true"
+          className="motion-reduce:[animation:none!important] inline-flex h-2 w-2 shrink-0 rounded-full"
+          style={{
+            background: status.dot,
+            boxShadow: `0 0 8px ${status.dotSoft}`,
+            animation: status.pulse
+              ? 'mc-breathe 1.6s ease-in-out infinite'
+              : undefined,
+          }}
+          title={status.label}
+        />
+        <h3
+          className="min-w-0 flex-1 truncate font-mono text-[12px] font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--mc-text)' }}
+          title={displayName}
+        >
+          {displayName}
+        </h3>
+        <RoleChip color={agent.meta.color} />
+        {agent.shortModel ? <ModelChip value={agent.shortModel} /> : null}
+        <div className="flex items-center gap-0.5">
           <button
             type="button"
             aria-label={
-              cronJobCount > 0
-                ? `${cronJobCount} cron jobs for ${displayName}`
-                : `No cron jobs for ${displayName}`
+              isActive ? `Pause ${displayName}` : `Run ${displayName} now`
             }
-            onClick={() => setShowCronPanel((value) => !value)}
-            className={cn(
-              'inline-flex h-8 shrink-0 items-center gap-1 rounded-lg px-1.5 text-[var(--theme-muted)] transition-colors hover:bg-[var(--theme-bg)] hover:text-[var(--theme-text)]',
-              showCronPanel && 'bg-[var(--theme-bg)] text-[var(--theme-text)]',
-            )}
-          >
-            <HugeiconsIcon icon={Clock01Icon} size={14} strokeWidth={1.9} />
-            {cronJobCount > 0 ? (
-              <span className="inline-flex min-w-4 items-center justify-center rounded-full bg-[var(--theme-bg)] px-1.5 text-[10px] font-medium text-[var(--theme-text)]">
-                {cronJobCount}
-              </span>
-            ) : null}
-          </button>
-        </div>
-
-        <div className="flex w-full justify-center px-20">
-          <h3 className="min-w-0 text-center text-sm font-semibold text-[var(--theme-text)]">
-          <span className="inline-flex max-w-full items-center justify-center gap-2">
-            <span className="truncate">{displayName}</span>
-            <span
-              className={cn(
-                'h-2 w-2 shrink-0 rounded-full',
-                agent.status === 'active' && !isPaused && 'animate-pulse',
-                status.dot,
-              )}
-              aria-label={status.label}
-              title={status.label}
-            />
-          </span>
-          </h3>
-        </div>
-
-        <div className="absolute right-0 flex items-center gap-1">
-          <button
-            type="button"
-            aria-label={isActive ? `Pause ${displayName}` : `Run ${displayName} now`}
+            title={isActive ? 'Pause' : 'Run now'}
             onClick={() => void handlePlayPause()}
             disabled={isSending && !isActive}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[var(--theme-muted)] transition-colors hover:bg-[var(--theme-bg)] hover:text-[var(--theme-text)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-7 w-7 items-center justify-center rounded transition-colors hover:bg-[var(--mc-surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            style={{
+              color: isActive ? 'var(--mc-amber)' : 'var(--mc-cyan)',
+              ['--tw-ring-color' as string]: 'var(--mc-cyan)',
+              ['--tw-ring-offset-color' as string]: 'var(--mc-bg)',
+            }}
           >
             <HugeiconsIcon
               icon={isActive ? PauseIcon : PlayIcon}
-              size={16}
-              strokeWidth={1.8}
+              size={14}
+              strokeWidth={1.9}
             />
           </button>
-
           <button
             type="button"
             aria-label={`Open settings for ${displayName}`}
+            title="Settings"
             onClick={() => onOpenSettings(agent.id)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[var(--theme-muted)] transition-colors hover:bg-[var(--theme-bg)] hover:text-[var(--theme-text)]"
+            className="inline-flex h-7 w-7 items-center justify-center rounded transition-colors hover:bg-[var(--mc-surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            style={{
+              color: 'var(--mc-text-dim)',
+              ['--tw-ring-color' as string]: 'var(--mc-cyan)',
+              ['--tw-ring-offset-color' as string]: 'var(--mc-bg)',
+            }}
           >
-            <HugeiconsIcon icon={Settings01Icon} size={16} strokeWidth={1.8} />
+            <HugeiconsIcon icon={Settings01Icon} size={14} strokeWidth={1.8} />
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-1 px-2 py-2 text-center">
-        <div className="relative flex size-12 shrink-0 items-center justify-center">
-          <AgentProgress
-            value={agent.progressValue}
-            status={agent.progressStatus}
-            size={48}
-            strokeWidth={2.5}
-            className={status.ring}
+      {/* ─── body ───────────────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-2 px-3 py-2.5">
+        <p
+          className={cn(
+            'min-w-0 line-clamp-2 text-[11px] leading-snug',
+            !agent.meta.description?.trim() && 'italic',
+          )}
+          style={{
+            color: agent.meta.description?.trim()
+              ? 'var(--mc-text-dim)'
+              : 'var(--mc-text-dimmer)',
+          }}
+          title={descriptionText}
+        >
+          {descriptionText}
+        </p>
+        <div className="flex flex-wrap items-center gap-1.5">
+          <MetricChip
+            label="Jobs"
+            value={cronJobCount > 0 ? cronJobCount : '—'}
+            accent={cronJobCount > 0 ? 'cyan' : 'amber'}
           />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <PixelAvatar
-              size={40}
-              color={agent.meta.color}
-              accentColor="#ffffff"
-              status={
-                agent.status === 'error'
-                  ? 'failed'
-                  : agent.status === 'active'
-                    ? 'running'
-                    : 'idle'
-              }
+          {agent.nextRunAt ? (
+            <MetricChip
+              label="Next"
+              value={formatRelativeTime(agent.nextRunAt)}
+              accent="magenta"
             />
-          </div>
+          ) : null}
+          <MetricChip
+            label="Last"
+            value={
+              agent.lastActivityAt
+                ? formatRelativeTime(agent.lastActivityAt)
+                : '—'
+            }
+            accent={agent.lastActivityAt ? 'emerald' : 'amber'}
+          />
         </div>
-
-        <p className="w-full truncate text-[11px] text-[var(--theme-muted)]">
-          {agent.meta.description || 'No description'}
-        </p>
-        <p className="w-full truncate text-[10px] text-[var(--theme-muted)]/80">
-          {agent.jobs.length > 0 ? `${agent.jobs.length} scheduled job${agent.jobs.length === 1 ? '' : 's'}` : 'Manual only'}
-        </p>
       </div>
 
-      <AnimatePresence initial={false}>
-        {showCronPanel ? (
-          <motion.section
-            key="cron-panel"
-            initial={{ height: 0, opacity: 0, y: -8 }}
-            animate={{ height: 'auto', opacity: 1, y: 0 }}
-            exit={{ height: 0, opacity: 0, y: -8 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
-            className="overflow-hidden"
+      {/* ─── cron jobs toggle + panel ───────────────────────────────────── */}
+      <div className="px-3">
+        <button
+          type="button"
+          onClick={() => setShowCronPanel((value) => !value)}
+          aria-expanded={showCronPanel}
+          aria-controls={`cron-panel-${agent.id}`}
+          aria-label={
+            cronJobCount > 0
+              ? `${showCronPanel ? 'Hide' : 'Show'} ${cronJobCount} cron job${cronJobCount === 1 ? '' : 's'} for ${displayName}`
+              : `${showCronPanel ? 'Hide' : 'Show'} cron jobs for ${displayName}`
+          }
+          className="inline-flex w-full items-center gap-1.5 rounded border px-2 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          style={{
+            borderColor: showCronPanel
+              ? 'var(--mc-border-bright)'
+              : 'var(--mc-border)',
+            background: showCronPanel
+              ? 'var(--mc-cyan-soft)'
+              : 'var(--mc-surface-2)',
+            color: showCronPanel ? 'var(--mc-cyan)' : 'var(--mc-text-dim)',
+            ['--tw-ring-color' as string]: 'var(--mc-cyan)',
+            ['--tw-ring-offset-color' as string]: 'var(--mc-bg)',
+          }}
+        >
+          <HugeiconsIcon icon={Clock01Icon} size={11} strokeWidth={2} />
+          <span>Cron Jobs</span>
+          <span
+            className="inline-flex h-4 min-w-4 items-center justify-center rounded px-1 text-[10px] tabular-nums"
+            style={{
+              background: 'var(--mc-surface)',
+              color: showCronPanel ? 'var(--mc-cyan)' : 'var(--mc-text-dimmer)',
+            }}
           >
-            <div className="mb-4 rounded-[1.25rem] border border-[var(--theme-border)] bg-white px-3 py-3">
-              {agent.jobs.length > 0 ? (
-                <>
-                  <div className="max-h-[200px] space-y-2 overflow-y-auto pr-1">
-                    {agent.jobs.map((job) => (
-                      <div
-                        key={job.id}
-                        className="flex items-center gap-2 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-2.5 py-2"
-                      >
-                        <label className="relative inline-flex cursor-pointer items-center">
-                          <input
-                            type="checkbox"
-                            checked={job.enabled}
-                            onChange={() =>
-                              toggleMutation.mutate({
-                                jobId: job.id,
-                                enabled: !job.enabled,
-                              })
-                            }
-                            className="peer sr-only"
-                            aria-label={job.enabled ? 'Disable job' : 'Enable job'}
-                          />
-                          <span className="h-5 w-9 rounded-full bg-primary-200 transition-colors peer-checked:bg-[var(--theme-accent)]" />
-                          <span className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform peer-checked:translate-x-4" />
-                        </label>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-medium text-[var(--theme-text)]">
-                            {displayJobName(job.name, agent.id)}
-                          </p>
-                          <p className="truncate text-[11px] text-[var(--theme-muted)]">
-                            {describeJob(job)}
-                          </p>
-                        </div>
-                        <Button
-                          size="icon-sm"
-                          variant="secondary"
-                          className="h-7 w-7 rounded-lg border border-[var(--theme-border)] bg-white text-[var(--theme-text)] hover:bg-[var(--theme-card2)]"
-                          onClick={() => runCronMutation.mutate(job.id)}
-                          aria-label={`Run ${displayJobName(job.name, agent.id)} now`}
+            {cronJobCount}
+          </span>
+          <HugeiconsIcon
+            icon={showCronPanel ? ArrowUp01Icon : ArrowRight01Icon}
+            size={11}
+            strokeWidth={2}
+            className="ml-auto"
+          />
+        </button>
+
+        <AnimatePresence initial={false}>
+          {showCronPanel ? (
+            <motion.section
+              key="cron-panel"
+              id={`cron-panel-${agent.id}`}
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="overflow-hidden"
+            >
+              <div
+                className="mt-2 rounded border px-2 py-2"
+                style={{
+                  borderColor: 'var(--mc-border)',
+                  background: 'var(--mc-surface-2)',
+                }}
+              >
+                {agent.jobs.length > 0 ? (
+                  <>
+                    <div className="max-h-[180px] space-y-1.5 overflow-y-auto pr-1">
+                      {agent.jobs.map((job) => (
+                        <div
+                          key={job.id}
+                          className="flex items-center gap-2 rounded border px-2 py-1.5"
+                          style={{
+                            borderColor: 'var(--mc-border)',
+                            background: 'var(--mc-bg)',
+                          }}
                         >
-                          <HugeiconsIcon icon={PlayIcon} size={14} strokeWidth={1.9} />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-3 flex justify-end">
-                    <Button
-                      render={<a href="/cron" />}
-                      variant="secondary"
-                      className="h-8 rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg)] px-3 text-xs font-medium text-[var(--theme-text)] hover:bg-[var(--theme-card2)]"
+                          <label className="relative inline-flex cursor-pointer items-center">
+                            <input
+                              type="checkbox"
+                              checked={job.enabled}
+                              onChange={() =>
+                                toggleMutation.mutate({
+                                  jobId: job.id,
+                                  enabled: !job.enabled,
+                                })
+                              }
+                              className="peer sr-only"
+                              aria-label={
+                                job.enabled ? 'Disable job' : 'Enable job'
+                              }
+                            />
+                            <span
+                              className="h-4 w-7 rounded-full transition-colors"
+                              style={{
+                                background: job.enabled
+                                  ? 'var(--mc-cyan)'
+                                  : 'var(--mc-surface)',
+                                border: '1px solid var(--mc-border)',
+                              }}
+                            />
+                            <span
+                              className="absolute left-[2px] top-[2px] h-3 w-3 rounded-full transition-transform peer-checked:translate-x-3"
+                              style={{
+                                background: job.enabled
+                                  ? 'var(--mc-bg)'
+                                  : 'var(--mc-text-dim)',
+                              }}
+                            />
+                          </label>
+                          <div className="min-w-0 flex-1">
+                            <p
+                              className="truncate font-mono text-[11px]"
+                              style={{ color: 'var(--mc-text)' }}
+                            >
+                              {displayJobName(job.name, agent.id)}
+                            </p>
+                            <p
+                              className="truncate text-[10px]"
+                              style={{ color: 'var(--mc-text-dimmer)' }}
+                            >
+                              {describeJob(job)}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => runCronMutation.mutate(job.id)}
+                            disabled={runCronMutation.isPending}
+                            className="inline-flex h-6 w-6 items-center justify-center rounded border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            style={{
+                              borderColor: 'var(--mc-border)',
+                              background: 'var(--mc-surface)',
+                              color: 'var(--mc-cyan)',
+                              ['--tw-ring-color' as string]: 'var(--mc-cyan)',
+                              ['--tw-ring-offset-color' as string]:
+                                'var(--mc-bg)',
+                            }}
+                            aria-label={`Run ${displayJobName(job.name, agent.id)} now`}
+                          >
+                            <HugeiconsIcon
+                              icon={PlayIcon}
+                              size={11}
+                              strokeWidth={2}
+                            />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-2 flex justify-end">
+                      <a
+                        href="/cron"
+                        className="inline-flex items-center rounded border px-2 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                        style={{
+                          borderColor: 'var(--mc-border)',
+                          background: 'var(--mc-surface)',
+                          color: 'var(--mc-text-dim)',
+                          ['--tw-ring-color' as string]: 'var(--mc-cyan)',
+                          ['--tw-ring-offset-color' as string]: 'var(--mc-bg)',
+                        }}
+                      >
+                        + Add Job
+                      </a>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center justify-between gap-3">
+                    <p
+                      className="font-mono text-[10px] uppercase tracking-wider"
+                      style={{ color: 'var(--mc-text-dimmer)' }}
+                    >
+                      No scheduled jobs
+                    </p>
+                    <a
+                      href="/cron"
+                      className="inline-flex items-center rounded border px-2 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                      style={{
+                        borderColor: 'var(--mc-border)',
+                        background: 'var(--mc-surface)',
+                        color: 'var(--mc-text-dim)',
+                        ['--tw-ring-color' as string]: 'var(--mc-cyan)',
+                        ['--tw-ring-offset-color' as string]: 'var(--mc-bg)',
+                      }}
                     >
                       + Add Job
-                    </Button>
+                    </a>
                   </div>
-                </>
-              ) : (
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs text-[var(--theme-muted)]">
-                    No scheduled jobs
-                  </p>
-                  <Button
-                    render={<a href="/cron" />}
-                    variant="secondary"
-                    className="h-8 rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg)] px-3 text-xs font-medium text-[var(--theme-text)] hover:bg-[var(--theme-card2)]"
-                  >
-                    + Add Job
-                  </Button>
-                </div>
-              )}
-            </div>
-          </motion.section>
-        ) : null}
-      </AnimatePresence>
+                )}
+              </div>
+            </motion.section>
+          ) : null}
+        </AnimatePresence>
+      </div>
 
-      <div className="min-h-0 flex-1">
-        <OperationsInlineChat
-          agentName={agent.name}
-          messages={messages}
-          sendMessage={sendMessage}
-          isSending={isSending}
-          error={error}
-        />
+      {/* ─── chat toggle + panel ─────────────────────────────────────────── */}
+      <div className="mt-auto px-3 pb-3 pt-2">
+        <button
+          type="button"
+          onClick={() => setChatExpanded((v) => !v)}
+          aria-expanded={chatExpanded}
+          aria-controls={`chat-panel-${agent.id}`}
+          aria-label={
+            chatExpanded
+              ? `Hide chat with ${displayName}`
+              : `Open chat with ${displayName}`
+          }
+          className="inline-flex w-full items-center gap-1.5 rounded border px-2 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          style={{
+            borderColor: chatExpanded
+              ? 'var(--mc-border-bright)'
+              : 'var(--mc-border)',
+            background: chatExpanded
+              ? 'var(--mc-cyan-soft)'
+              : 'var(--mc-surface-2)',
+            color: chatExpanded ? 'var(--mc-cyan)' : 'var(--mc-text-dim)',
+            ['--tw-ring-color' as string]: 'var(--mc-cyan)',
+            ['--tw-ring-offset-color' as string]: 'var(--mc-bg)',
+          }}
+        >
+          <HugeiconsIcon icon={Chat01Icon} size={11} strokeWidth={2} />
+          <span>Chat</span>
+          {!chatExpanded && lastMessagePreview ? (
+            <span
+              className="ml-1 min-w-0 flex-1 truncate text-left normal-case tracking-normal"
+              style={{ color: 'var(--mc-text-dimmer)' }}
+            >
+              {lastMessagePreview}
+            </span>
+          ) : (
+            <span className="flex-1" />
+          )}
+          <HugeiconsIcon
+            icon={chatExpanded ? ArrowUp01Icon : ArrowRight01Icon}
+            size={11}
+            strokeWidth={2}
+          />
+        </button>
+
+        <AnimatePresence initial={false}>
+          {chatExpanded ? (
+            <motion.div
+              key="chat-panel"
+              id={`chat-panel-${agent.id}`}
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              className="overflow-hidden"
+            >
+              <div className="mt-2">
+                <OperationsInlineChat
+                  agentName={agent.name}
+                  messages={messages}
+                  sendMessage={sendMessage}
+                  isSending={isSending}
+                  error={error}
+                />
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
     </article>
   )

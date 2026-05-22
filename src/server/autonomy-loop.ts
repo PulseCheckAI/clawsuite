@@ -19,24 +19,8 @@
 // Disabled by default. Enable via env: PULSEOS_AUTONOMY_LOOP_ENABLED=true.
 // ───────────────────────────────────────────────────────────────────────────
 
-import { randomUUID } from 'node:crypto'
 import { gatewayRpc } from './gateway'
-
-const SUPABASE_URL = 'https://zcjgjfersccwwhjmaflw.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_krMU4pMkUZQNQT9bbO68jw_IahpZoEd'
-
-type Todo = {
-  id: string
-  title: string
-  category: string
-  priority: string
-  status: string
-  assignee: string
-  track_status: string | null
-  created_at: string
-  attempts: number
-  last_attempt_at: string | null
-}
+import { SUPABASE_URL, commandCenterHeaders } from '../lib/supabase-constants'
 
 // Retry / recovery thresholds
 const MAX_ATTEMPTS = 3 // after this many failures the task is demoted to Off Track
@@ -47,7 +31,7 @@ export type AutonomyTickResult =
   | {
       ok: true
       picked: null
-      reason: 'no-pending-tasks' | 'inflight-already' | 'lost-race-to-lock'
+      reason: 'no-pending-tasks' | 'inflight-already'
     }
   | {
       ok: true
@@ -66,12 +50,6 @@ const CATEGORY_AGENT_MAP: Record<string, string> = {
   Development: 'dev',
   Personal: 'alex',
   Work: 'main',
-}
-
-const PRIORITY_RANK: Record<string, number> = {
-  Urgent: 0,
-  Normal: 1,
-  Someday: 2,
 }
 
 // Track in-flight tasks to avoid double-dispatch within a single process.
@@ -99,7 +77,7 @@ async function hydrateStatsFromSupabase(): Promise<void> {
   try {
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/autonomy_stats?select=*&id=eq.singleton&limit=1`,
-      { headers: supabaseHeaders() },
+      { headers: commandCenterHeaders() },
     )
     if (!res.ok) return
     const rows = (await res.json()) as Array<{
@@ -124,7 +102,7 @@ async function flushStatsToSupabase(): Promise<void> {
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/autonomy_stats?id=eq.singleton`, {
       method: 'PATCH',
-      headers: supabaseHeaders(),
+      headers: commandCenterHeaders(),
       body: JSON.stringify({
         total_ticks: state.totalTicks,
         total_dispatched: state.totalDispatched,
@@ -138,54 +116,52 @@ async function flushStatsToSupabase(): Promise<void> {
   }
 }
 
-function supabaseHeaders(): Record<string, string> {
-  return {
-    apikey: SUPABASE_KEY,
-    Authorization: `Bearer ${SUPABASE_KEY}`,
-    'Accept-Profile': 'command_center',
-    'Content-Profile': 'command_center',
-    'Content-Type': 'application/json',
-    Prefer: 'return=representation',
+// Subset of Todo columns returned by the atomic claim RPC. Other fields
+// (status, assignee, track_status, etc.) aren't needed downstream because
+// the RPC guarantees status='in_progress' and assignee='Claude' for any
+// row it returns.
+type ClaimedTodo = {
+  id: string
+  title: string
+  category: string
+  priority: string
+  attempts: number
+  created_at: string
+}
+
+// Atomic claim via the command_center.claim_next_todo(p_assignee) Postgres
+// function (migration: command_center_claim_next_todo_rpc, 2026-05-14).
+// Uses SELECT ... FOR UPDATE SKIP LOCKED inside a single transaction so
+// two concurrent ticks racing the same row cannot both win the lock — one
+// gets the row in_progress, the other gets the next eligible row or no
+// rows. Replaces the prior listPendingTodos + lockTodo two-step which was
+// not race-safe under PostgREST MVCC snapshot reads.
+//
+// Returns the claimed row (now in_progress) or null if the queue is empty
+// / every eligible row is already locked by another transaction.
+async function claimNextTodo(): Promise<ClaimedTodo | null> {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/claim_next_todo`, {
+    method: 'POST',
+    headers: commandCenterHeaders(),
+    body: JSON.stringify({ p_assignee: 'Claude' }),
+  })
+  if (!res.ok) {
+    throw new Error(`claim_next_todo RPC failed: HTTP ${res.status}`)
   }
-}
-
-async function listPendingTodos(): Promise<Array<Todo>> {
-  const url =
-    `${SUPABASE_URL}/rest/v1/todos` +
-    `?select=*` +
-    `&status=eq.todo` +
-    `&assignee=eq.Claude` +
-    `&track_status=neq.Off Track` +
-    `&order=created_at.asc` +
-    `&limit=20`
-  const res = await fetch(url, { headers: supabaseHeaders() })
-  if (!res.ok) throw new Error(`Supabase list todos failed: HTTP ${res.status}`)
-  return (await res.json()) as Array<Todo>
-}
-
-async function lockTodo(id: string): Promise<boolean> {
-  // Soft-lock via status change. Concurrent ticks racing the same row will
-  // see one of the two writes win; the loser sees the row no longer 'todo'
-  // on the next listPendingTodos call.
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/todos?id=eq.${encodeURIComponent(id)}&status=eq.todo`,
-    {
-      method: 'PATCH',
-      headers: supabaseHeaders(),
-      body: JSON.stringify({
-        status: 'in_progress',
-        last_attempt_at: new Date().toISOString(),
-      }),
-    },
-  )
-  if (!res.ok) return false
-  const rows = (await res.json()) as Array<Todo>
-  return rows.length === 1
+  const rows = (await res.json()) as Array<ClaimedTodo>
+  return rows.length === 1 ? rows[0]! : null
 }
 
 // Stale-recovery sweep: any row stuck in_progress for longer than
 // STALE_TIMEOUT_MS gets demoted back to 'todo' with track_status='At Risk'
-// and attempts++. Runs at the top of every tick. Returns number rescued.
+// (or 'Off Track' after MAX_ATTEMPTS) and attempts++. Runs at the top of
+// every tick. Returns number actually rescued (after error filtering).
+//
+// Critical: rows whose id is in the local `inflight` Set are skipped — a
+// genuinely-running 10m+ dispatch must NOT have its row flipped back to
+// 'todo' while completeTodo() is about to write 'done'. Cross-process
+// stale rows are still rescued; only same-process in-flight rows are
+// protected.
 async function rescueStaleInProgress(): Promise<number> {
   const cutoff = new Date(Date.now() - STALE_TIMEOUT_MS).toISOString()
   const url =
@@ -193,32 +169,53 @@ async function rescueStaleInProgress(): Promise<number> {
     `?select=id,attempts` +
     `&status=eq.in_progress` +
     `&or=(last_attempt_at.lt.${encodeURIComponent(cutoff)},last_attempt_at.is.null)`
-  const listRes = await fetch(url, { headers: supabaseHeaders() })
-  if (!listRes.ok) return 0
+  const listRes = await fetch(url, { headers: commandCenterHeaders() })
+  if (!listRes.ok) {
+    console.warn(
+      `[autonomy] rescue list failed: HTTP ${listRes.status} — skipping sweep`,
+    )
+    return 0
+  }
   const stale = (await listRes.json()) as Array<{
     id: string
     attempts: number
   }>
-  if (stale.length === 0) return 0
-  await Promise.all(
-    stale.map((row) => {
+  const candidates = stale.filter((row) => !inflight.has(row.id))
+  if (candidates.length === 0) return 0
+  const results = await Promise.allSettled(
+    candidates.map(async (row) => {
       const nextAttempts = (row.attempts ?? 0) + 1
       const demote = nextAttempts >= MAX_ATTEMPTS
-      return fetch(
+      const patch = await fetch(
         `${SUPABASE_URL}/rest/v1/todos?id=eq.${encodeURIComponent(row.id)}`,
         {
           method: 'PATCH',
-          headers: supabaseHeaders(),
+          headers: commandCenterHeaders(),
           body: JSON.stringify({
-            status: demote ? 'todo' : 'todo',
+            status: 'todo',
             track_status: demote ? 'Off Track' : 'At Risk',
             attempts: nextAttempts,
           }),
         },
       )
+      if (!patch.ok) {
+        throw new Error(`PATCH ${row.id} returned HTTP ${patch.status}`)
+      }
+      return row.id
     }),
   )
-  return stale.length
+  const rescued = results.filter((r) => r.status === 'fulfilled').length
+  const failed = results.length - rescued
+  if (failed > 0) {
+    const errors = results
+      .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+      .map((r) => String(r.reason))
+      .join('; ')
+    console.warn(
+      `[autonomy] rescue: ${rescued} ok, ${failed} failed (${errors})`,
+    )
+  }
+  return rescued
 }
 
 async function completeTodo(
@@ -230,16 +227,29 @@ async function completeTodo(
   // the loop stops re-picking a permanently-broken task.
   const newAttempts = attempts + 1
   const demoted = !success && newAttempts >= MAX_ATTEMPTS
-  await fetch(`${SUPABASE_URL}/rest/v1/todos?id=eq.${encodeURIComponent(id)}`, {
-    method: 'PATCH',
-    headers: supabaseHeaders(),
-    body: JSON.stringify({
-      status: success ? 'done' : 'todo',
-      completed: success,
-      track_status: success ? 'On Track' : demoted ? 'Off Track' : 'At Risk',
-      attempts: newAttempts,
-    }),
-  })
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/todos?id=eq.${encodeURIComponent(id)}`,
+    {
+      method: 'PATCH',
+      headers: commandCenterHeaders(),
+      body: JSON.stringify({
+        status: success ? 'done' : 'todo',
+        completed: success,
+        track_status: success ? 'On Track' : demoted ? 'Off Track' : 'At Risk',
+        attempts: newAttempts,
+        // BLOCKER FIX 2026-05-15: stale-rescue at line 171 queries
+        // `last_attempt_at.lt.${cutoff}` to find stuck `in_progress` rows.
+        // Without this column being written, every in_progress row reads
+        // last_attempt_at=NULL, matching the rescue OR-branch and flipping
+        // legitimately-running tasks back to `todo` mid-demo. Stamp it on
+        // every completion (success or fail) so the rescue filter is honest.
+        last_attempt_at: new Date().toISOString(),
+      }),
+    },
+  )
+  if (!res.ok) {
+    throw new Error(`completeTodo ${id} failed: HTTP ${res.status}`)
+  }
 }
 
 async function writeAgentLog(
@@ -248,9 +258,9 @@ async function writeAgentLog(
   modelUsed: string,
   status: 'completed' | 'failed',
 ): Promise<void> {
-  await fetch(`${SUPABASE_URL}/rest/v1/agent_logs`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/agent_logs`, {
     method: 'POST',
-    headers: supabaseHeaders(),
+    headers: commandCenterHeaders(),
     body: JSON.stringify({
       agent_name: agentName,
       task_description: taskDescription.slice(0, 500),
@@ -258,6 +268,15 @@ async function writeAgentLog(
       status,
     }),
   })
+  if (!res.ok) {
+    // Agent log write failures are surfaced but don't roll back the task —
+    // the dispatch already happened and the task itself was completed above.
+    // A persistent failure here means the audit log is missing rows; that's
+    // bad but not catastrophic.
+    console.warn(
+      `[autonomy] writeAgentLog ${agentName}/${status} returned HTTP ${res.status}`,
+    )
+  }
 }
 
 async function dispatchToAgent(
@@ -266,10 +285,11 @@ async function dispatchToAgent(
   taskId: string,
   attempt: number,
 ): Promise<{ ok: boolean; model: string; reply?: string; error?: string }> {
-  // Deterministic idempotency: same task + attempt → same key. The OpenClaw
-  // gateway can dedupe at the protocol level if it sees the same key twice.
-  // randomUUID() namespace ensures uniqueness across distinct tasks.
-  const idempotencyKey = `${taskId}:${attempt}:${randomUUID().slice(0, 8)}`
+  // True deterministic idempotency: same (taskId, attempt) → identical key.
+  // The OpenClaw gateway dedupes at the protocol level when it sees the same
+  // key twice, so a retry of the same attempt (e.g. after a local timeout
+  // that didn't actually cancel the RPC) won't double-dispatch the agent.
+  const idempotencyKey = `${taskId}:${attempt}`
   try {
     const rpcPromise = gatewayRpc<{
       reply?: string
@@ -307,16 +327,6 @@ function mapAgent(category: string): string {
   return CATEGORY_AGENT_MAP[category] ?? 'main'
 }
 
-function pickTopByPriority(todos: Array<Todo>): Todo | null {
-  if (todos.length === 0) return null
-  return [...todos].sort((a, b) => {
-    const pa = PRIORITY_RANK[a.priority] ?? 99
-    const pb = PRIORITY_RANK[b.priority] ?? 99
-    if (pa !== pb) return pa - pb
-    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-  })[0]!
-}
-
 export async function autonomyTick(): Promise<AutonomyTickResult> {
   await hydrateStatsFromSupabase()
   state.lastTickAt = Date.now()
@@ -332,8 +342,12 @@ export async function autonomyTick(): Promise<AutonomyTickResult> {
     const rescued = await rescueStaleInProgress()
     if (rescued > 0) state.totalRescued += rescued
 
-    const candidates = await listPendingTodos()
-    const pick = pickTopByPriority(candidates)
+    // Atomic claim — the Postgres function picks the next eligible row,
+    // takes a row-level lock (SELECT ... FOR UPDATE SKIP LOCKED), flips
+    // it to in_progress, and returns it. Priority ordering + assignee
+    // filter + Off-Track exclusion all happen inside the function. No
+    // race window between "see a row" and "claim it" anymore.
+    const pick = await claimNextTodo()
     if (!pick) {
       const r: AutonomyTickResult = {
         ok: true,
@@ -343,6 +357,10 @@ export async function autonomyTick(): Promise<AutonomyTickResult> {
       state.lastTickResult = r
       return r
     }
+    // Defensive in-process guard: the RPC already owns the row, but if
+    // an HMR reload or stale state left the id in the local Set, refuse
+    // to double-dispatch from this process. Cross-process dedup is the
+    // RPC's job, not ours.
     if (inflight.has(pick.id)) {
       const r: AutonomyTickResult = {
         ok: true,
@@ -354,54 +372,47 @@ export async function autonomyTick(): Promise<AutonomyTickResult> {
     }
     inflight.add(pick.id)
 
-    const locked = await lockTodo(pick.id)
-    if (!locked) {
-      inflight.delete(pick.id)
+    try {
+      const agent = mapAgent(pick.category)
+      const attemptNumber = (pick.attempts ?? 0) + 1
+      const prompt = `[Autonomy task #${pick.id.slice(0, 8)} attempt ${attemptNumber}] ${pick.title}\n\nCategory: ${pick.category}\nPriority: ${pick.priority}\n\nComplete this task and reply with a one-paragraph summary of what you did.`
+
+      const dispatch = await dispatchToAgent(
+        agent,
+        prompt,
+        pick.id,
+        attemptNumber,
+      )
+      const success = dispatch.ok
+      await completeTodo(pick.id, success, pick.attempts ?? 0)
+      await writeAgentLog(
+        agent,
+        `Autonomy: ${pick.title}` +
+          (dispatch.error ? ` — error: ${dispatch.error.slice(0, 100)}` : ''),
+        dispatch.model,
+        success ? 'completed' : 'failed',
+      )
+
+      if (success) state.totalDispatched += 1
+      else state.totalFailed += 1
+
       const r: AutonomyTickResult = {
         ok: true,
-        picked: null,
-        reason: 'lost-race-to-lock',
+        picked: {
+          id: pick.id,
+          title: pick.title,
+          category: pick.category,
+          agent,
+          status: success ? 'completed' : 'failed',
+        },
       }
       state.lastTickResult = r
       return r
+    } finally {
+      // Always release the inflight slot — even if completeTodo or
+      // writeAgentLog threw — so the task ID can be re-dispatched.
+      inflight.delete(pick.id)
     }
-
-    const agent = mapAgent(pick.category)
-    const attemptNumber = (pick.attempts ?? 0) + 1
-    const prompt = `[Autonomy task #${pick.id.slice(0, 8)} attempt ${attemptNumber}] ${pick.title}\n\nCategory: ${pick.category}\nPriority: ${pick.priority}\n\nComplete this task and reply with a one-paragraph summary of what you did.`
-
-    const dispatch = await dispatchToAgent(
-      agent,
-      prompt,
-      pick.id,
-      attemptNumber,
-    )
-    const success = dispatch.ok
-    await completeTodo(pick.id, success, pick.attempts ?? 0)
-    await writeAgentLog(
-      agent,
-      `Autonomy: ${pick.title}` +
-        (dispatch.error ? ` — error: ${dispatch.error.slice(0, 100)}` : ''),
-      dispatch.model,
-      success ? 'completed' : 'failed',
-    )
-    inflight.delete(pick.id)
-
-    if (success) state.totalDispatched += 1
-    else state.totalFailed += 1
-
-    const r: AutonomyTickResult = {
-      ok: true,
-      picked: {
-        id: pick.id,
-        title: pick.title,
-        category: pick.category,
-        agent,
-        status: success ? 'completed' : 'failed',
-      },
-    }
-    state.lastTickResult = r
-    return r
   } catch (e) {
     const r: AutonomyTickResult = {
       ok: false,
@@ -441,7 +452,16 @@ if (state.enabledAtBoot && typeof globalThis !== 'undefined') {
   const intervalMs = Number(process.env.PULSEOS_AUTONOMY_INTERVAL_MS ?? 60_000)
   ;(globalThis as any)[LOOP_KEY] = setInterval(
     () => {
-      void autonomyTick().catch(() => {})
+      void autonomyTick().catch((e: unknown) => {
+        // Surface the failure so the dashboard's lastTickResult reflects
+        // reality and totalFailed ticks up. A silent catch here hides a
+        // dead loop (gateway down, Supabase unreachable, etc.) behind a
+        // healthy-looking UI.
+        const error = e instanceof Error ? e.message : String(e)
+        state.lastTickResult = { ok: false, error }
+        state.totalFailed += 1
+        console.error('[autonomy] tick threw:', error)
+      })
     },
     Math.max(15_000, intervalMs),
   )

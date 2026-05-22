@@ -3,6 +3,7 @@ import { usePageTitle } from '@/hooks/use-page-title'
 import { HugeiconsIcon } from '@hugeicons/react'
 import { Home01Icon, ArrowLeft01Icon } from '@hugeicons/core-free-icons'
 import { buttonVariants } from '@/components/ui/button'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 
 export const Route = createFileRoute('/$')({
   component: NotFoundPage,
@@ -12,7 +13,14 @@ function NotFoundPage() {
   usePageTitle('404 — Not Found')
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6 text-center bg-primary-50">
+    <div
+      style={{
+        ...MC_STYLE,
+        background: 'var(--mc-bg)',
+        color: 'var(--mc-text)',
+      }}
+      className="flex flex-col items-center justify-center min-h-screen p-6 text-center"
+    >
       <div className="max-w-md">
         {/* 404 Icon */}
         <div className="mb-6 flex items-center justify-center">

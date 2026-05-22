@@ -981,12 +981,22 @@ export async function fetchOpenRouterUsage(): Promise<ProviderUsageResult> {
 // ── Aggregate ────────────────────────────────────────────────────────────────
 
 const CACHE_TTL_MS = 30_000
-let cache: { timestamp: number; payload: ProviderUsageResponse } | undefined
+// HMR safety: anchor the cache in globalThis so dev saves don't void the
+// 30s TTL and trigger a 4-call burst against external provider APIs.
+const CACHE_KEY = Symbol.for('clawsuite.provider_usage_cache.v1')
+type CacheEntry = { timestamp: number; payload: ProviderUsageResponse }
+function getCache(): CacheEntry | undefined {
+  return (globalThis as any)[CACHE_KEY] as CacheEntry | undefined
+}
+function setCache(entry: CacheEntry | undefined): void {
+  ;(globalThis as any)[CACHE_KEY] = entry
+}
 
 export async function getProviderUsage(
   force = false,
 ): Promise<ProviderUsageResponse> {
   const now = Date.now()
+  const cache = getCache()
   if (!force && cache && now - cache.timestamp < CACHE_TTL_MS) {
     return cache.payload
   }
@@ -1021,6 +1031,6 @@ export async function getProviderUsage(
     providers: activeProviders,
   }
 
-  cache = { timestamp: now, payload }
+  setCache({ timestamp: now, payload })
   return payload
 }

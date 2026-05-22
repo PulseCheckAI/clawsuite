@@ -67,7 +67,8 @@ export const useWorkspaceStore = create<WorkspaceState>()(
       partialize: (state) => ({
         sidebarCollapsed: state.sidebarCollapsed,
         fileExplorerCollapsed: state.fileExplorerCollapsed,
-        chatPanelOpen: state.chatPanelOpen,
+        // chatPanelOpen intentionally NOT persisted — transient UI state.
+        // Persisting caused the chat panel to reopen on every page reload.
         chatPanelSessionKey: state.chatPanelSessionKey,
       }),
     },

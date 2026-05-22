@@ -1,12 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { ChannelsScreen } from '@/screens/gateway/channels-screen'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 
 export const Route = createFileRoute('/channels')({
   ssr: false,
   component: function ChannelsRoute() {
     usePageTitle('Channels')
-    return <ChannelsScreen />
+    return (
+      <div style={MC_STYLE} className="h-full">
+        <ChannelsScreen />
+      </div>
+    )
   },
   errorComponent: function ChannelsError({ error }) {
     return (

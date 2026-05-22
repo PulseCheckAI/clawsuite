@@ -84,7 +84,11 @@ function toClientPath(resolvedPath: string) {
     return toRelative(resolvedPath)
   }
   if (isWithinRoot(resolvedPath, HOME_DIR)) {
-    const relative = path.relative(HOME_DIR, resolvedPath).split(path.sep).filter(Boolean).join('/')
+    const relative = path
+      .relative(HOME_DIR, resolvedPath)
+      .split(path.sep)
+      .filter(Boolean)
+      .join('/')
     return relative ? `~/${relative}` : '~'
   }
   return resolvedPath
@@ -334,7 +338,7 @@ export const Route = createFileRoute('/api/files')({
               ? WORKSPACE_ROOT
               : isWithinRoot(resolvedPath, HOME_DIR)
                 ? HOME_DIR
-              : TEMP_ROOT,
+                : TEMP_ROOT,
             entries: tree,
           })
         } catch (err) {
@@ -357,6 +361,19 @@ export const Route = createFileRoute('/api/files')({
             if (csrfCheck) return csrfCheck
           }
           if (contentType.includes('multipart/form-data')) {
+            // CSRF defense for multipart: requireJsonContentType doesn't fire
+            // here (multipart != application/json), so require a custom header
+            // that browser <form> elements cannot set. Same-origin fetch can.
+            if (request.headers.get('x-clawsuite-upload') !== '1') {
+              return json(
+                {
+                  ok: false,
+                  error:
+                    'multipart upload requires X-Clawsuite-Upload: 1 header',
+                },
+                { status: 400 },
+              )
+            }
             const form = await request.formData()
             const action = String(form.get('action') || 'upload')
             if (action !== 'upload') {

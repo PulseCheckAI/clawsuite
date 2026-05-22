@@ -20,6 +20,24 @@ const SENSITIVE_FIELD_KEYWORDS = [
   'refresh',
 ]
 
+// HMR safety: stash the prior listener cleanup in globalThis so a module
+// reload can tear down the orphaned subscription before re-subscribing.
+// Without this, every dev save adds a duplicate gateway-event listener and
+// activity events are emitted N times.
+const PRIOR_CLEANUP_KEY = Symbol.for('clawsuite.activity_stream.cleanup.v1')
+const priorCleanup = (globalThis as any)[PRIOR_CLEANUP_KEY] as
+  | (() => void)
+  | null
+  | undefined
+if (typeof priorCleanup === 'function') {
+  try {
+    priorCleanup()
+  } catch {
+    /* defensive: don't let a stale cleanup crash boot */
+  }
+}
+;(globalThis as any)[PRIOR_CLEANUP_KEY] = null
+
 let streamStatus: ActivityStreamStatus = 'disconnected'
 let cleanupListener: (() => void) | null = null
 let connectedSinceMs: number | null = null
@@ -51,6 +69,8 @@ async function connectToGateway() {
 
     // Subscribe to events on the shared gateway connection
     cleanupListener = onGatewayEvent((frame: GatewayFrame) => {
+      // Mark `frame` referenced below; helper indirection silences the
+      // unused-warning if the body is later refactored.
       if (frame.type !== 'evt' && frame.type !== 'event') return
 
       const payload = parsePayload(frame)
@@ -64,6 +84,8 @@ async function connectToGateway() {
         pushEvent(normalizeOtherEvent(eventName, payload))
       }
     })
+    // Stash the new cleanup so the next module load can call it.
+    ;(globalThis as any)[PRIOR_CLEANUP_KEY] = cleanupListener
 
     streamStatus = 'connected'
     connectedSinceMs = Date.now()
@@ -86,7 +108,11 @@ async function connectToGateway() {
 function parsePayload(frame: any): unknown {
   if (frame.payload !== undefined) return frame.payload
   if (typeof frame.payloadJSON === 'string') {
-    try { return JSON.parse(frame.payloadJSON) } catch { return null }
+    try {
+      return JSON.parse(frame.payloadJSON)
+    } catch {
+      return null
+    }
   }
   return null
 }

@@ -1,12 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { TasksScreen } from '@/screens/tasks/tasks-screen'
 import { usePageTitle } from '@/hooks/use-page-title'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 
 export const Route = createFileRoute('/tasks')({
   ssr: false,
   component: function TasksRoute() {
     usePageTitle('Tasks')
-    return <TasksScreen />
+    return (
+      <div style={MC_STYLE} className="h-full">
+        <TasksScreen />
+      </div>
+    )
   },
   errorComponent: function TasksError({ error }) {
     return (

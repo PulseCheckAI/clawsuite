@@ -11,6 +11,7 @@ import {
   rateLimit,
   rateLimitResponse,
   requireJsonContentType,
+  safeErrorMessage,
 } from '../../server/rate-limit'
 
 /**
@@ -237,10 +238,7 @@ export const Route = createFileRoute('/api/update-check')({
           lastCheck = { at: now, result }
           return json(result)
         } catch (err) {
-          return json(
-            { error: err instanceof Error ? err.message : String(err) },
-            { status: 500 },
-          )
+          return json({ error: safeErrorMessage(err) }, { status: 500 })
         }
       },
       POST: async ({ request }) => {

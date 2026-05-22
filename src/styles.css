@@ -528,46 +528,76 @@ body::before {
    ALL non-brand text is pure #ffffff — primary-500..950 are crushed to
    white so every text-primary-* utility renders pure white. */
 [data-theme='pulsecheck-navy'] {
-  --theme-bg: oklch(0.18 0.08 248);
-  --theme-sidebar: oklch(0.18 0.08 248);
-  --theme-panel: oklch(0.18 0.08 248);
-  --theme-card: oklch(0.18 0.08 248);
-  --theme-card2: oklch(0.18 0.08 248);
-  /* Silver borders — cooler metallic tone */
-  --theme-border: rgba(170, 178, 195, 0.4);
-  --theme-border-subtle: rgba(170, 178, 195, 0.2);
-  --theme-text: #ffffff;
-  --theme-muted: #ffffff;
-  --theme-shadow-1: 0 1px 2px rgba(8, 14, 36, 0.6);
-  --theme-shadow-2: 0 8px 24px rgba(8, 14, 36, 0.55);
-  --theme-shadow-3: 0 22px 44px rgba(8, 14, 36, 0.65);
-  --theme-glass: oklch(0.18 0.08 248);
-  --theme-focus: #ff6b35;
-  --theme-accent: #ff6b35;
-  --theme-accent-secondary: #ff9f1c;
-  --theme-accent-subtle: rgba(255, 107, 53, 0.12);
-  --theme-accent-border: rgba(255, 107, 53, 0.34);
-  --theme-stripe: rgba(170, 178, 195, 0.18);
-  --theme-header-bg: oklch(0.18 0.08 248);
-  --theme-header-border: rgba(170, 178, 195, 0.4);
+  /* Mission Control palette (2026-05-19). Was pulse-orange-on-navy;
+     migrated to obsidian + cyan/emerald/amber/magenta/rose to match
+     /conductor, /operations, /linkedin, /media, /postiz design tokens.
+     Native --mc-* set below for new code; --theme-* shimmed to MC values
+     so every legacy --theme-* consumer (cards, sidebars, modals) inherits
+     the new look without per-file edits. */
+  --theme-bg: #070a11;
+  --theme-sidebar: #0d131d;
+  --theme-panel: #0d131d;
+  --theme-card: #0d131d;
+  --theme-card2: rgba(18, 25, 38, 0.5);
+  /* Cyan-tinted hairlines (was silver) */
+  --theme-border: rgba(0, 229, 255, 0.1);
+  --theme-border-subtle: rgba(0, 229, 255, 0.06);
+  --theme-text: #e6f1ff;
+  --theme-muted: #8fa3bf;
+  --theme-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --theme-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.55);
+  --theme-shadow-3: 0 22px 44px rgba(0, 0, 0, 0.65);
+  --theme-glass: #0d131d;
+  /* Cyan focus replaces pulse-orange */
+  --theme-focus: #00e5ff;
+  --theme-accent: #00e5ff;
+  --theme-accent-secondary: #3df5a1;
+  --theme-accent-subtle: rgba(0, 229, 255, 0.12);
+  --theme-accent-border: rgba(0, 229, 255, 0.32);
+  --theme-stripe: rgba(0, 229, 255, 0.08);
+  --theme-header-bg: #0d131d;
+  --theme-header-border: rgba(0, 229, 255, 0.1);
 
-  /* Harmonize the entire navy theme across every module page:
-     - primary-50/100 = body navy (page bg, primary surfaces)
-     - primary-200 = subtle lift for hover/active states (still navy family)
-     - primary-300/400 = border lifts (for separation)
-     - primary-500..950 = pure white (text-primary-* utilities) */
-  --color-primary-50: oklch(0.18 0.08 248);
-  --color-primary-100: oklch(0.18 0.08 248);
-  --color-primary-200: oklch(0.22 0.09 246);
-  --color-primary-300: oklch(0.26 0.09 245);
-  --color-primary-400: oklch(0.32 0.1 244);
-  --color-primary-500: #ffffff;
-  --color-primary-600: #ffffff;
-  --color-primary-700: #ffffff;
-  --color-primary-800: #ffffff;
-  --color-primary-900: #ffffff;
-  --color-primary-950: #ffffff;
-  color: #ffffff;
+  /* Native --mc-* set (mirrors src/screens/gateway/conductor-mission-control.tsx).
+     New code reads these directly; legacy --theme-* above shims to the same
+     values for unmodified consumers. */
+  --mc-bg: #070a11;
+  --mc-surface: #0d131d;
+  --mc-surface-2: rgba(18, 25, 38, 0.5);
+  --mc-border: rgba(0, 229, 255, 0.1);
+  --mc-border-bright: rgba(0, 229, 255, 0.32);
+  --mc-text: #e6f1ff;
+  --mc-text-dim: #8fa3bf;
+  --mc-text-dimmer: #7a8fa8;
+  --mc-cyan: #00e5ff;
+  --mc-cyan-soft: rgba(0, 229, 255, 0.12);
+  --mc-magenta: #ff4fd8;
+  --mc-magenta-soft: rgba(255, 79, 216, 0.14);
+  --mc-amber: #ffb547;
+  --mc-amber-soft: rgba(255, 181, 71, 0.14);
+  --mc-emerald: #3df5a1;
+  --mc-emerald-soft: rgba(61, 245, 161, 0.14);
+  --mc-rose: #ff6b8b;
+  --mc-rose-soft: rgba(255, 107, 139, 0.14);
+
+  /* Tailwind primary-* tokens crushed to MC obsidian + cyan-tinted lifts.
+     Every Tailwind bg-primary-* / text-primary-* utility now renders in
+     Mission Control colors. */
+  --color-primary-50: #070a11;
+  --color-primary-100: #0d131d;
+  --color-primary-200: #121926;
+  --color-primary-300: #1a2434;
+  --color-primary-400: #243046;
+  --color-primary-500: #e6f1ff;
+  --color-primary-600: #e6f1ff;
+  --color-primary-700: #e6f1ff;
+  --color-primary-800: #e6f1ff;
+  --color-primary-900: #e6f1ff;
+  --color-primary-950: #e6f1ff;
+  /* Accent (was pulse-orange) → cyan */
+  --color-accent-500: #00e5ff;
+  --color-accent-600: #00b8cc;
+  color: #e6f1ff;
 }
 
 /* Harmonization: per-screen Tailwind utilities that hard-code bg-white,

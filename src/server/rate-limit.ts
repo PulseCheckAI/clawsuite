@@ -5,8 +5,15 @@
 
 const store = new Map<string, { timestamps: number[] }>()
 
-// Cleanup old entries every 5 minutes
-setInterval(() => {
+// Cleanup old entries every 5 minutes. HMR safety: the interval handle is
+// stashed in globalThis so dev reloads cancel the prior interval before
+// starting a new one — without this, every save adds a parallel sweep.
+const SWEEP_KEY = Symbol.for('clawsuite.rate_limit_sweep.v1')
+const priorSweep = (globalThis as any)[SWEEP_KEY] as
+  | ReturnType<typeof setInterval>
+  | undefined
+if (priorSweep) clearInterval(priorSweep)
+;(globalThis as any)[SWEEP_KEY] = setInterval(() => {
   const now = Date.now()
   for (const [key, entry] of store) {
     entry.timestamps = entry.timestamps.filter((t) => now - t < 120_000)

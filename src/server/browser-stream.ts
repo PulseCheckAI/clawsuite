@@ -139,32 +139,13 @@ async function launchBrowserInstance() {
       }
     })
 
-    // Initial CDP attach
-    cdp = await context.newCDPSession(page)
-    cdp.on(
-      'Page.screencastFrame',
-      (params: { data: string; sessionId: number; metadata: any }) => {
-        const frame = `data:image/jpeg;base64,${params.data}`
-        lastFrame = frame
-        // Push frame to all connected clients
-        broadcast({ type: 'frame', data: frame })
-        // Ack so Chrome keeps sending
-        cdp
-          .send('Page.screencastFrameAck', { sessionId: params.sessionId })
-          .catch(() => {})
-      },
-    )
-
-    await cdp.send('Page.startScreencast', {
-      format: 'jpeg',
-      quality: 85,
-      maxWidth: VIEWPORT.width,
-      maxHeight: VIEWPORT.height,
-      everyNthFrame: 1,
-    })
-
+    // Initial CDP attach — route through attachToPage so the initial page
+    // uses the same idempotent path as new/closed-page transitions. Prior
+    // inline block registered a 2nd screencastFrame listener whenever the
+    // context 'page' event also fired for the initial page, doubling every
+    // frame.
+    await attachToPage(page)
     await page.goto('about:blank')
-    broadcastState()
   } finally {
     isLaunching = false
   }

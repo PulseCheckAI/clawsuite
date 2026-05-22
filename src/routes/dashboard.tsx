@@ -1,13 +1,21 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { MissionControlScreen } from '@/screens/mission-control/mission-control-screen'
 import { GatewayConnectionSetupForm } from '@/components/gateway-connection-banner'
+import { AgentHubErrorBoundary } from '@/screens/gateway/components/agent-hub-error-boundary'
 import { usePageTitle } from '@/hooks/use-page-title'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 
 export const Route = createFileRoute('/dashboard')({
   ssr: false,
   component: function DashboardRoute() {
     usePageTitle('Command Center')
-    return <MissionControlScreen />
+    return (
+      <div style={MC_STYLE} className="h-full">
+        <AgentHubErrorBoundary>
+          <MissionControlScreen />
+        </AgentHubErrorBoundary>
+      </div>
+    )
   },
   errorComponent: function DashboardError({ error }) {
     const message =
@@ -21,13 +29,26 @@ export const Route = createFileRoute('/dashboard')({
       message.includes('Failed to Load')
 
     return (
-      <div className="flex flex-col items-center justify-center h-full p-6 text-center bg-primary-50">
+      <div
+        style={{
+          ...MC_STYLE,
+          background: 'var(--mc-bg)',
+          color: 'var(--mc-text)',
+        }}
+        className="flex flex-col items-center justify-center h-full p-6 text-center"
+      >
         {isConnectionError ? (
           <div className="w-full max-w-xl">
-            <h2 className="text-xl font-semibold text-primary-900 mb-2">
+            <h2
+              className="text-xl font-semibold mb-2"
+              style={{ color: 'var(--mc-text)' }}
+            >
               Can&apos;t reach OCPlatform Gateway
             </h2>
-            <p className="text-sm text-primary-600 mb-6 max-w-md mx-auto">
+            <p
+              className="text-sm mb-6 max-w-md mx-auto"
+              style={{ color: 'var(--mc-text-dim)' }}
+            >
               ControlSuite needs a running OCPlatform gateway to connect to.
               Make sure it&apos;s running and enter your connection details
               below.
@@ -37,19 +58,35 @@ export const Route = createFileRoute('/dashboard')({
               description="Enter your gateway WebSocket URL and token."
               onSuccess={() => window.location.reload()}
             />
-            <p className="mt-4 text-xs text-primary-400">
+            <p
+              className="mt-4 text-xs"
+              style={{ color: 'var(--mc-text-dimmer)' }}
+            >
               Default gateway URL: ws://127.0.0.1:18789
             </p>
           </div>
         ) : (
           <>
-            <h2 className="text-xl font-semibold text-primary-900 mb-3">
+            <h2
+              className="text-xl font-semibold mb-3"
+              style={{ color: 'var(--mc-text)' }}
+            >
               Failed to Load Dashboard
             </h2>
-            <p className="text-sm text-primary-600 mb-4 max-w-md">{message}</p>
+            <p
+              className="text-sm mb-4 max-w-md"
+              style={{ color: 'var(--mc-text-dim)' }}
+            >
+              {message}
+            </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-accent-500 text-white rounded-lg hover:bg-accent-600 transition-colors"
+              className="px-4 py-2 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2"
+              style={{
+                background: 'var(--mc-cyan-soft)',
+                color: 'var(--mc-cyan)',
+                border: '1px solid var(--mc-border-bright)',
+              }}
             >
               Reload Page
             </button>
@@ -60,10 +97,18 @@ export const Route = createFileRoute('/dashboard')({
   },
   pendingComponent: function DashboardPending() {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div
+        style={{ ...MC_STYLE, background: 'var(--mc-bg)' }}
+        className="flex items-center justify-center h-full"
+      >
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-accent-500 border-r-transparent mb-3" />
-          <p className="text-sm text-primary-500">Loading dashboard...</p>
+          <div
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-r-transparent mb-3"
+            style={{ borderColor: 'var(--mc-cyan)' }}
+          />
+          <p className="text-sm" style={{ color: 'var(--mc-text-dim)' }}>
+            Loading dashboard...
+          </p>
         </div>
       </div>
     )

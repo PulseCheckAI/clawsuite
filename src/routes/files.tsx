@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { FileExplorerSidebar } from '@/components/file-explorer'
 import { useSettings } from '@/hooks/use-settings'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 
 const INITIAL_EDITOR_VALUE = `// Files workspace
 // Use the file tree on the left to browse and manage project files.
@@ -75,7 +76,14 @@ function FilesRoute() {
   }, [])
 
   return (
-    <div className="h-full min-h-0 overflow-hidden bg-surface text-primary-900">
+    <div
+      style={{
+        ...MC_STYLE,
+        background: 'var(--mc-bg)',
+        color: 'var(--mc-text)',
+      }}
+      className="h-full min-h-0 overflow-hidden"
+    >
       <div className="flex h-full min-h-0 overflow-hidden">
         <FileExplorerSidebar
           collapsed={fileExplorerCollapsed}

@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { CodeBlock } from '../components/prompt-kit/code-block'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 
 export const Route = createFileRoute('/connect')({
   ssr: false,
@@ -8,7 +9,14 @@ export const Route = createFileRoute('/connect')({
 
 function ConnectRoute() {
   return (
-    <div className="min-h-screen bg-primary-50 text-primary-900">
+    <div
+      style={{
+        ...MC_STYLE,
+        background: 'var(--mc-bg)',
+        color: 'var(--mc-text)',
+      }}
+      className="min-h-screen"
+    >
       <div className="max-w-2xl mx-auto px-6 py-10 space-y-10">
         <div className="space-y-3">
           <h1 className="text-3xl font-medium tracking-[-0.02em] text-center mb-10">

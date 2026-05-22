@@ -52,15 +52,17 @@ export function useGatewayChatStream(
   const connectionState = useGatewayChatStore((s) => s.connectionState)
   const setConnectionState = useGatewayChatStore((s) => s.setConnectionState)
   const processEvent = useGatewayChatStore((s) => s.processEvent)
-  const clearStreamingSession = useGatewayChatStore((s) => s.clearStreamingSession)
+  const clearStreamingSession = useGatewayChatStore(
+    (s) => s.clearStreamingSession,
+  )
   const clearAllStreaming = useGatewayChatStore((s) => s.clearAllStreaming)
   const lastError = useGatewayChatStore((s) => s.lastError)
 
   const eventSourceRef = useRef<EventSource | null>(null)
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const streamTimeoutsRef = useRef<
-    Map<string, ReturnType<typeof setTimeout>>
-  >(new Map())
+  const streamTimeoutsRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(
+    new Map(),
+  )
   const reconnectAttempts = useRef(0)
   const mountedRef = useRef(true)
   const hasConnectedOnceRef = useRef(false)
@@ -103,10 +105,13 @@ export function useGatewayChatStream(
     [],
   )
 
-  const dispatchChatStreamDoneEvent = useCallback((detail: Record<string, unknown>) => {
-    if (typeof window === 'undefined') return
-    window.dispatchEvent(new CustomEvent(CHAT_STREAM_DONE_EVENT, { detail }))
-  }, [])
+  const dispatchChatStreamDoneEvent = useCallback(
+    (detail: Record<string, unknown>) => {
+      if (typeof window === 'undefined') return
+      window.dispatchEvent(new CustomEvent(CHAT_STREAM_DONE_EVENT, { detail }))
+    },
+    [],
+  )
 
   const clearStreamTimeout = useCallback((sessionKey: string) => {
     const timeoutId = streamTimeoutsRef.current.get(sessionKey)
@@ -217,7 +222,10 @@ export function useGatewayChatStream(
       clearAllStreaming()
       setConnectionState('disconnected')
       dispatchSSEDroppedEvent()
-      scheduleReconnect()
+      // Go through the ref so `connect` doesn't have to take `scheduleReconnect`
+      // as a useCallback dep (which would form a circular dep with `connect`
+      // itself). Matches the pattern used by the silence-probe handler above.
+      scheduleReconnectRef.current()
     })
 
     eventSource.addEventListener('error', () => {
@@ -229,7 +237,7 @@ export function useGatewayChatStream(
         clearAllStreaming()
         setConnectionState('disconnected')
         dispatchSSEDroppedEvent()
-        scheduleReconnect()
+        scheduleReconnectRef.current()
       }
       // Don't set 'connecting' on transient errors — EventSource auto-reconnects
       // and onopen will fire when it succeeds. Avoids flashing red dot.
@@ -415,7 +423,8 @@ export function useGatewayChatStream(
         }
         // debug: console.log(`[SSE] done event received: runId=${data.runId} state=${data.state} sessionKey=${data.sessionKey}`)
         const streamingSnapshot =
-          useGatewayChatStore.getState().streamingState.get(data.sessionKey) ?? null
+          useGatewayChatStore.getState().streamingState.get(data.sessionKey) ??
+          null
         processEvent({ type: 'done', ...data })
         markActivity()
         clearStreamTimeout(data.sessionKey)
@@ -437,7 +446,12 @@ export function useGatewayChatStream(
           sessionKey: string
         }
         if (data.state === 'started' && data.sessionKey && data.runId) {
-          processEvent({ type: 'chunk', text: '', runId: data.runId, sessionKey: data.sessionKey })
+          processEvent({
+            type: 'chunk',
+            text: '',
+            runId: data.runId,
+            sessionKey: data.sessionKey,
+          })
           markActivity()
           touchStreamTimeout(data.sessionKey)
         }
@@ -501,6 +515,9 @@ export function useGatewayChatStream(
       connect()
     }, delay)
   }, [enabled, connect])
+  // Keep the ref in sync so callers inside `connect` and `startSilenceProbe`
+  // can dispatch reconnects without taking `scheduleReconnect` as a useCallback dep
+  // (which would form a circular dep with `connect`).
   scheduleReconnectRef.current = scheduleReconnect
 
   const disconnect = useCallback(() => {
@@ -519,7 +536,12 @@ export function useGatewayChatStream(
 
     clearAllStreaming()
     setConnectionState('disconnected')
-  }, [clearAllStreaming, clearAllStreamTimeouts, clearSilenceProbe, setConnectionState])
+  }, [
+    clearAllStreaming,
+    clearAllStreamTimeouts,
+    clearSilenceProbe,
+    setConnectionState,
+  ])
 
   const reconnect = useCallback(() => {
     disconnect()

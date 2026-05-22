@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { usePageTitle } from '@/hooks/use-page-title'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 
 const TerminalWorkspace = lazy(() =>
   import('@/components/terminal/terminal-workspace').then((m) => ({
@@ -50,7 +51,14 @@ function TerminalRoute() {
   }
 
   return (
-    <div className="box-border h-full min-h-0 overflow-hidden bg-surface pb-24 text-primary-900 md:pb-0">
+    <div
+      style={{
+        ...MC_STYLE,
+        background: 'var(--mc-bg)',
+        color: 'var(--mc-text)',
+      }}
+      className="box-border h-full min-h-0 overflow-hidden pb-24 md:pb-0"
+    >
       <Suspense
         fallback={
           <div className="flex h-full min-h-0 items-center justify-center text-xs text-primary-500">

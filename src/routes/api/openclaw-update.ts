@@ -16,7 +16,8 @@ type VersionCheckResult = {
   installType: 'git' | 'npm' | 'unknown'
 }
 
-let versionCache: { checkedAt: number; result: VersionCheckResult } | null = null
+let versionCache: { checkedAt: number; result: VersionCheckResult } | null =
+  null
 const CACHE_TTL_MS = 15 * 60 * 1000 // 15 minutes
 
 async function checkOpenClawVersion(): Promise<VersionCheckResult> {
@@ -128,13 +129,19 @@ async function checkOpenClawVersion(): Promise<VersionCheckResult> {
 export const Route = createFileRoute('/api/openclaw-update')({
   server: {
     handlers: {
-      GET: async () => {
+      GET: async ({ request }) => {
+        if (!isAuthenticated(request)) {
+          return json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+        }
         try {
           const result = await checkOpenClawVersion()
           return json({ ok: true, ...result })
         } catch (err) {
           return json(
-            { ok: false, error: err instanceof Error ? err.message : String(err) },
+            {
+              ok: false,
+              error: err instanceof Error ? err.message : String(err),
+            },
             { status: 500 },
           )
         }
@@ -158,7 +165,8 @@ export const Route = createFileRoute('/api/openclaw-update')({
           if (check.installType === 'npm') {
             return json({
               ok: false,
-              error: 'OpenClaw is installed via npm. Update with: npm install -g openclaw@latest',
+              error:
+                'OpenClaw is installed via npm. Update with: npm install -g openclaw@latest',
               installType: 'npm',
             })
           }
@@ -174,17 +182,24 @@ export const Route = createFileRoute('/api/openclaw-update')({
             return json({ ok: false, error: result.error || 'Update failed' })
           }
 
-          return json({ ok: true, message: 'OpenClaw update initiated. Gateway will restart.' })
+          return json({
+            ok: true,
+            message: 'OpenClaw update initiated. Gateway will restart.',
+          })
         } catch (err) {
           const errMsg = err instanceof Error ? err.message : String(err)
-          if (errMsg.includes('close') || errMsg.includes('disconnect') || errMsg.includes('ECONNRESET')) {
+          if (
+            errMsg.includes('close') ||
+            errMsg.includes('disconnect') ||
+            errMsg.includes('ECONNRESET')
+          ) {
             versionCache = null
-            return json({ ok: true, message: 'OpenClaw is restarting with the update.' })
+            return json({
+              ok: true,
+              message: 'OpenClaw is restarting with the update.',
+            })
           }
-          return json(
-            { ok: false, error: errMsg },
-            { status: 500 },
-          )
+          return json({ ok: false, error: errMsg }, { status: 500 })
         }
       },
     },

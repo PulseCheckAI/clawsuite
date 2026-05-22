@@ -4,7 +4,12 @@ import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
 import { gatewayRpc } from '../../server/gateway'
 import { isAuthenticated } from '../../server/auth-middleware'
-import { requireJsonContentType } from '../../server/rate-limit'
+import {
+  getClientIp,
+  rateLimit,
+  rateLimitResponse,
+  requireJsonContentType,
+} from '../../server/rate-limit'
 
 let cachedSkill: string | null = null
 
@@ -22,7 +27,10 @@ function loadDispatchSkill(): string {
   try {
     const candidates = [
       resolve(process.cwd(), 'skills/workspace-dispatch/SKILL.md'),
-      resolve(process.env.HOME ?? '~', '.openclaw/workspace/skills/workspace-dispatch/SKILL.md'),
+      resolve(
+        process.env.HOME ?? '~',
+        '.openclaw/workspace/skills/workspace-dispatch/SKILL.md',
+      ),
     ]
     for (const p of candidates) {
       try {
@@ -59,7 +67,10 @@ function buildOrchestratorPrompt(
   },
 ): string {
   const outputBase = options.projectsDir || '/tmp'
-  const outputPrefix = outputBase === '/tmp' ? '/tmp/dispatch-<slug>' : `${outputBase}/dispatch-<slug>`
+  const outputPrefix =
+    outputBase === '/tmp'
+      ? '/tmp/dispatch-<slug>'
+      : `${outputBase}/dispatch-<slug>`
 
   return [
     'You are a mission orchestrator. Execute this mission autonomously.',
@@ -71,12 +82,24 @@ function buildOrchestratorPrompt(
     '## Mission',
     '',
     `Goal: ${goal}`,
-    ...(options.orchestratorModel ? ['', `Use model: ${options.orchestratorModel} for the orchestrator`] : []),
-    ...(options.workerModel ? ['', `Use model: ${options.workerModel} for all workers`] : []),
+    ...(options.orchestratorModel
+      ? ['', `Use model: ${options.orchestratorModel} for the orchestrator`]
+      : []),
+    ...(options.workerModel
+      ? ['', `Use model: ${options.workerModel} for all workers`]
+      : []),
     ...(options.maxParallel > 1
-      ? ['', `Run up to ${options.maxParallel} workers in parallel when tasks are independent`]
-      : ['', 'Spawn workers one at a time. Do NOT wait for workers to finish — the UI handles tracking.']),
-    ...(options.supervised ? ['', 'Supervised mode is enabled. Require approval before each task.'] : []),
+      ? [
+          '',
+          `Run up to ${options.maxParallel} workers in parallel when tasks are independent`,
+        ]
+      : [
+          '',
+          'Spawn workers one at a time. Do NOT wait for workers to finish — the UI handles tracking.',
+        ]),
+    ...(options.supervised
+      ? ['', 'Supervised mode is enabled. Require approval before each task.']
+      : []),
     '',
     '## Critical Rules',
     '- Use sessions_spawn to create worker agents for each task',
@@ -114,9 +137,16 @@ export const Route = createFileRoute('/api/conductor-spawn')({
         }
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck
+        const ip = getClientIp(request)
+        // conductor-spawn dispatches 600s LLM jobs — strict limit
+        if (!rateLimit(`conductor-spawn:${ip}`, 10, 60_000)) {
+          return rateLimitResponse()
+        }
 
         try {
-          const body = (await request.json().catch(() => ({}))) as ConductorSpawnBody
+          const body = (await request
+            .json()
+            .catch(() => ({}))) as ConductorSpawnBody
           const goal = typeof body.goal === 'string' ? body.goal.trim() : ''
           const orchestratorModel = readOptionalString(body.orchestratorModel)
           const workerModel = readOptionalString(body.workerModel)
@@ -139,7 +169,12 @@ export const Route = createFileRoute('/api/conductor-spawn')({
 
           const jobName = `conductor-${Date.now()}`
 
-          const addResult = await cronRpcWithFallback<{ ok?: boolean; jobId?: string; id?: string; error?: string }>({
+          const addResult = await cronRpcWithFallback<{
+            ok?: boolean
+            jobId?: string
+            id?: string
+            error?: string
+          }>({
             job: {
               name: jobName,
               schedule: { kind: 'at', at: new Date().toISOString() },
@@ -158,9 +193,15 @@ export const Route = createFileRoute('/api/conductor-spawn')({
           const jobId = addResult.jobId ?? addResult.id ?? jobName
 
           setTimeout(() => {
-            const removeMethods = ['cron.remove', 'cron.jobs.remove', 'scheduler.jobs.remove']
+            const removeMethods = [
+              'cron.remove',
+              'cron.jobs.remove',
+              'scheduler.jobs.remove',
+            ]
             for (const method of removeMethods) {
-              gatewayRpc(method, { jobId }).then(() => {}).catch(() => {})
+              gatewayRpc(method, { jobId })
+                .then(() => {})
+                .catch(() => {})
             }
           }, 30_000)
 

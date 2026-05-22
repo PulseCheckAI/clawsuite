@@ -6,10 +6,25 @@ const ACTIVITY_EVENT_NAME = 'activity'
 
 type ActivityEventCallback = (event: ActivityEvent) => void
 
-const activityEmitter = new EventEmitter()
-const activityBuffer: Array<ActivityEvent> = []
-
-activityEmitter.setMaxListeners(0)
+// HMR safety: anchor the emitter + buffer in globalThis so subscribers
+// registered before the module reload continue receiving events from the
+// same singleton afterward. Without this, every save in dev creates a
+// fresh emitter and orphans the prior subscribers.
+const STATE_KEY = Symbol.for('clawsuite.activity_events.v1')
+type ActivityEventsState = {
+  emitter: EventEmitter
+  buffer: Array<ActivityEvent>
+}
+const state: ActivityEventsState =
+  ((globalThis as any)[STATE_KEY] as ActivityEventsState | undefined) ??
+  (() => {
+    const emitter = new EventEmitter()
+    emitter.setMaxListeners(0)
+    return { emitter, buffer: [] }
+  })()
+;(globalThis as any)[STATE_KEY] = state
+const activityEmitter = state.emitter
+const activityBuffer = state.buffer
 
 export function pushEvent(event: ActivityEvent) {
   activityBuffer.push(event)

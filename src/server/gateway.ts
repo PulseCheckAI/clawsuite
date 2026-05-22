@@ -165,6 +165,20 @@ const RPC_TIMEOUT_MS = 30000
 const CIRCUIT_BREAKER_THRESHOLD = 15 // consecutive failures to trip (raised: one slow RPC shouldn't kill all)
 const CIRCUIT_BREAKER_COOLDOWN_MS = 10000 // how long to stay open
 
+// Known-slow RPCs that should NOT count toward the circuit breaker on
+// timeout. `agents.list` observed at 5+ seconds under load (gateway log
+// 2026-05-15 01:11-01:25); without this exemption, 15 slow agents.list
+// calls would trip the breaker and block all RPCs for 10s mid-demo.
+// Hoisted to module-scope so we don't re-allocate the array on every
+// RPC timeout in the hot path.
+const SLOW_RPCS = new Set([
+  'sessions.usage',
+  'sessions.costs',
+  'usage.analytics',
+  'usage.summary',
+  'agents.list',
+])
+
 export function getGatewayConfig() {
   // Check if browser set a custom gateway URL (for network/mobile access)
   const browserUrl =
@@ -230,8 +244,8 @@ export function buildConnectParams(
   const signature = signPayload(identity.privateKeyPem, parts.join('|'))
 
   return {
-    minProtocol: 3,
-    maxProtocol: 3,
+    minProtocol: 4,
+    maxProtocol: 4,
     client: {
       id: clientId,
       displayName: 'clawsuite',
@@ -327,6 +341,7 @@ class GatewayClient {
 
     const requestId = randomUUID()
     let settled = false
+    let timeoutHandle: ReturnType<typeof setTimeout> | null = null
 
     const rpcCall = new Promise<TPayload>((resolve, reject) => {
       const request: PendingRequest = {
@@ -336,6 +351,7 @@ class GatewayClient {
         resolve: (value: unknown) => {
           if (settled) return
           settled = true
+          if (timeoutHandle) clearTimeout(timeoutHandle)
           this.circuitFailures = 0
           this.circuitOpen = false
           resolve(value as TPayload)
@@ -343,6 +359,7 @@ class GatewayClient {
         reject: (reason?: unknown) => {
           if (settled) return
           settled = true
+          if (timeoutHandle) clearTimeout(timeoutHandle)
           reject(reason)
         },
       }
@@ -355,18 +372,11 @@ class GatewayClient {
     })
 
     const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => {
+      timeoutHandle = setTimeout(() => {
         if (settled) return // RPC already resolved/rejected — skip
         settled = true
         this.cleanupPendingRequest(requestId)
-        // Don't count known-slow RPCs toward circuit breaker
-        const slowRpcs = [
-          'sessions.usage',
-          'sessions.costs',
-          'usage.analytics',
-          'usage.summary',
-        ]
-        if (!slowRpcs.includes(method)) {
+        if (!SLOW_RPCS.has(method)) {
           this.circuitFailures += 1
         }
         if (this.circuitFailures >= CIRCUIT_BREAKER_THRESHOLD) {

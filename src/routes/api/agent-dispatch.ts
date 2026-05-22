@@ -3,7 +3,12 @@ import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
 import { gatewayRpc } from '../../server/gateway'
 import { isAuthenticated } from '../../server/auth-middleware'
-import { requireJsonContentType } from '../../server/rate-limit'
+import {
+  getClientIp,
+  rateLimit,
+  rateLimitResponse,
+  requireJsonContentType,
+} from '../../server/rate-limit'
 
 type DispatchGatewayResponse = {
   runId?: string
@@ -12,7 +17,10 @@ type DispatchGatewayResponse = {
 function looksLikeMethodMissingError(error: unknown): boolean {
   if (!(error instanceof Error)) return false
   const message = error.message.toLowerCase()
-  return message.includes('method') && (message.includes('not found') || message.includes('unknown'))
+  return (
+    message.includes('method') &&
+    (message.includes('not found') || message.includes('unknown'))
+  )
 }
 
 async function dispatchViaGateway(payload: {
@@ -51,6 +59,10 @@ export const Route = createFileRoute('/api/agent-dispatch')({
         }
         const csrfCheck = requireJsonContentType(request)
         if (csrfCheck) return csrfCheck
+        const ip = getClientIp(request)
+        if (!rateLimit(`agent-dispatch:${ip}`, 30, 60_000)) {
+          return rateLimitResponse()
+        }
 
         try {
           const body = (await request.json().catch(() => ({}))) as Record<
@@ -60,8 +72,7 @@ export const Route = createFileRoute('/api/agent-dispatch')({
           const sessionKey =
             typeof body.sessionKey === 'string' ? body.sessionKey.trim() : ''
           const message = String(body.message ?? '').trim()
-          const model =
-            typeof body.model === 'string' ? body.model.trim() : ''
+          const model = typeof body.model === 'string' ? body.model.trim() : ''
 
           if (!sessionKey) {
             return json(
@@ -76,10 +87,15 @@ export const Route = createFileRoute('/api/agent-dispatch')({
             )
           }
 
-          const idempotencyKey =
-            typeof body.idempotencyKey === 'string' &&
-            body.idempotencyKey.trim().length > 0
+          // Cap caller-supplied idempotency keys at 100 chars to prevent
+          // pathological inputs being forwarded to gateway RPC.
+          const rawIdempotencyKey =
+            typeof body.idempotencyKey === 'string'
               ? body.idempotencyKey.trim()
+              : ''
+          const idempotencyKey =
+            rawIdempotencyKey.length > 0
+              ? rawIdempotencyKey.slice(0, 100)
               : randomUUID()
 
           const result = await dispatchViaGateway({
@@ -93,7 +109,8 @@ export const Route = createFileRoute('/api/agent-dispatch')({
             ok: true,
             missionId:
               typeof body.missionId === 'string' ? body.missionId.trim() : '',
-            agentId: typeof body.agentId === 'string' ? body.agentId.trim() : '',
+            agentId:
+              typeof body.agentId === 'string' ? body.agentId.trim() : '',
             sessionKey,
             runId: result.runId ?? null,
           })

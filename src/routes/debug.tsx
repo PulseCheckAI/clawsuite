@@ -1,12 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { DebugConsoleScreen } from '@/screens/debug/debug-console-screen'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 
 export const Route = createFileRoute('/debug')({
   ssr: false,
   component: function DebugRoute() {
     usePageTitle('Debug Console')
-    return <DebugConsoleScreen />
+    return (
+      <div style={MC_STYLE} className="h-full">
+        <DebugConsoleScreen />
+      </div>
+    )
   },
   errorComponent: function DebugError({ error }) {
     return (

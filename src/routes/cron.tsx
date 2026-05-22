@@ -1,12 +1,17 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { usePageTitle } from '@/hooks/use-page-title'
 import { CronManagerScreen } from '@/screens/cron/cron-manager-screen'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 
 export const Route = createFileRoute('/cron')({
   ssr: false,
   component: function CronRoute() {
     usePageTitle('Cron Manager')
-    return <CronManagerScreen />
+    return (
+      <div style={MC_STYLE} className="h-full">
+        <CronManagerScreen />
+      </div>
+    )
   },
   errorComponent: function CronError({ error }) {
     return (

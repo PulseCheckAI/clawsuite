@@ -13,10 +13,9 @@ import {
 } from '../../../server/rate-limit'
 
 // Use workspace-level tasks file so all OpenClaw agents share one source of truth
-const TASKS_FILE =
-  process.env.OPENCLAW_WORKSPACE
-    ? path.join(process.env.OPENCLAW_WORKSPACE, 'data', 'tasks.json')
-    : path.join(process.cwd(), '..', 'data', 'tasks.json')
+const TASKS_FILE = process.env.OPENCLAW_WORKSPACE
+  ? path.join(process.env.OPENCLAW_WORKSPACE, 'data', 'tasks.json')
+  : path.join(process.cwd(), '..', 'data', 'tasks.json')
 
 async function readTasks(): Promise<unknown[]> {
   try {
@@ -50,6 +49,9 @@ export const Route = createFileRoute('/api/tasks/')({
   server: {
     handlers: {
       GET: async ({ request }) => {
+        if (!isAuthenticated(request)) {
+          return json({ error: 'Unauthorized' }, { status: 401 })
+        }
         const ip = getClientIp(request)
         if (!rateLimit(`tasks-get:${ip}`, 60, 60_000))
           return rateLimitResponse()

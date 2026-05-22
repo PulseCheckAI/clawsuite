@@ -28,21 +28,11 @@ import { useTerminalPanelStore } from '@/stores/terminal-panel-store'
 import { useTaskStore } from '@/stores/task-store'
 import { useMissionStore } from '@/stores/mission-store'
 
-const APP_CSP = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "object-src 'none'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  "script-src 'self' 'unsafe-inline'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
-  "font-src 'self' data:",
-  "connect-src 'self' ws: wss: http: https:",
-  "worker-src 'self' blob:",
-  "media-src 'self' blob: data:",
-  "frame-src 'self' http: https:",
-].join('; ')
+// CSP is delivered as an HTTP response header (see vite.config.ts server.headers).
+// Meta-tag delivery is ignored by Chrome for navigation-sensitive directives like
+// frame-ancestors (logged "frame-ancestors is ignored when delivered via meta"
+// 5× per page load). The header form is honored end-to-end. The 'unsafe-inline'
+// script-src is still present pending a separate nonce-injection PR.
 
 const themeScript = `
 (() => {
@@ -221,7 +211,7 @@ export const Route = createRootRoute({
       {
         name: 'viewport',
         content:
-          'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-visual',
+          'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-visual',
       },
       {
         title: 'PulseOS',
@@ -368,7 +358,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <meta httpEquiv="Content-Security-Policy" content={APP_CSP} />
+        {/* CSP moved to HTTP response header — see vite.config.ts server.headers */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: themeColorScript }} />

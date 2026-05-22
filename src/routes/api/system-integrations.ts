@@ -3,6 +3,7 @@ import { json } from '@tanstack/react-start'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
+import { isAuthenticated } from '../../server/auth-middleware'
 import { gatewayRpc } from '../../server/gateway'
 
 // ── /api/system-integrations ────────────────────────────────────────────────
@@ -35,6 +36,18 @@ function existsAny(paths: Array<string>): { ok: boolean; hit?: string } {
     }
   }
   return { ok: false }
+}
+
+// Gateway RPCs that returned "unknown method" once will keep doing so until
+// the gateway adds them. Cache the negative result process-wide so we stop
+// flooding the gateway log with 60s-rhythm INVALID_REQUEST errors. Cleared on
+// pulseos restart.
+const gatewayMethodsKnownMissing = new Set<string>()
+
+function isUnknownMethodError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false
+  const msg = err.message.toLowerCase()
+  return msg.includes('unknown method') || msg.includes('method not found')
 }
 
 function probeCodex(): Integration {
@@ -85,6 +98,19 @@ function probeDreams(): Integration {
 }
 
 async function probeTelegram(): Promise<Integration> {
+  // Short-circuit if a prior call learned the gateway doesn't expose this method.
+  // Saves a noisy round-trip on every poll cycle (UI hits this endpoint ~60s).
+  if (gatewayMethodsKnownMissing.has('channels.list')) {
+    return {
+      id: 'telegram',
+      name: 'Telegram gateway',
+      role: 'Channel bridge',
+      state: 'unknown',
+      detail:
+        'Gateway channels.list RPC unavailable (probe cached this session)',
+      color: '#06B6D4',
+    }
+  }
   try {
     const chs = await gatewayRpc<{ channels?: Array<{ id: string }> }>(
       'channels.list',
@@ -102,7 +128,10 @@ async function probeTelegram(): Promise<Integration> {
         : 'No Telegram channel in OpenClaw — Phase 3 not wired',
       color: '#06B6D4',
     }
-  } catch {
+  } catch (err) {
+    if (isUnknownMethodError(err)) {
+      gatewayMethodsKnownMissing.add('channels.list')
+    }
     return {
       id: 'telegram',
       name: 'Telegram gateway',
@@ -147,7 +176,10 @@ async function probeOrchestrator(): Promise<Integration> {
 export const Route = createFileRoute('/api/system-integrations')({
   server: {
     handlers: {
-      GET: async () => {
+      GET: async ({ request }) => {
+        if (!isAuthenticated(request)) {
+          return json({ ok: false, error: 'Unauthorized' }, { status: 401 })
+        }
         const [telegram, orchestrator] = await Promise.all([
           probeTelegram(),
           probeOrchestrator(),

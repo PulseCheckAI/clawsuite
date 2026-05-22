@@ -27,7 +27,9 @@ const GRAPHS = {
 type Kind = keyof typeof GRAPHS
 
 export function GraphScreen() {
-  const [kind, setKind] = useState<Kind>('code')
+  // Default to the Obsidian-style knowledge graph (the LightRAG entity graph) —
+  // that's the graph users come here for; Code/Temple are secondary toggles.
+  const [kind, setKind] = useState<Kind>('knowledge')
   const active = GRAPHS[kind]
 
   return (
@@ -43,8 +45,9 @@ export function GraphScreen() {
               key={k}
               type="button"
               onClick={() => setKind(k)}
+              aria-pressed={kind === k}
               className={cn(
-                'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
+                'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900',
                 kind === k
                   ? 'bg-accent-500 text-white shadow-sm'
                   : 'text-primary-600 hover:text-ink',

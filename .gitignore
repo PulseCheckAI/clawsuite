@@ -158,3 +158,14 @@ docs/specs/
 docs/CLAWSUITE-ROADMAP.md
 release/
 electron/server-bundle.mjs
+
+# Secret / env backups — NEVER commit (e.g. .env.bak-pre-supabase-propagation-*)
+.env.bak*
+*.env.bak*
+# Local scratch / verification dumps
+env-verify.txt
+_tc_rss.txt
+# TypeScript incremental build cache
+*.tsbuildinfo
+# claude-flow tool scratch (root + nested)
+.claude-flow/

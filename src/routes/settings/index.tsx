@@ -36,6 +36,7 @@ import { BrailleSpinner } from '@/components/ui/braille-spinner'
 import type { BrailleSpinnerPreset } from '@/components/ui/braille-spinner'
 import { ThreeDotsSpinner } from '@/components/ui/three-dots-spinner'
 import { getConnectionErrorInfo } from '@/lib/connection-errors'
+import { MC_STYLE } from '@/screens/agents/operations-screen'
 // useWorkspaceStore removed — hamburger eliminated on mobile
 
 export const Route = createFileRoute('/settings/')({
@@ -415,7 +416,14 @@ function SettingsRoute() {
     useState<SettingsSectionId>('profile')
 
   return (
-    <div className="min-h-screen bg-surface text-primary-900">
+    <div
+      style={{
+        ...MC_STYLE,
+        background: 'var(--mc-bg)',
+        color: 'var(--mc-text)',
+      }}
+      className="min-h-screen"
+    >
       <div className="pointer-events-none fixed inset-0 bg-radial from-primary-400/20 via-transparent to-transparent" />
       <div className="pointer-events-none fixed inset-0 bg-gradient-to-br from-primary-100/25 via-transparent to-primary-300/20" />
 

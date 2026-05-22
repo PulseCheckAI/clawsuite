@@ -21,20 +21,40 @@ export type ExecApprovalEntry = {
 }
 
 // In-memory store — lives for the lifetime of the server process.
-const _pending = new Map<string, ExecApprovalEntry>()
-let _started = false
+// HMR-safe: anchored in globalThis so module reloads in dev don't orphan
+// the gateway-event listener (which would otherwise accumulate per HMR).
+const STATE_KEY = Symbol.for('clawsuite.exec_approval_store.v1')
+type ExecApprovalState = {
+  pending: Map<string, ExecApprovalEntry>
+  cleanup: (() => void) | null
+}
+const state: ExecApprovalState = ((globalThis as any)[STATE_KEY] as
+  | ExecApprovalState
+  | undefined) ?? {
+  pending: new Map(),
+  cleanup: null,
+}
+;(globalThis as any)[STATE_KEY] = state
+const _pending = state.pending
 
 function startIfNeeded() {
-  if (_started) return
-  _started = true
+  if (state.cleanup) return // already subscribed; survives HMR
 
-  onGatewayEvent((frame) => {
+  state.cleanup = onGatewayEvent((frame) => {
     if (frame.type !== 'event' && frame.type !== 'evt') return
     const event = frame.event
-    const rawPayload = 'payloadJSON' in frame && frame.payloadJSON
-      ? (() => { try { return JSON.parse(frame.payloadJSON as string) } catch { return {} } })()
-      : frame.payload
-    const payload: Record<string, unknown> = (rawPayload as Record<string, unknown>) ?? {}
+    const rawPayload =
+      'payloadJSON' in frame && frame.payloadJSON
+        ? (() => {
+            try {
+              return JSON.parse(frame.payloadJSON as string)
+            } catch {
+              return {}
+            }
+          })()
+        : frame.payload
+    const payload: Record<string, unknown> =
+      (rawPayload as Record<string, unknown>) ?? {}
 
     if (event === 'exec.approval.requested') {
       const id = (payload.id ?? payload.approvalId) as string | undefined
@@ -49,7 +69,7 @@ function startIfNeeded() {
         context: (payload.context ?? request.cwd) as string | null,
         input: request,
         requestedAt: (payload.createdAtMs ?? Date.now()) as number,
-        expiresAt: (payload.expiresAtMs) as number | undefined,
+        expiresAt: payload.expiresAtMs as number | undefined,
         status: 'pending',
       }
       _pending.set(id, entry)
@@ -67,7 +87,7 @@ function startIfNeeded() {
         setTimeout(() => _pending.delete(id), 60_000)
       }
     }
-  })
+  }) as (() => void) | null
 }
 
 /**

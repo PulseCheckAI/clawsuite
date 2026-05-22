@@ -1,10 +1,14 @@
 import { randomBytes, timingSafeEqual } from 'node:crypto'
 
+// Matches the cookie Max-Age (createSessionCookie below). Tokens beyond this
+// are invalidated even if the Map entry sticks around momentarily.
+const TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000
+
 /**
- * In-memory session store.
- * For production, consider Redis or a database.
+ * In-memory session store. Map of token → expiresAtMs.
+ * For production with multiple instances, consider Redis or a database.
  */
-const validTokens = new Set<string>()
+const validTokens = new Map<string, number>()
 
 /**
  * Generate a cryptographically secure session token.
@@ -14,17 +18,24 @@ export function generateSessionToken(): string {
 }
 
 /**
- * Store a session token as valid.
+ * Store a session token as valid (auto-expires after TOKEN_TTL_MS).
  */
 export function storeSessionToken(token: string): void {
-  validTokens.add(token)
+  validTokens.set(token, Date.now() + TOKEN_TTL_MS)
 }
 
 /**
- * Check if a session token is valid.
+ * Check if a session token is valid. Lazily evicts expired tokens on access
+ * so the Map doesn't accumulate dead entries from forgotten logins.
  */
 export function isValidSessionToken(token: string): boolean {
-  return validTokens.has(token)
+  const expiresAt = validTokens.get(token)
+  if (expiresAt === undefined) return false
+  if (Date.now() > expiresAt) {
+    validTokens.delete(token)
+    return false
+  }
+  return true
 }
 
 /**
@@ -32,6 +43,33 @@ export function isValidSessionToken(token: string): boolean {
  */
 export function revokeSessionToken(token: string): void {
   validTokens.delete(token)
+}
+
+// Startup-time validation: refuse to start in production without a password set,
+// otherwise every authenticated route would be silently public.
+if (
+  typeof process !== 'undefined' &&
+  process.env.NODE_ENV === 'production' &&
+  !process.env.CLAWSUITE_PASSWORD
+) {
+  console.error(
+    '[auth-middleware] FATAL: CLAWSUITE_PASSWORD is not set but NODE_ENV=production. ' +
+      'Every authenticated route would be publicly accessible. Refusing to start.',
+  )
+  // Hard fail — exit before any request is served
+  process.exit(1)
+}
+
+// Dev-mode visibility: warn operators that auth is bypassed when no password is set.
+if (
+  typeof process !== 'undefined' &&
+  process.env.NODE_ENV !== 'production' &&
+  !process.env.CLAWSUITE_PASSWORD
+) {
+  console.warn(
+    '[auth-middleware] CLAWSUITE_PASSWORD is not set — authentication is BYPASSED. ' +
+      'Set this env var before deploying.',
+  )
 }
 
 /**

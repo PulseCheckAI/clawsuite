@@ -11,6 +11,10 @@ import {
   type BarListItem,
 } from '@/components/mission-control'
 import { getSupabaseClient } from '@/lib/supabase-client'
+import {
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY,
+} from '@/lib/supabase-constants'
 
 type Todo = {
   id: string
@@ -31,14 +35,11 @@ type AgentLog = {
   created_at: string
 }
 
-const SUPABASE_URL = 'https://zcjgjfersccwwhjmaflw.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_krMU4pMkUZQNQT9bbO68jw_IahpZoEd'
-
 async function supabaseGet<T>(path: string): Promise<Array<T>> {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
+      apikey: SUPABASE_PUBLISHABLE_KEY,
+      Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
       'Accept-Profile': 'command_center',
     },
   })
@@ -53,6 +54,78 @@ type Integration = {
   state: 'online' | 'configured' | 'not-configured' | 'unknown'
   detail: string
   color: string
+}
+
+// ── Windmill→KV aggregator module shape ─────────────────────────────────────
+// Matches `ModuleRenderInput` written by aggregator_*.deno.ts and read back
+// through /api/cc-kv (server proxy to the pulsecheck-cc-edge Worker).
+// ── artifacts-panel/_data sidecar shapes (subset we render) ─────────────────
+type MemorySidecar = {
+  generated_at: string
+  total: number
+  type_counts: {
+    feedback: number
+    project: number
+    reference: number
+    user: number
+  }
+  entries: Array<{
+    name: string
+    title: string
+    description: string
+    type: 'feedback' | 'project' | 'reference' | 'user'
+  }>
+}
+
+type CalendarSidecar = {
+  generated_at: string
+  summary: {
+    total: number
+    enabled: number
+    disabled: number
+    folders: Record<string, number>
+  }
+  schedules: Array<{
+    id: string
+    folder: string
+    summary: string
+    cron: string
+    timezone: string
+    enabled: boolean
+  }>
+}
+
+type TeamSidecar = {
+  generated_at: string
+  last_verified: string
+  liveness_policy: string
+  summary: { humans: number; agents: number; divisions: number }
+  members: Array<{
+    id: string
+    name: string
+    role: string
+    type: 'human' | 'subagent'
+    division: string
+    current_status: 'active' | 'idle' | 'available' | 'blocked' | string
+    current_task: string | null
+  }>
+}
+
+type AggregatorModule = {
+  id: string
+  name: string
+  payload: {
+    meta: {
+      generated_at: string
+      freshness_seconds: number
+      source_count: number
+      scope: { brand_id: string | null }
+    }
+    status: 'live' | 'stale' | 'degraded' | 'configuring'
+    primary: { value: string; label: string }
+    secondary?: Array<{ value: string; label: string }>
+    deep_link?: { href: string; label: string }
+  }
 }
 
 type AutonomyState = {
@@ -82,6 +155,11 @@ export function MissionControlScreen() {
   const [todos, setTodos] = useState<Array<Todo>>([])
   const [logs, setLogs] = useState<Array<AgentLog>>([])
   const [integrations, setIntegrations] = useState<Array<Integration>>([])
+  const [aggModules, setAggModules] = useState<Array<AggregatorModule>>([])
+  const [memorySidecar, setMemorySidecar] = useState<MemorySidecar | null>(null)
+  const [calendarSidecar, setCalendarSidecar] =
+    useState<CalendarSidecar | null>(null)
+  const [teamSidecar, setTeamSidecar] = useState<TeamSidecar | null>(null)
   const [autonomy, setAutonomy] = useState<AutonomyState | null>(null)
   const [tickPending, setTickPending] = useState(false)
   const [loadErr, setLoadErr] = useState<string | null>(null)
@@ -188,6 +266,99 @@ export function MissionControlScreen() {
     }
   }, [])
 
+  // Windmill→KV aggregator modules — polls /api/cc-kv every 60s for the
+  // 4 highest-signal modules. Closes the integration gap with the broader
+  // pulsecheck-ai stack: the aggregators write to KV via a Cloudflare Worker,
+  // and this is the dashboard's read side. Skips modules that fail to load
+  // (best-effort, never blocks the page).
+  useEffect(() => {
+    let cancelled = false
+    const MODULES: Array<{ id: AggregatorModule['id']; name: string }> = [
+      { id: 'system-pulse', name: 'System Pulse' },
+      { id: 'pipeline', name: 'Sales Pipeline' },
+      { id: 'marginops-live', name: 'MarginOps' },
+      { id: 'pending-decisions', name: 'Pending Decisions' },
+      { id: 'comms-triage', name: 'Comms Triage' },
+      { id: 'knowledge', name: 'Knowledge' },
+      { id: 'investor-kpis', name: 'Investor KPIs' },
+      { id: 'brief-feed', name: 'Brief Feed' },
+    ]
+    const load = async () => {
+      const results = await Promise.all(
+        MODULES.map(async (m) => {
+          try {
+            const res = await fetch(`/api/cc-kv?module=${m.id}`)
+            const body = (await res.json()) as
+              | {
+                  ok: true
+                  module: string
+                  payload: AggregatorModule['payload']
+                }
+              | { ok: false; error: string }
+            if (body.ok)
+              return { id: m.id, name: m.name, payload: body.payload }
+            return null
+          } catch {
+            return null
+          }
+        }),
+      )
+      if (cancelled) return
+      const live = results.filter((r): r is AggregatorModule => r !== null)
+      setAggModules(live)
+    }
+    void load()
+    const refresh = setInterval(load, 60_000)
+    return () => {
+      cancelled = true
+      clearInterval(refresh)
+    }
+  }, [])
+
+  // artifacts-panel/_data/{memory,calendar,team}.json sidecars — polled
+  // every 5 min via /api/cc-sidecars. Closes the audit's "artifacts-panel
+  // _data not consumed by dashboard" gap. These JSONs are real-data
+  // snapshots (auto-memory dir / Windmill schedule YAMLs / agent .md
+  // definitions); the dashboard renders subsets matching the existing
+  // HTML mockups at artifacts-panel/{14,15,17}.html.
+  useEffect(() => {
+    let cancelled = false
+    const load = async () => {
+      const results = await Promise.all(
+        (['memory', 'calendar', 'team'] as const).map(async (file) => {
+          try {
+            const res = await fetch(`/api/cc-sidecars?file=${file}`)
+            if (!res.ok) return null
+            const body = (await res.json()) as
+              | { ok: true; file: string; data: unknown }
+              | { ok: false; error: string }
+            return body.ok ? { file, data: body.data } : null
+          } catch {
+            return null
+          }
+        }),
+      )
+      if (cancelled) return
+      for (const r of results) {
+        if (!r) continue
+        if (!r.data || typeof r.data !== 'object') continue
+        if (r.file === 'memory' && 'type_counts' in r.data) {
+          setMemorySidecar(r.data as MemorySidecar)
+        } else if (r.file === 'calendar' && 'summary' in r.data) {
+          setCalendarSidecar(r.data as CalendarSidecar)
+        } else if (r.file === 'team' && 'members' in r.data) {
+          setTeamSidecar(r.data as TeamSidecar)
+        }
+      }
+    }
+    void load()
+    const refresh = setInterval(load, 5 * 60_000)
+    return () => {
+      cancelled = true
+      clearInterval(refresh)
+    }
+  }, [])
+
   // Autonomy loop status — polls /api/autonomy-status every 10s.
   useEffect(() => {
     let cancelled = false
@@ -211,22 +382,38 @@ export function MissionControlScreen() {
   async function handleManualTick() {
     if (tickPending) return
     setTickPending(true)
+    setLoadErr(null)
     try {
-      await fetch('/api/autonomy-tick', {
+      const tickRes = await fetch('/api/autonomy-tick', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: '{}',
       })
-      // Force-refresh state immediately after tick
+      if (!tickRes.ok) {
+        setLoadErr(`Tick failed: HTTP ${tickRes.status}`)
+        return
+      }
+      const tickBody = (await tickRes.json()) as
+        | { ok: true; picked: unknown; reason?: string }
+        | { ok: false; error: string }
+      if (!tickBody.ok) {
+        setLoadErr(`Tick error: ${tickBody.error}`)
+        return
+      }
+      // Force-refresh state immediately after a successful tick
       try {
         const res = await fetch('/api/autonomy-status')
         const body = (await res.json()) as { ok: boolean; state: AutonomyState }
         if (body.ok) setAutonomy(body.state)
-      } catch {
-        // ignore
+      } catch (e) {
+        setLoadErr(
+          `Tick OK but status refresh failed: ${e instanceof Error ? e.message : String(e)}`,
+        )
       }
-    } catch {
-      // ignore
+    } catch (e) {
+      setLoadErr(
+        `Tick request failed: ${e instanceof Error ? e.message : String(e)}`,
+      )
     } finally {
       setTickPending(false)
     }
@@ -630,6 +817,251 @@ export function MissionControlScreen() {
             ))}
           </div>
         </section>
+
+        {/* ── Aggregator Modules — Windmill→KV pipeline read side ── */}
+        {aggModules.length > 0 ? (
+          <section className="rounded-xl border p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-base font-semibold">Aggregator Modules</h2>
+                <p className="text-[11px] mt-0.5 font-mono opacity-60">
+                  Windmill → KV → /api/cc-kv · refreshes every 60s · founder
+                  lens, all brands
+                </p>
+              </div>
+              <span className="text-[10px] uppercase tracking-wider font-mono opacity-60">
+                {aggModules.filter((m) => m.payload.status === 'live').length}/
+                {aggModules.length} live
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {aggModules.map((m) => {
+                const status = m.payload.status
+                const toneClass =
+                  status === 'live'
+                    ? 'border-emerald-400/30 bg-emerald-400/[0.04]'
+                    : status === 'stale'
+                      ? 'border-amber-400/30 bg-amber-400/[0.04]'
+                      : status === 'degraded'
+                        ? 'border-red-400/30 bg-red-400/[0.04]'
+                        : 'border-white/10 bg-white/[0.02]'
+                const dotClass =
+                  status === 'live'
+                    ? 'bg-emerald-400'
+                    : status === 'stale'
+                      ? 'bg-amber-400'
+                      : status === 'degraded'
+                        ? 'bg-red-400'
+                        : 'bg-white/40'
+                const fresh = m.payload.meta.freshness_seconds
+                const freshLabel =
+                  fresh < 60
+                    ? `${fresh}s ago`
+                    : fresh < 3600
+                      ? `${Math.round(fresh / 60)}m ago`
+                      : `${Math.round(fresh / 3600)}h ago`
+                return (
+                  <article
+                    key={m.id}
+                    className={`rounded-lg border p-3 ${toneClass}`}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
+                      <span
+                        className={`inline-block w-1.5 h-1.5 rounded-full ${dotClass}`}
+                      />
+                      <h3 className="text-xs font-semibold">{m.name}</h3>
+                      <span className="ml-auto text-[9px] uppercase tracking-wider font-mono opacity-50">
+                        {status}
+                      </span>
+                    </div>
+                    <div className="text-lg font-semibold tabular-nums truncate">
+                      {m.payload.primary.value}
+                    </div>
+                    <div className="text-[11px] opacity-60 mt-0.5 truncate">
+                      {m.payload.primary.label}
+                    </div>
+                    <div className="text-[10px] font-mono opacity-40 mt-2">
+                      {freshLabel}
+                      {m.payload.deep_link ? (
+                        <>
+                          {' · '}
+                          <a
+                            href={m.payload.deep_link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline hover:opacity-80"
+                          >
+                            {m.payload.deep_link.label}
+                          </a>
+                        </>
+                      ) : null}
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          </section>
+        ) : null}
+
+        {/* ── Knowledge & Schedule — artifacts-panel/_data sidecars ── */}
+        {(memorySidecar || calendarSidecar || teamSidecar) && (
+          <section className="rounded-xl border p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-base font-semibold">
+                  Knowledge & Schedule
+                </h2>
+                <p className="text-[11px] mt-0.5 font-mono opacity-60">
+                  artifacts-panel/_data sidecars · /api/cc-sidecars · refreshes
+                  every 5 min
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              {/* Memory */}
+              {memorySidecar ? (
+                <article className="rounded-lg border border-white/10 bg-white/[0.02] p-4">
+                  <div className="flex items-baseline justify-between mb-3">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider opacity-80">
+                      Memory
+                    </h3>
+                    <span className="text-[10px] font-mono opacity-50">
+                      {memorySidecar.total} entries
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 mb-3 text-[11px]">
+                    <div className="flex justify-between">
+                      <span className="opacity-60">project</span>
+                      <span className="tabular-nums">
+                        {memorySidecar.type_counts.project}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="opacity-60">feedback</span>
+                      <span className="tabular-nums">
+                        {memorySidecar.type_counts.feedback}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="opacity-60">reference</span>
+                      <span className="tabular-nums">
+                        {memorySidecar.type_counts.reference}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="opacity-60">user</span>
+                      <span className="tabular-nums">
+                        {memorySidecar.type_counts.user}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    {memorySidecar.entries.slice(0, 4).map((e) => (
+                      <div key={e.name} className="text-[11px]">
+                        <div className="font-medium truncate">{e.title}</div>
+                        <div className="opacity-50 truncate">
+                          {e.type} · {e.name}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              ) : null}
+
+              {/* Calendar */}
+              {calendarSidecar ? (
+                <article className="rounded-lg border border-white/10 bg-white/[0.02] p-4">
+                  <div className="flex items-baseline justify-between mb-3">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider opacity-80">
+                      Schedules
+                    </h3>
+                    <span className="text-[10px] font-mono opacity-50">
+                      {calendarSidecar.summary.enabled}/
+                      {calendarSidecar.summary.total} enabled
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 mb-3 text-[11px]">
+                    {Object.entries(calendarSidecar.summary.folders)
+                      .slice(0, 6)
+                      .map(([k, v]) => (
+                        <div key={k} className="flex justify-between">
+                          <span className="opacity-60 truncate">{k}</span>
+                          <span className="tabular-nums">{v}</span>
+                        </div>
+                      ))}
+                  </div>
+                  <div className="space-y-1.5">
+                    {calendarSidecar.schedules
+                      .filter((s) => s.enabled)
+                      .slice(0, 4)
+                      .map((s) => (
+                        <div key={s.id} className="text-[11px]">
+                          <div className="font-medium truncate">
+                            {s.summary}
+                          </div>
+                          <div className="opacity-50 truncate font-mono">
+                            {s.cron} · {s.folder}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </article>
+              ) : null}
+
+              {/* Team */}
+              {teamSidecar ? (
+                <article className="rounded-lg border border-white/10 bg-white/[0.02] p-4">
+                  <div className="flex items-baseline justify-between mb-3">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider opacity-80">
+                      Team
+                    </h3>
+                    <span className="text-[10px] font-mono opacity-50">
+                      {teamSidecar.summary.humans}h ·{' '}
+                      {teamSidecar.summary.agents}a
+                    </span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {teamSidecar.members
+                      .filter((m) => m.type === 'human')
+                      .slice(0, 3)
+                      .map((m) => {
+                        const dotClass =
+                          m.current_status === 'active'
+                            ? 'bg-emerald-400'
+                            : m.current_status === 'idle'
+                              ? 'bg-amber-400'
+                              : 'bg-white/40'
+                        return (
+                          <div
+                            key={m.id}
+                            className="flex items-start gap-2 text-[11px]"
+                          >
+                            <span
+                              className={`inline-block w-1.5 h-1.5 rounded-full ${dotClass} mt-1.5 flex-shrink-0`}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <div className="font-medium truncate">
+                                {m.name} · {m.role.split('(')[0].trim()}
+                              </div>
+                              <div className="opacity-50 truncate">
+                                {m.current_task ?? 'no task'}
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                  </div>
+                  <div className="mt-3 pt-2 border-t border-white/5">
+                    <p className="text-[10px] opacity-40 leading-relaxed">
+                      {teamSidecar.summary.agents} subagents available ·
+                      liveness static per honest-emptiness policy
+                    </p>
+                  </div>
+                </article>
+              ) : null}
+            </div>
+          </section>
+        )}
 
         {/* ── System Integrations — probed against filesystem + gateway ── */}
         {integrations.length > 0 ? (

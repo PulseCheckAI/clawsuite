@@ -104,11 +104,18 @@ function markRunCompleted(runId: string | undefined): boolean {
   const bus = getBus()
   if (bus.completedRunIds.has(runId)) return false // duplicate
   bus.completedRunIds.set(runId, Date.now())
-  // Expire old entries
+  // Expire old entries — and hard-cap so a burst of young entries can't
+  // pin the map above COMPLETED_RUN_MAX indefinitely. Map preserves
+  // insertion order, so the iterator yields oldest first.
   if (bus.completedRunIds.size > COMPLETED_RUN_MAX) {
     const now = Date.now()
     for (const [id, ts] of bus.completedRunIds) {
       if (now - ts > COMPLETED_RUN_EXPIRY) bus.completedRunIds.delete(id)
+    }
+    while (bus.completedRunIds.size > COMPLETED_RUN_MAX) {
+      const oldest = bus.completedRunIds.keys().next().value
+      if (oldest === undefined) break
+      bus.completedRunIds.delete(oldest)
     }
   }
   return true
@@ -149,20 +156,26 @@ function processGatewayFrame(frame: GatewayFrame): void {
   if (frame.type !== 'event' && frame.type !== 'evt') return
 
   const eventName = (frame as any).event
-  
+
   const rawPayload =
     (frame as any).payload ??
     ((frame as any).payloadJSON
       ? (() => {
-          try { return JSON.parse((frame as any).payloadJSON) } catch { return null }
+          try {
+            return JSON.parse((frame as any).payloadJSON)
+          } catch {
+            return null
+          }
         })()
       : null)
   if (!rawPayload) return
 
-  const activeRunId = typeof rawPayload?.runId === 'string' ? rawPayload.runId : undefined
+  const activeRunId =
+    typeof rawPayload?.runId === 'string' ? rawPayload.runId : undefined
   if (hasActiveSendRun(activeRunId)) return
 
-  const eventSessionKey = rawPayload?.sessionKey || rawPayload?.context?.sessionKey
+  const eventSessionKey =
+    rawPayload?.sessionKey || rawPayload?.context?.sessionKey
   const targetSessionKey = eventSessionKey || 'main'
 
   // ── Agent events ──
@@ -173,9 +186,17 @@ function processGatewayFrame(frame: GatewayFrame): void {
 
     if (stream === 'assistant' && data?.text) {
       if (!claimChunkSource(runId, 'agent')) return
-      broadcast('chunk', { text: data.text, runId, sessionKey: targetSessionKey })
+      broadcast('chunk', {
+        text: data.text,
+        runId,
+        sessionKey: targetSessionKey,
+      })
     } else if (stream === 'thinking' && data?.text) {
-      broadcast('thinking', { text: data.text, runId, sessionKey: targetSessionKey })
+      broadcast('thinking', {
+        text: data.text,
+        runId,
+        sessionKey: targetSessionKey,
+      })
     } else if (stream === 'tool') {
       broadcast('tool', {
         phase: data?.phase ?? 'calling',
@@ -188,7 +209,11 @@ function processGatewayFrame(frame: GatewayFrame): void {
       })
     } else if (stream === 'fallback' || stream === 'lifecycle') {
       const phase = data?.phase as string | undefined
-      if (stream === 'fallback' || phase === 'fallback' || phase === 'fallback_cleared') {
+      if (
+        stream === 'fallback' ||
+        phase === 'fallback' ||
+        phase === 'fallback_cleared'
+      ) {
         broadcast('fallback', {
           phase: stream === 'fallback' ? (phase ?? 'fallback') : phase,
           selectedModel: data?.selectedModel,
@@ -200,7 +225,10 @@ function processGatewayFrame(frame: GatewayFrame): void {
         })
       }
     } else if (stream === 'compaction') {
-      broadcast('compaction', { phase: data?.phase, sessionKey: targetSessionKey })
+      broadcast('compaction', {
+        phase: data?.phase,
+        sessionKey: targetSessionKey,
+      })
     }
     return
   }
@@ -218,29 +246,53 @@ function processGatewayFrame(frame: GatewayFrame): void {
     if (state === 'delta' && message) {
       if (!claimChunkSource(runId, 'chat')) return
       const text = extractTextFromMessage(message)
-      if (text) broadcast('chunk', { text, runId, sessionKey: targetSessionKey, fullReplace: true })
+      if (text)
+        broadcast('chunk', {
+          text,
+          runId,
+          sessionKey: targetSessionKey,
+          fullReplace: true,
+        })
       return
     }
     if (state === 'final') {
       clearChunkSource(runId)
       if (!markRunCompleted(runId)) return
-      broadcast('done', { state: 'final', runId, sessionKey: targetSessionKey, message })
+      broadcast('done', {
+        state: 'final',
+        runId,
+        sessionKey: targetSessionKey,
+        message,
+      })
       return
     }
     if (state === 'error') {
       clearChunkSource(runId)
       if (!markRunCompleted(runId)) return
-      broadcast('done', { state: 'error', errorMessage: rawPayload?.errorMessage, runId, sessionKey: targetSessionKey })
+      broadcast('done', {
+        state: 'error',
+        errorMessage: rawPayload?.errorMessage,
+        runId,
+        sessionKey: targetSessionKey,
+      })
       return
     }
     if (state === 'aborted') {
       clearChunkSource(runId)
       if (!markRunCompleted(runId)) return
-      broadcast('done', { state: 'aborted', runId, sessionKey: targetSessionKey })
+      broadcast('done', {
+        state: 'aborted',
+        runId,
+        sessionKey: targetSessionKey,
+      })
       return
     }
     if (message?.role === 'user') {
-      broadcast('user_message', { message, sessionKey: targetSessionKey, source: rawPayload?.source || rawPayload?.channel || 'external' })
+      broadcast('user_message', {
+        message,
+        sessionKey: targetSessionKey,
+        source: rawPayload?.source || rawPayload?.channel || 'external',
+      })
       return
     }
     // Skip bare assistant messages — 'done' with state='final' is authoritative
@@ -254,11 +306,17 @@ function processGatewayFrame(frame: GatewayFrame): void {
 
   // ── Exec approval ──
   if (eventName === 'exec.approval.requested') {
-    broadcast('approval_request', { ...rawPayload, sessionKey: targetSessionKey })
+    broadcast('approval_request', {
+      ...rawPayload,
+      sessionKey: targetSessionKey,
+    })
     return
   }
   if (eventName === 'exec.approval.resolved') {
-    broadcast('approval_resolved', { ...rawPayload, sessionKey: targetSessionKey })
+    broadcast('approval_resolved', {
+      ...rawPayload,
+      sessionKey: targetSessionKey,
+    })
     return
   }
 
@@ -269,7 +327,11 @@ function processGatewayFrame(frame: GatewayFrame): void {
   }
 
   // ── Legacy message events ──
-  if (eventName === 'message.received' || eventName === 'chat.message' || eventName === 'channel.message') {
+  if (
+    eventName === 'message.received' ||
+    eventName === 'chat.message' ||
+    eventName === 'channel.message'
+  ) {
     const message = rawPayload?.message || rawPayload
     if (message?.role === 'user') {
       const altMsgText =
@@ -277,7 +339,11 @@ function processGatewayFrame(frame: GatewayFrame): void {
         (typeof message?.text === 'string' ? message.text : '') ||
         (typeof message?.body === 'string' ? message.body : '')
       if (isSystemMessage(altMsgText)) return
-      broadcast('user_message', { message, sessionKey: targetSessionKey, source: rawPayload?.source || rawPayload?.channel || eventName })
+      broadcast('user_message', {
+        message,
+        sessionKey: targetSessionKey,
+        source: rawPayload?.source || rawPayload?.channel || eventName,
+      })
     }
     // Skip assistant messages from legacy events — 'done' is authoritative
   }

@@ -175,7 +175,10 @@ async function probeGatewayChallenge(url: string): Promise<boolean> {
     connectTimer = setTimeout(() => finish(false), DISCOVERY_CONNECT_TIMEOUT_MS)
 
     ws.on('open', () => {
-      challengeTimer = setTimeout(() => finish(false), DISCOVERY_CHALLENGE_TIMEOUT_MS)
+      challengeTimer = setTimeout(
+        () => finish(false),
+        DISCOVERY_CHALLENGE_TIMEOUT_MS,
+      )
     })
 
     ws.on('message', (data: RawData) => {
@@ -213,13 +216,22 @@ async function scanLocalGatewayRange(): Promise<DiscoveryResult> {
     { length: DISCOVERY_PORT_END - DISCOVERY_PORT_START + 1 },
     (_, index) => DISCOVERY_PORT_START + index,
   )
-  const results = await Promise.all(
-    ports.map(async (port) => {
-      const url = `ws://127.0.0.1:${port}`
-      return { url, found: await probeGatewayChallenge(url) }
-    }),
-  )
-  const match = results.find((result) => result.found)
+  // Sequential early-exit probe. The prior `Promise.all` fan-out opened all 12
+  // WS handshakes in parallel, producing bursts of N simultaneous connections
+  // that the gateway logged as `handshake timeout` even when the first port
+  // resolved successfully — see 01:33:53 burst diagnosed 2026-05-15.
+  // Happy path (port 18789 found first) latency is unchanged; unhappy worst
+  // case is N × DISCOVERY_CONNECT_TIMEOUT_MS, but the scan is operator-triggered
+  // and not a hot path.
+  let match: { url: string; found: boolean } | null = null
+  for (const port of ports) {
+    const url = `ws://127.0.0.1:${port}`
+    const found = await probeGatewayChallenge(url)
+    if (found) {
+      match = { url, found }
+      break
+    }
+  }
 
   if (!match) {
     return {
@@ -272,7 +284,8 @@ export async function discoverGateway(): Promise<DiscoveryResult> {
       found: false,
       url: scanResult.url,
       source: 'scan',
-      error: 'Gateway detected on localhost, but no auth token was discovered. Enter your token to finish setup.',
+      error:
+        'Gateway detected on localhost, but no auth token was discovered. Enter your token to finish setup.',
     }
   }
 
@@ -283,14 +296,16 @@ export async function discoverGateway(): Promise<DiscoveryResult> {
       found: false,
       url: 'ws://127.0.0.1:18789',
       source: 'none',
-      error: 'Gateway found on port 18789 but no auth token discovered. Please enter your token.',
+      error:
+        'Gateway found on port 18789 but no auth token discovered. Please enter your token.',
     }
   }
 
   return {
     found: false,
     source: 'none',
-    error: 'No local OpenClaw gateway found. Please start OpenClaw or enter connection details manually.',
+    error:
+      'No local OpenClaw gateway found. Please start OpenClaw or enter connection details manually.',
   }
 }
 

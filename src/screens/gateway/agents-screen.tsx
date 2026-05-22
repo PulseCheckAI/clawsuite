@@ -1,11 +1,19 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import {
-  AgentRegistryCard,
   type AgentRegistryCardData,
   type AgentRegistryStatus,
 } from '@/components/agent-view/agent-registry-card'
+import { KillConfirmDialog } from '@/components/agent-view/kill-confirm-dialog'
+import { SteerModal } from '@/components/agent-view/steer-modal'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -13,6 +21,7 @@ import { formatModelName } from '@/lib/format-model-name'
 import { fetchCronJobs } from '@/lib/cron-api'
 import { toggleAgentPause } from '@/lib/gateway-api'
 import { toast } from '@/components/ui/toast'
+import { formatRelativeTime as formatRelativeTimeShort } from '@/screens/dashboard/lib/formatters'
 import { AgentHubLayout } from './agent-hub-layout'
 import { usePullToRefresh } from '@/hooks/use-pull-to-refresh'
 
@@ -618,17 +627,6 @@ function formatTokenCount(value: number): string {
   return new Intl.NumberFormat('en-US').format(Math.max(0, Math.floor(value)))
 }
 
-function getSessionStatusBadgeClasses(session: SessionEntry): string {
-  const status = normalizeToken(readString(session.status))
-  if (PAUSED_STATUSES.has(status)) {
-    return 'border border-primary-700 bg-primary-800 text-primary-200'
-  }
-  if (RUNNING_STATUSES.has(status) || status.length === 0) {
-    return 'border border-accent-500/40 bg-accent-500/15 text-accent-300'
-  }
-  return 'border border-primary-800 bg-primary-900 text-primary-300'
-}
-
 async function readResponseError(response: Response): Promise<string> {
   try {
     const payload = (await response.json()) as Record<string, unknown>
@@ -640,6 +638,778 @@ async function readResponseError(response: Response): Promise<string> {
   }
 
   return response.statusText || `HTTP ${response.status}`
+}
+
+// ─── enterprise (MC) UI primitives for the registry variant ─────────────────
+// Visual vocabulary mirrors operations-screen.tsx / operations-agent-card.tsx
+// so the /agents page sits in the same family as /ops, /linkedin, /postiz.
+
+type RegistryFilter = 'all' | 'available' | 'idle' | 'busy' | 'errored'
+type McAccent = 'cyan' | 'emerald' | 'amber' | 'magenta' | 'rose'
+
+function mcAccentVar(accent: McAccent): string {
+  if (accent === 'emerald') return 'var(--mc-emerald)'
+  if (accent === 'amber') return 'var(--mc-amber)'
+  if (accent === 'magenta') return 'var(--mc-magenta)'
+  if (accent === 'rose') return 'var(--mc-rose)'
+  return 'var(--mc-cyan)'
+}
+
+function mcAccentSoft(accent: McAccent): string {
+  if (accent === 'emerald') return 'var(--mc-emerald-soft)'
+  if (accent === 'amber') return 'var(--mc-amber-soft)'
+  if (accent === 'magenta') return 'var(--mc-magenta-soft)'
+  if (accent === 'rose') return 'var(--mc-rose-soft)'
+  return 'var(--mc-cyan-soft)'
+}
+
+function McMetricChip({
+  label,
+  value,
+  accent = 'cyan',
+}: {
+  label: string
+  value: ReactNode
+  accent?: McAccent
+}) {
+  return (
+    <div
+      className="flex items-baseline gap-2 rounded-md border px-3 py-1.5 font-mono text-[11px] tracking-wide"
+      style={{
+        borderColor: 'var(--mc-border)',
+        background: 'var(--mc-surface)',
+        color: 'var(--mc-text-dim)',
+      }}
+    >
+      <span className="uppercase">{label}</span>
+      <span
+        style={{ color: mcAccentVar(accent) }}
+        className="text-[13px] font-semibold tabular-nums"
+      >
+        {value}
+      </span>
+    </div>
+  )
+}
+
+function McSectionLabel({ children }: { children: ReactNode }) {
+  return (
+    <p
+      className="font-mono text-[11px] uppercase tracking-[0.18em]"
+      style={{ color: 'var(--mc-text-dimmer)' }}
+    >
+      {children}
+    </p>
+  )
+}
+
+function RegistryStatusBar({
+  total,
+  available,
+  idle,
+  busy,
+  errored,
+  isLoading,
+  isError,
+  isSyncing,
+  updatedAt,
+}: {
+  total: number
+  available: number
+  idle: number
+  busy: number
+  errored: number
+  isLoading: boolean
+  isError: boolean
+  isSyncing: boolean
+  updatedAt: number | null
+}) {
+  const phaseLabel = isError
+    ? 'ERROR'
+    : isLoading
+      ? 'LOADING'
+      : isSyncing
+        ? 'SYNCING'
+        : 'NOMINAL'
+  const phaseAccent: McAccent = isError
+    ? 'rose'
+    : isLoading || isSyncing
+      ? 'amber'
+      : 'emerald'
+  return (
+    <div
+      className="flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2 font-mono"
+      style={{
+        borderColor: 'var(--mc-border)',
+        background: 'var(--mc-surface)',
+      }}
+    >
+      <div className="flex items-center gap-2 pr-3">
+        <span
+          aria-hidden="true"
+          className="inline-flex h-7 w-7 items-center justify-center rounded border font-bold"
+          style={{
+            borderColor: 'var(--mc-border-bright)',
+            background: 'var(--mc-cyan-soft)',
+            color: 'var(--mc-cyan)',
+          }}
+        >
+          §
+        </span>
+        <div className="leading-tight">
+          <p
+            className="text-[10px] uppercase tracking-[0.22em]"
+            style={{ color: 'var(--mc-text-dimmer)' }}
+          >
+            Gateway Agents · /agents
+          </p>
+          <p className="text-[12px]" style={{ color: 'var(--mc-text)' }}>
+            Registered roster
+            {updatedAt
+              ? ` · Updated ${formatRelativeTimeShort(updatedAt)}`
+              : ''}
+          </p>
+        </div>
+      </div>
+      <div className="ml-auto flex flex-wrap items-center gap-2">
+        <McMetricChip label="Phase" value={phaseLabel} accent={phaseAccent} />
+        <McMetricChip
+          label="Total"
+          value={isLoading ? '—' : total || '—'}
+          accent="cyan"
+        />
+        <McMetricChip
+          label="Avail"
+          value={isLoading ? '—' : available || '—'}
+          accent="cyan"
+        />
+        <McMetricChip
+          label="Idle"
+          value={isLoading ? '—' : idle || '—'}
+          accent="amber"
+        />
+        <McMetricChip
+          label="Busy"
+          value={isLoading ? '—' : busy || '—'}
+          accent="emerald"
+        />
+        <McMetricChip
+          label="Err"
+          value={isLoading ? '—' : errored || '—'}
+          accent="rose"
+        />
+      </div>
+    </div>
+  )
+}
+
+function KpiTile({
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  label: string
+  value: ReactNode
+  sub?: ReactNode
+  accent: McAccent
+}) {
+  const accentVar = mcAccentVar(accent)
+  const accentSoft = mcAccentSoft(accent)
+  return (
+    <div
+      className="relative overflow-hidden rounded-lg border px-4 py-3"
+      style={{
+        borderColor: 'var(--mc-border)',
+        background: 'var(--mc-surface)',
+      }}
+    >
+      <div
+        aria-hidden="true"
+        className="absolute inset-y-0 left-0 w-[3px]"
+        style={{ background: accentVar }}
+      />
+      <div className="flex items-baseline justify-between gap-2">
+        <p
+          className="font-mono text-[10px] uppercase tracking-[0.22em]"
+          style={{ color: 'var(--mc-text-dimmer)' }}
+        >
+          {label}
+        </p>
+        <span
+          aria-hidden="true"
+          className="inline-block h-1.5 w-1.5 rounded-full"
+          style={{ background: accentVar, boxShadow: `0 0 6px ${accentSoft}` }}
+        />
+      </div>
+      <p
+        className="mt-1 font-mono text-2xl font-semibold tabular-nums"
+        style={{ color: accentVar }}
+      >
+        {value}
+      </p>
+      {sub ? (
+        <p
+          className="mt-0.5 truncate text-[11px]"
+          style={{ color: 'var(--mc-text-dim)' }}
+        >
+          {sub}
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
+function FilterChip({
+  label,
+  count,
+  active,
+  onClick,
+  accent = 'cyan',
+}: {
+  label: string
+  count: number
+  active: boolean
+  onClick: () => void
+  accent?: McAccent
+}) {
+  const accentVar = mcAccentVar(accent)
+  const accentSoft = mcAccentSoft(accent)
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 rounded px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      style={{
+        background: active ? accentSoft : 'transparent',
+        color: active ? accentVar : 'var(--mc-text-dim)',
+        ['--tw-ring-color' as string]: accentVar,
+        ['--tw-ring-offset-color' as string]: 'var(--mc-bg)',
+      }}
+      aria-pressed={active}
+    >
+      {label}
+      <span
+        className="inline-flex h-4 min-w-[1.25rem] items-center justify-center rounded px-1 text-[10px] tabular-nums"
+        style={{
+          background: active ? 'var(--mc-surface)' : 'var(--mc-surface-2)',
+          color: active ? accentVar : 'var(--mc-text-dimmer)',
+        }}
+      >
+        {count}
+      </span>
+    </button>
+  )
+}
+
+// Maps a registry agent's `color` (orange/blue/cyan/purple/violet) AND its
+// metadata text (id, name, role) onto a role label + MC accent. Mirrors the
+// vocabulary in agent-presets.ts (researcher/builder/writer/analyst/operator)
+// when the metadata hints at one; otherwise falls back to a neutral chip from
+// the card color.
+function deriveRoleChip(agent: {
+  id: string
+  name: string
+  role: string
+  category: string
+  color: AgentRegistryCardData['color']
+}): { label: string; accent: McAccent } {
+  const blob =
+    `${agent.id} ${agent.name} ${agent.role} ${agent.category}`.toLowerCase()
+  if (
+    blob.includes('research') ||
+    blob.includes('scout') ||
+    blob.includes('discover') ||
+    blob.includes('intel') ||
+    blob.includes('search')
+  ) {
+    return { label: 'Researcher', accent: 'cyan' }
+  }
+  if (
+    blob.includes('build') ||
+    blob.includes('coder') ||
+    blob.includes('coding') ||
+    blob.includes('engineer') ||
+    blob.includes('dev')
+  ) {
+    return { label: 'Builder', accent: 'emerald' }
+  }
+  if (
+    blob.includes('writer') ||
+    blob.includes('content') ||
+    blob.includes('copy') ||
+    blob.includes('voice')
+  ) {
+    return { label: 'Writer', accent: 'magenta' }
+  }
+  if (
+    blob.includes('analyst') ||
+    blob.includes('metric') ||
+    blob.includes('eval') ||
+    blob.includes('report')
+  ) {
+    return { label: 'Analyst', accent: 'amber' }
+  }
+  if (
+    blob.includes('operator') ||
+    blob.includes('ops') ||
+    blob.includes('orchestr')
+  ) {
+    return { label: 'Operator', accent: 'rose' }
+  }
+  // Fallback: derive from the legacy gradient color so the chip still tells
+  // the operator something rather than collapsing every card to the same chip.
+  if (agent.color === 'blue') return { label: 'Coder', accent: 'cyan' }
+  if (agent.color === 'cyan') return { label: 'Integration', accent: 'cyan' }
+  if (agent.color === 'purple' || agent.color === 'violet') {
+    return { label: 'System', accent: 'magenta' }
+  }
+  // orange / unknown
+  return { label: agent.category || 'Core', accent: 'amber' }
+}
+
+function statusToTokens(status: AgentRegistryStatus): {
+  label: string
+  dot: string
+  dotSoft: string
+  pulse: boolean
+} {
+  if (status === 'active') {
+    return {
+      label: 'Active',
+      dot: 'var(--mc-emerald)',
+      dotSoft: 'var(--mc-emerald-soft)',
+      pulse: true,
+    }
+  }
+  if (status === 'idle') {
+    return {
+      label: 'Idle',
+      dot: 'var(--mc-amber)',
+      dotSoft: 'var(--mc-amber-soft)',
+      pulse: false,
+    }
+  }
+  if (status === 'paused') {
+    return {
+      label: 'Paused',
+      dot: 'var(--mc-rose)',
+      dotSoft: 'var(--mc-rose-soft)',
+      pulse: false,
+    }
+  }
+  // available
+  return {
+    label: 'Available',
+    dot: 'var(--mc-cyan)',
+    dotSoft: 'var(--mc-cyan-soft)',
+    pulse: false,
+  }
+}
+
+// MC-styled agent card for the /agents registry. Preserves every behavior of
+// the legacy AgentRegistryCard (chat / steer / history / spawn, ⋯ menu with
+// pause+kill, steer modal, kill-confirm modal, optimistic pause toggle) but
+// renders inside the Mission Control palette to match /ops + /linkedin + /postiz.
+function RegistryAgentCard({
+  agent,
+  isSpawning,
+  onTap,
+  onChat,
+  onSpawn,
+  onHistory,
+  onPauseToggle,
+  onKilled,
+}: {
+  agent: AgentRegistryCardData
+  isSpawning: boolean
+  onTap: (agent: AgentRegistryCardData) => void
+  onChat: (agent: AgentRegistryCardData) => void | Promise<void>
+  onSpawn: (agent: AgentRegistryCardData) => void | Promise<void>
+  onHistory: (agent: AgentRegistryCardData) => void
+  onPauseToggle: (
+    agent: AgentRegistryCardData,
+    nextPaused: boolean,
+  ) => Promise<void>
+  onKilled: (agent: AgentRegistryCardData) => void
+}) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [steerOpen, setSteerOpen] = useState(false)
+  const [killOpen, setKillOpen] = useState(false)
+  const [notice, setNotice] = useState('')
+  const [pausePending, setPausePending] = useState(false)
+
+  useEffect(() => {
+    if (!notice) return
+    const timer = window.setTimeout(() => setNotice(''), 2200)
+    return () => window.clearTimeout(timer)
+  }, [notice])
+
+  useEffect(() => {
+    setMenuOpen(false)
+    setSteerOpen(false)
+    setKillOpen(false)
+    setPausePending(false)
+    setNotice('')
+  }, [agent.id, agent.sessionKey, agent.status])
+
+  const hasSession = Boolean(agent.sessionKey)
+  const isPaused = agent.status === 'paused'
+  const role = deriveRoleChip(agent)
+  const status = statusToTokens(agent.status)
+  const roleAccentVar = mcAccentVar(role.accent)
+
+  function showSpawnFirstNotice() {
+    setNotice('Spawn agent first')
+  }
+
+  function handleSteerIntent() {
+    if (!hasSession) {
+      showSpawnFirstNotice()
+      return
+    }
+    setSteerOpen(true)
+  }
+
+  function handleKillIntent() {
+    if (!hasSession) {
+      showSpawnFirstNotice()
+      return
+    }
+    setKillOpen(true)
+  }
+
+  async function handlePauseToggle() {
+    if (pausePending) return
+    const nextPaused = !isPaused
+    setPausePending(true)
+    try {
+      await onPauseToggle(agent, nextPaused)
+      setMenuOpen(false)
+    } finally {
+      setPausePending(false)
+    }
+  }
+
+  const ringStyle: Record<string, string> = {
+    ['--tw-ring-color']: 'var(--mc-cyan)',
+    ['--tw-ring-offset-color']: 'var(--mc-bg)',
+  }
+
+  return (
+    <article
+      onClick={(event) => {
+        const target = event.target as HTMLElement | null
+        if (
+          target?.closest(
+            'button,a,input,textarea,select,[role="button"],[data-no-card-tap]',
+          )
+        ) {
+          return
+        }
+        onTap(agent)
+      }}
+      className="group flex min-h-[12rem] cursor-pointer flex-col overflow-hidden rounded-lg border transition-colors motion-reduce:[animation:none]"
+      style={{
+        borderColor: 'var(--mc-border)',
+        background: 'var(--mc-surface)',
+        boxShadow:
+          '0 8px 24px -16px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.01)',
+        animation: 'mc-event-in 280ms cubic-bezier(0.22, 1, 0.36, 1) both',
+      }}
+      onMouseEnter={(event) => {
+        event.currentTarget.style.borderColor = 'var(--mc-border-bright)'
+      }}
+      onMouseLeave={(event) => {
+        event.currentTarget.style.borderColor = 'var(--mc-border)'
+      }}
+    >
+      {/* header row: status pulse + name + role chip + ⋯ menu */}
+      <div
+        className="flex items-center gap-2 border-b px-3 py-2"
+        style={{ borderColor: 'var(--mc-border)' }}
+      >
+        <span
+          aria-hidden="true"
+          className="motion-reduce:[animation:none!important] inline-flex h-2 w-2 shrink-0 rounded-full"
+          style={{
+            background: status.dot,
+            boxShadow: `0 0 8px ${status.dotSoft}`,
+            animation: status.pulse
+              ? 'mc-breathe 1.6s ease-in-out infinite'
+              : undefined,
+          }}
+          title={status.label}
+        />
+        <h3
+          className="min-w-0 flex-1 truncate font-mono text-[12px] font-semibold uppercase tracking-wider"
+          style={{ color: 'var(--mc-text)' }}
+          title={agent.name}
+        >
+          {agent.name}
+        </h3>
+        <span
+          className="inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider"
+          style={{
+            borderColor: roleAccentVar,
+            background: `color-mix(in srgb, ${roleAccentVar} 12%, transparent)`,
+            color: roleAccentVar,
+          }}
+          title={`Role: ${role.label}`}
+        >
+          {role.label}
+        </span>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation()
+              setMenuOpen((open) => !open)
+            }}
+            aria-label={`${agent.name} controls`}
+            aria-expanded={menuOpen}
+            className="inline-flex h-7 w-7 items-center justify-center rounded transition-colors hover:bg-[var(--mc-surface-2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+            style={{
+              color: 'var(--mc-text-dim)',
+              ...ringStyle,
+            }}
+          >
+            ⋯
+          </button>
+          {menuOpen ? (
+            <>
+              <button
+                type="button"
+                aria-label="Close controls"
+                className="fixed inset-0 z-40"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setMenuOpen(false)
+                }}
+              />
+              <div
+                className="absolute right-0 top-9 z-50 w-44 overflow-hidden rounded border p-1 font-mono shadow-xl"
+                style={{
+                  borderColor: 'var(--mc-border-bright)',
+                  background: 'var(--mc-surface)',
+                  boxShadow: '0 12px 32px -12px rgba(0,0,0,0.8)',
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setMenuOpen(false)
+                    handleSteerIntent()
+                  }}
+                  className="flex w-full items-center rounded px-2.5 py-1.5 text-left text-[11px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  style={{
+                    color: 'var(--mc-text)',
+                    ...ringStyle,
+                  }}
+                  onMouseEnter={(event) => {
+                    event.currentTarget.style.background = 'var(--mc-cyan-soft)'
+                    event.currentTarget.style.color = 'var(--mc-cyan)'
+                  }}
+                  onMouseLeave={(event) => {
+                    event.currentTarget.style.background = 'transparent'
+                    event.currentTarget.style.color = 'var(--mc-text)'
+                  }}
+                >
+                  Steer
+                </button>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    void handlePauseToggle()
+                  }}
+                  disabled={pausePending}
+                  className="flex w-full items-center rounded px-2.5 py-1.5 text-left text-[11px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60"
+                  style={{
+                    color: 'var(--mc-text)',
+                    ...ringStyle,
+                  }}
+                  onMouseEnter={(event) => {
+                    if (event.currentTarget.disabled) return
+                    event.currentTarget.style.background =
+                      'var(--mc-amber-soft)'
+                    event.currentTarget.style.color = 'var(--mc-amber)'
+                  }}
+                  onMouseLeave={(event) => {
+                    event.currentTarget.style.background = 'transparent'
+                    event.currentTarget.style.color = 'var(--mc-text)'
+                  }}
+                >
+                  {pausePending
+                    ? isPaused
+                      ? 'Resuming…'
+                      : 'Pausing…'
+                    : isPaused
+                      ? 'Resume'
+                      : 'Pause'}
+                </button>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setMenuOpen(false)
+                    handleKillIntent()
+                  }}
+                  className="flex w-full items-center rounded px-2.5 py-1.5 text-left text-[11px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  style={{
+                    color: 'var(--mc-rose)',
+                    ...ringStyle,
+                  }}
+                  onMouseEnter={(event) => {
+                    event.currentTarget.style.background = 'var(--mc-rose-soft)'
+                  }}
+                  onMouseLeave={(event) => {
+                    event.currentTarget.style.background = 'transparent'
+                  }}
+                >
+                  Kill
+                </button>
+              </div>
+            </>
+          ) : null}
+        </div>
+      </div>
+
+      {/* body: status + role */}
+      <div className="flex flex-1 flex-col gap-2 px-3 py-2.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span
+            className="inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider"
+            style={{
+              borderColor: 'var(--mc-border)',
+              background: 'var(--mc-surface-2)',
+              color: 'var(--mc-text-dim)',
+            }}
+          >
+            <span style={{ color: status.dot }}>{status.label}</span>
+          </span>
+          {agent.friendlyId ? (
+            <span
+              className="inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider"
+              style={{
+                borderColor: 'var(--mc-border)',
+                background: 'var(--mc-surface-2)',
+                color: 'var(--mc-text-dimmer)',
+              }}
+              title={agent.friendlyId}
+            >
+              {agent.friendlyId}
+            </span>
+          ) : null}
+        </div>
+        {agent.role && agent.role !== role.label ? (
+          <p
+            className="line-clamp-2 text-[11px] leading-snug"
+            style={{ color: 'var(--mc-text-dim)' }}
+            title={agent.role}
+          >
+            {agent.role}
+          </p>
+        ) : null}
+        {notice ? (
+          <p
+            className="font-mono text-[10px] uppercase tracking-wider"
+            style={{ color: 'var(--mc-amber)' }}
+          >
+            {notice}
+          </p>
+        ) : null}
+      </div>
+
+      {/* action row */}
+      <div
+        className="grid grid-cols-4 gap-1.5 border-t px-3 py-2"
+        style={{ borderColor: 'var(--mc-border)' }}
+      >
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation()
+            void onChat(agent)
+          }}
+          className="rounded border px-2 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          style={{
+            borderColor: 'var(--mc-border)',
+            background: 'var(--mc-surface-2)',
+            color: 'var(--mc-cyan)',
+            ...ringStyle,
+          }}
+        >
+          Chat
+        </button>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation()
+            handleSteerIntent()
+          }}
+          className="rounded border px-2 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          style={{
+            borderColor: 'var(--mc-border)',
+            background: 'var(--mc-surface-2)',
+            color: 'var(--mc-text-dim)',
+            ...ringStyle,
+          }}
+        >
+          Steer
+        </button>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation()
+            onHistory(agent)
+          }}
+          className="rounded border px-2 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          style={{
+            borderColor: 'var(--mc-border)',
+            background: 'var(--mc-surface-2)',
+            color: 'var(--mc-text-dim)',
+            ...ringStyle,
+          }}
+        >
+          History
+        </button>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation()
+            void onSpawn(agent)
+          }}
+          disabled={isSpawning}
+          className="rounded border px-2 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+          style={{
+            borderColor: 'var(--mc-border-bright)',
+            background: 'var(--mc-cyan-soft)',
+            color: 'var(--mc-cyan)',
+            ...ringStyle,
+          }}
+        >
+          {isSpawning ? '…' : 'Spawn'}
+        </button>
+      </div>
+
+      <SteerModal
+        open={steerOpen}
+        onOpenChange={setSteerOpen}
+        agentName={agent.name}
+        sessionKey={agent.sessionKey}
+      />
+
+      <KillConfirmDialog
+        open={killOpen}
+        onOpenChange={setKillOpen}
+        agentName={agent.name}
+        sessionKey={agent.sessionKey}
+        onKilled={() => onKilled(agent)}
+      />
+    </article>
+  )
 }
 
 export function AgentsScreen({
@@ -1238,9 +2008,7 @@ export function AgentsScreen({
     void sessionsQuery.refetch()
   }
 
-  const lastUpdated = agentsQuery.dataUpdatedAt
-    ? new Date(agentsQuery.dataUpdatedAt).toLocaleTimeString()
-    : null
+  const [registryFilter, setRegistryFilter] = useState<RegistryFilter>('all')
 
   const agentHubPullIndicatorStyle = agentHubPulling
     ? {
@@ -1288,85 +2056,272 @@ export function AgentsScreen({
     )
   }
 
+  // ─── Registry variant (MC-themed) ──────────────────────────────────────────
+  // Counts feed the status bar + KPI tiles + filter chips. All derived from
+  // runtimeAgents — no fabricated metrics, '—' rendered when zero/loading.
+  const totalRosterCount = runtimeAgents.length
+  const availableCount = runtimeAgents.filter(
+    (a) => a.status === 'available',
+  ).length
+  const idleCount = runtimeAgents.filter((a) => a.status === 'idle').length
+  // Treat 'active' (running a session) as busy. The registry status enum has
+  // no 'errored' state — 'paused' is the closest signal an operator can act
+  // on, so it surfaces as "Errored" in the bar/KPIs.
+  const busyCount = runtimeAgents.filter((a) => a.status === 'active').length
+  const erroredCount = runtimeAgents.filter((a) => a.status === 'paused').length
+
+  const filteredSections = groupedSections.map((section) => ({
+    category: section.category,
+    agents: section.agents.filter((agent) => {
+      if (registryFilter === 'all') return true
+      if (registryFilter === 'available') return agent.status === 'available'
+      if (registryFilter === 'idle') return agent.status === 'idle'
+      if (registryFilter === 'busy') return agent.status === 'active'
+      return agent.status === 'paused'
+    }),
+  }))
+  const visibleAgentCount = filteredSections.reduce(
+    (sum, section) => sum + section.agents.length,
+    0,
+  )
+
   return (
-    <div className="min-h-full bg-surface px-4 pb-24 pt-5 text-primary-900 dark:text-primary-100 md:px-6 md:pb-4 md:pt-8">
-      <div className="mx-auto w-full max-w-[1200px]">
-        <header className="mb-4 flex items-center justify-between gap-3 rounded-xl border border-primary-200 bg-primary-50/80 px-4 py-3 shadow-sm dark:border-primary-800 dark:bg-primary-900/60">
-          <div>
-            <h1 className="text-lg font-bold text-primary-900 dark:text-primary-100 md:text-xl">
-              Gateway Agents
-            </h1>
-            <p className="text-xs text-primary-500 dark:text-primary-400">
-              Registered agents and their status
-            </p>
-          </div>
-          <div className="flex items-center gap-2 md:gap-3">
-            {agentsQuery.isFetching && !agentsQuery.isLoading ? (
-              <span className="text-[10px] text-primary-500 animate-pulse">
-                syncing…
-              </span>
-            ) : null}
-            {lastUpdated ? (
-              <span className="text-[10px] text-primary-500">
-                Updated {lastUpdated}
-              </span>
-            ) : null}
-            <span
-              className={`inline-block size-2 rounded-full ${agentsQuery.isError ? 'bg-red-500' : agentsQuery.isSuccess ? 'bg-emerald-500' : 'bg-amber-500'}`}
-            />
-          </div>
-        </header>
+    <main
+      className="relative min-h-full px-3 pb-24 pt-5 md:px-5 md:pt-8"
+      style={{
+        background:
+          'radial-gradient(ellipse at top, rgba(0,229,255,0.05) 0%, transparent 60%), var(--mc-bg)',
+        color: 'var(--mc-text)',
+      }}
+    >
+      <style>{`
+        @keyframes mc-event-in {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes mc-breathe {
+          0%, 100% { opacity: 0.55; }
+          50% { opacity: 1; }
+        }
+      `}</style>
+
+      <section className="mx-auto w-full max-w-[1560px] space-y-4">
+        <RegistryStatusBar
+          total={totalRosterCount}
+          available={availableCount}
+          idle={idleCount}
+          busy={busyCount}
+          errored={erroredCount}
+          isLoading={agentsQuery.isLoading && !agentsQuery.data}
+          isError={agentsQuery.isError}
+          isSyncing={agentsQuery.isFetching && !agentsQuery.isLoading}
+          updatedAt={
+            agentsQuery.dataUpdatedAt ? agentsQuery.dataUpdatedAt : null
+          }
+        />
 
         {usingFallbackRegistry ? (
-          <div className="mb-4 rounded-xl border border-amber-300/50 bg-amber-50/70 px-3 py-2 text-xs font-medium text-amber-300 dark:border-amber-500/40 dark:bg-amber-900/20 dark:text-amber-200">
-            Gateway registry unavailable. Showing fallback definitions.
+          <div
+            className="rounded-lg border px-3 py-2 font-mono text-[11px] uppercase tracking-wider"
+            style={{
+              borderColor: 'var(--mc-amber)',
+              background: 'var(--mc-amber-soft)',
+              color: 'var(--mc-amber)',
+            }}
+          >
+            Gateway registry unavailable · showing fallback definitions
           </div>
         ) : null}
 
-        <div className="flex-1 overflow-auto">
-          {agentsQuery.isLoading && !agentsQuery.data ? (
-            <div className="flex h-32 items-center justify-center">
-              <div className="flex items-center gap-2 text-primary-500">
-                <div className="size-4 animate-spin rounded-full border-2 border-primary-300 border-t-primary-600" />
-                <span className="text-sm">Loading registry...</span>
-              </div>
-            </div>
-          ) : registryDefinitions.length === 0 ? (
-            <div className="rounded-2xl border border-white/30 bg-white/60 p-5 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-primary-900/50">
-              <h2 className="text-base font-semibold text-primary-900 dark:text-primary-100">
-                Add your first agent
-              </h2>
-              <ul className="mt-3 space-y-2 text-sm text-primary-600 dark:text-primary-300">
-                <li>Create an agent profile</li>
-                <li>Connect a gateway</li>
-                <li>Spawn your first session</li>
-              </ul>
-              <button
-                type="button"
-                onClick={() => {
-                  void navigate({ to: '/settings' })
-                }}
-                className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-accent-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-accent-600 sm:px-4 sm:py-2 sm:text-sm"
-              >
-                Open Settings
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {groupedSections.map((section) => (
-                <section key={section.category} className="space-y-2">
-                  <div className="flex items-center justify-between px-1">
-                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-primary-500 dark:text-primary-400">
-                      {section.category}
-                    </h2>
-                    <span className="text-[11px] font-medium text-primary-500 dark:text-primary-400">
-                      {section.agents.length}
-                    </span>
-                  </div>
+        {/* KPI tiles */}
+        <section className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          <KpiTile
+            label="Available"
+            value={agentsQuery.isLoading ? '—' : availableCount || '—'}
+            sub={
+              totalRosterCount > 0
+                ? `of ${totalRosterCount} agent${totalRosterCount === 1 ? '' : 's'}`
+                : 'no roster yet'
+            }
+            accent="cyan"
+          />
+          <KpiTile
+            label="Idle"
+            value={agentsQuery.isLoading ? '—' : idleCount || '—'}
+            sub={idleCount === 0 ? 'all engaged' : 'standby pool'}
+            accent="amber"
+          />
+          <KpiTile
+            label="Busy"
+            value={agentsQuery.isLoading ? '—' : busyCount || '—'}
+            sub={
+              busyCount === 0
+                ? 'no live sessions'
+                : `${busyCount === 1 ? 'session' : 'sessions'} in flight`
+            }
+            accent="emerald"
+          />
+          <KpiTile
+            label="Errored"
+            value={agentsQuery.isLoading ? '—' : erroredCount || '—'}
+            sub={erroredCount === 0 ? 'clean' : 'paused / needs attention'}
+            accent="rose"
+          />
+        </section>
 
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+        {/* filter chip row */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <McSectionLabel>
+            Roster · {visibleAgentCount}
+            {registryFilter !== 'all' ? `/${totalRosterCount || '—'}` : ''}
+          </McSectionLabel>
+          <div
+            className="inline-flex flex-wrap items-center gap-1 rounded-md border p-0.5"
+            style={{
+              borderColor: 'var(--mc-border)',
+              background: 'var(--mc-surface-2)',
+            }}
+            role="toolbar"
+            aria-label="Agent filter"
+          >
+            <FilterChip
+              label="All"
+              count={totalRosterCount}
+              active={registryFilter === 'all'}
+              onClick={() => setRegistryFilter('all')}
+            />
+            <FilterChip
+              label="Available"
+              count={availableCount}
+              active={registryFilter === 'available'}
+              onClick={() => setRegistryFilter('available')}
+              accent="cyan"
+            />
+            <FilterChip
+              label="Idle"
+              count={idleCount}
+              active={registryFilter === 'idle'}
+              onClick={() => setRegistryFilter('idle')}
+              accent="amber"
+            />
+            <FilterChip
+              label="Busy"
+              count={busyCount}
+              active={registryFilter === 'busy'}
+              onClick={() => setRegistryFilter('busy')}
+              accent="emerald"
+            />
+            <FilterChip
+              label="Errored"
+              count={erroredCount}
+              active={registryFilter === 'errored'}
+              onClick={() => setRegistryFilter('errored')}
+              accent="rose"
+            />
+          </div>
+        </div>
+
+        {/* roster */}
+        {agentsQuery.isLoading && !agentsQuery.data ? (
+          <section
+            className="rounded-lg border px-6 py-12 text-center font-mono text-xs uppercase tracking-wider"
+            style={{
+              borderColor: 'var(--mc-border)',
+              background: 'var(--mc-surface)',
+              color: 'var(--mc-text-dim)',
+            }}
+          >
+            <span
+              style={{ animation: 'mc-breathe 1.6s ease-in-out infinite' }}
+              className="motion-reduce:[animation:none!important]"
+            >
+              Loading registry…
+            </span>
+          </section>
+        ) : registryDefinitions.length === 0 ? (
+          <section
+            className="rounded-lg border px-6 py-10"
+            style={{
+              borderColor: 'var(--mc-border)',
+              background: 'var(--mc-surface)',
+            }}
+          >
+            <p
+              className="font-mono text-[11px] uppercase tracking-[0.22em]"
+              style={{ color: 'var(--mc-text-dimmer)' }}
+            >
+              No agents registered
+            </p>
+            <h2
+              className="mt-2 font-mono text-lg font-semibold"
+              style={{ color: 'var(--mc-text)' }}
+            >
+              Add your first agent
+            </h2>
+            <ul
+              className="mt-3 space-y-1 text-[12px]"
+              style={{ color: 'var(--mc-text-dim)' }}
+            >
+              <li>— Create an agent profile</li>
+              <li>— Connect a gateway</li>
+              <li>— Spawn your first session</li>
+            </ul>
+            <button
+              type="button"
+              onClick={() => {
+                void navigate({ to: '/settings' })
+              }}
+              className="mt-5 inline-flex items-center rounded border px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+              style={{
+                borderColor: 'var(--mc-border-bright)',
+                background: 'var(--mc-cyan-soft)',
+                color: 'var(--mc-cyan)',
+                ['--tw-ring-color' as string]: 'var(--mc-cyan)',
+                ['--tw-ring-offset-color' as string]: 'var(--mc-bg)',
+              }}
+            >
+              Open Settings
+            </button>
+          </section>
+        ) : (
+          <div className="space-y-5">
+            {filteredSections.map((section) => (
+              <section key={section.category} className="space-y-2">
+                <div className="flex items-baseline justify-between gap-3">
+                  <McSectionLabel>
+                    — {section.category} ·{' '}
+                    {
+                      groupedSections.find(
+                        (g) => g.category === section.category,
+                      )?.agents.length
+                    }
+                  </McSectionLabel>
+                  {registryFilter !== 'all' &&
+                  section.agents.length === 0 ? null : (
+                    <span
+                      className="font-mono text-[10px] tabular-nums"
+                      style={{ color: 'var(--mc-text-dimmer)' }}
+                    >
+                      {section.agents.length} shown
+                    </span>
+                  )}
+                </div>
+
+                {section.agents.length === 0 ? (
+                  <div
+                    className="rounded-md border border-dashed px-4 py-6 text-center font-mono text-[11px] uppercase tracking-wider"
+                    style={{
+                      borderColor: 'var(--mc-border)',
+                      background: 'var(--mc-surface-2)',
+                      color: 'var(--mc-text-dimmer)',
+                    }}
+                  >
+                    — No agents in this tier
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                     {section.agents.map((agent) => (
-                      <AgentRegistryCard
+                      <RegistryAgentCard
                         key={agent.id}
                         agent={agent}
                         isSpawning={Boolean(spawningByAgentId[agent.id])}
@@ -1379,81 +2334,123 @@ export function AgentsScreen({
                       />
                     ))}
                   </div>
-                </section>
-              ))}
+                )}
+              </section>
+            ))}
 
-              {unmatchedSessions.length > 0 ? (
-                <section className="space-y-2">
-                  <div className="flex items-center justify-between px-1">
-                    <h2 className="text-[10px] font-bold uppercase tracking-widest text-primary-400">
-                      Active Sessions
-                    </h2>
-                    <span className="text-[11px] font-medium text-primary-400">
-                      {unmatchedSessions.length}
-                    </span>
-                  </div>
+            {unmatchedSessions.length > 0 && registryFilter === 'all' ? (
+              <section className="space-y-2">
+                <div className="flex items-baseline justify-between gap-3">
+                  <McSectionLabel>
+                    — Active Sessions · {unmatchedSessions.length}
+                  </McSectionLabel>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {unmatchedSessions.map((session, index) => {
+                    const sessionKey = readString(session.key)
+                    const sessionTarget =
+                      getSessionFriendlyId(session) || sessionKey
+                    const sessionModel = getSessionModelName(session)
+                    const sessionStatus = readString(session.status) || 'active'
 
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-                    {unmatchedSessions.map((session, index) => {
-                      const sessionKey = readString(session.key)
-                      const sessionTarget =
-                        getSessionFriendlyId(session) || sessionKey
-                      const sessionModel = getSessionModelName(session)
-
-                      return (
+                    return (
+                      <article
+                        key={`${sessionKey}-${index}`}
+                        className="overflow-hidden rounded-lg border"
+                        style={{
+                          borderColor: 'var(--mc-border)',
+                          background: 'var(--mc-surface)',
+                        }}
+                      >
                         <div
-                          key={`${sessionKey}-${index}`}
-                          className="rounded-2xl border border-primary-800 bg-primary-900 p-4 shadow-sm"
+                          className="flex items-center gap-2 border-b px-3 py-2"
+                          style={{ borderColor: 'var(--mc-border)' }}
                         >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="min-w-0">
-                              <p className="truncate text-sm font-semibold text-primary-100">
-                                {getSessionTitle(session)}
-                              </p>
-                              <p className="mt-1 truncate text-xs text-primary-400">
-                                {sessionKey}
-                              </p>
-                            </div>
-                            <span
-                              className={`inline-flex shrink-0 items-center rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${getSessionStatusBadgeClasses(session)}`}
-                            >
-                              {readString(session.status) || 'active'}
-                            </span>
-                          </div>
-
-                          <div className="mt-3 flex items-center justify-between gap-3 text-xs text-primary-300">
+                          <span
+                            aria-hidden="true"
+                            className="motion-reduce:[animation:none!important] inline-flex h-2 w-2 shrink-0 rounded-full"
+                            style={{
+                              background: 'var(--mc-emerald)',
+                              boxShadow: '0 0 8px var(--mc-emerald-soft)',
+                              animation: 'mc-breathe 1.6s ease-in-out infinite',
+                            }}
+                          />
+                          <h3
+                            className="min-w-0 flex-1 truncate font-mono text-[12px] font-semibold uppercase tracking-wider"
+                            style={{ color: 'var(--mc-text)' }}
+                            title={getSessionTitle(session)}
+                          >
+                            {getSessionTitle(session)}
+                          </h3>
+                          <span
+                            className="inline-flex items-center rounded border px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider"
+                            style={{
+                              borderColor: 'var(--mc-border)',
+                              background: 'var(--mc-emerald-soft)',
+                              color: 'var(--mc-emerald)',
+                            }}
+                          >
+                            {sessionStatus}
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-2 px-3 py-2.5">
+                          <p
+                            className="truncate font-mono text-[10px]"
+                            style={{ color: 'var(--mc-text-dimmer)' }}
+                            title={sessionKey}
+                          >
+                            {sessionKey}
+                          </p>
+                          <div
+                            className="flex flex-wrap items-center justify-between gap-2 font-mono text-[10px] uppercase tracking-wider"
+                            style={{ color: 'var(--mc-text-dim)' }}
+                          >
                             {sessionModel ? (
                               <span className="truncate">
                                 {formatModelName(sessionModel)}
                               </span>
                             ) : (
-                              <span />
+                              <span style={{ color: 'var(--mc-text-dimmer)' }}>
+                                —
+                              </span>
                             )}
                             <span>
                               {formatTokenCount(getSessionTokenCount(session))}{' '}
-                              tokens
+                              tok
                             </span>
                             <span>{formatRelativeTime(session.updatedAt)}</span>
                           </div>
-
-                          {sessionTarget ? (
+                        </div>
+                        {sessionTarget ? (
+                          <div
+                            className="border-t px-3 py-2"
+                            style={{ borderColor: 'var(--mc-border)' }}
+                          >
                             <a
                               href={`/chat/${encodeURIComponent(sessionTarget)}`}
-                              className="mt-4 inline-flex min-h-11 items-center rounded-lg border border-primary-700 px-3 py-1.5 text-xs font-semibold text-accent-300 transition-colors hover:border-accent-500 hover:text-accent-300 sm:px-4 sm:py-2 sm:text-sm"
+                              className="inline-flex w-full items-center justify-center rounded border px-2 py-1 font-mono text-[10px] uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                              style={{
+                                borderColor: 'var(--mc-border-bright)',
+                                background: 'var(--mc-cyan-soft)',
+                                color: 'var(--mc-cyan)',
+                                ['--tw-ring-color' as string]: 'var(--mc-cyan)',
+                                ['--tw-ring-offset-color' as string]:
+                                  'var(--mc-bg)',
+                              }}
                             >
                               Open Chat
                             </a>
-                          ) : null}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </section>
-              ) : null}
-            </div>
-          )}
-        </div>
-      </div>
+                          </div>
+                        ) : null}
+                      </article>
+                    )
+                  })}
+                </div>
+              </section>
+            ) : null}
+          </div>
+        )}
+      </section>
 
       {selectedConfigAgent ? (
         <div className="fixed inset-0 z-[95]">
@@ -1990,6 +2987,6 @@ export function AgentsScreen({
           </div>
         </div>
       ) : null}
-    </div>
+    </main>
   )
 }
