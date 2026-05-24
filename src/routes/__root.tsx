@@ -1,4 +1,9 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import {
+  HeadContent,
+  Scripts,
+  createRootRoute,
+  useRouter,
+} from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useEffect } from 'react'
 // Direct side-effect import — Vite owns stylesheet HMR. Importing as ?url
@@ -355,16 +360,28 @@ function RootLayout() {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  // Per-request CSP nonce (prod only) — stamped on every inline script so prod
+  // can drop script-src 'unsafe-inline'. undefined in dev/client (CSP unchanged).
+  const nonce = useRouter().options.ssr?.nonce
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* CSP moved to HTTP response header — see vite.config.ts server.headers */}
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {/* CSP is an HTTP response header (serve.mjs / vite.config.ts); these
+            inline scripts carry the matching per-request nonce so prod can drop
+            script-src 'unsafe-inline'. */}
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{ __html: themeScript }}
+        />
         <HeadContent />
-        <script dangerouslySetInnerHTML={{ __html: themeColorScript }} />
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{ __html: themeColorScript }}
+        />
       </head>
       <body suppressHydrationWarning>
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
           (function(){
@@ -475,6 +492,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <div className="root">{children}</div>
         <Scripts />
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
           (function(){

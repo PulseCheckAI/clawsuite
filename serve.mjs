@@ -27,6 +27,7 @@
  *      WORKSPACE_DAEMON_URL (default http://127.0.0.1:3099).
  */
 import { createServer } from 'node:http'
+import { randomBytes } from 'node:crypto'
 import { Readable } from 'node:stream'
 import { stat } from 'node:fs/promises'
 import { createReadStream } from 'node:fs'
@@ -60,9 +61,19 @@ function httpTargetFor(route) {
   return route.target === 'workspace-http' ? WORKSPACE_HTTP : GATEWAY_HTTP
 }
 
-function applyHardening(res, pathname) {
+function applyHardening(res, pathname, nonce) {
   for (const [k, v] of Object.entries(HARDENING)) res.setHeader(k, v)
-  res.setHeader('Content-Security-Policy', cspFor(pathname))
+  let csp = cspFor(pathname)
+  // Prod: swap script-src 'unsafe-inline' for the per-request nonce. Skipped for
+  // the static /graphs/* viewers (their inline scripts aren't nonced) and in dev
+  // (no nonce -> keeps 'unsafe-inline' for vite HMR).
+  if (nonce && !pathname.startsWith('/graphs/')) {
+    csp = csp.replace(
+      "script-src 'self' 'unsafe-inline'",
+      `script-src 'self' 'nonce-${nonce}'`,
+    )
+  }
+  res.setHeader('Content-Security-Policy', csp)
 }
 
 /**
@@ -203,7 +214,7 @@ async function proxyHttp(req, res, target, stripPrefix) {
 }
 
 // ── Node IncomingMessage -> Web Request ──────────────────────────────────────
-function toWebRequest(req) {
+function toWebRequest(req, nonce) {
   const proto = (req.headers['x-forwarded-proto'] || 'http')
     .toString()
     .split(',')[0]
@@ -215,6 +226,7 @@ function toWebRequest(req) {
     if (Array.isArray(v)) v.forEach((val) => headers.append(k, val))
     else if (v != null) headers.set(k, String(v))
   }
+  if (nonce) headers.set('x-csp-nonce', nonce)
   const hasBody = req.method !== 'GET' && req.method !== 'HEAD'
   return new Request(url, {
     method: req.method,
@@ -240,8 +252,10 @@ const httpServer = createServer(async (req, res) => {
     // Static client bundle + public files
     if (await serveStatic(req, res, pathname)) return
 
-    // SSR + API routes + server functions
-    const webRes = await ssr.fetch(toWebRequest(req))
+    // SSR + API routes + server functions. The per-request CSP nonce threads to
+    // the SSR via the x-csp-nonce request header and into the response CSP.
+    const nonce = randomBytes(16).toString('base64')
+    const webRes = await ssr.fetch(toWebRequest(req, nonce))
     res.statusCode = webRes.status
     for (const [key, value] of webRes.headers) {
       if (key.toLowerCase() === 'set-cookie') continue
@@ -249,7 +263,7 @@ const httpServer = createServer(async (req, res) => {
     }
     const sc = webRes.headers.getSetCookie?.() ?? []
     if (sc.length) res.setHeader('Set-Cookie', sc)
-    applyHardening(res, pathname) // our security headers win over SSR defaults
+    applyHardening(res, pathname, nonce) // our security headers win over SSR defaults
     if (webRes.body) Readable.fromWeb(webRes.body).pipe(res)
     else res.end()
   } catch (err) {
