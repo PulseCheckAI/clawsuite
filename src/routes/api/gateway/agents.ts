@@ -1,7 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { json } from '@tanstack/react-start'
 import { gatewayRpc } from '@/server/gateway'
-import { isAuthenticated } from '@/server/auth-middleware'
+import {
+  isAuthenticated,
+  isPasswordProtectionEnabled,
+} from '@/server/auth-middleware'
 import { requireJsonContentType } from '@/server/rate-limit'
 
 type AgentConfigToolEntry = {
@@ -320,7 +323,10 @@ export const Route = createFileRoute('/api/gateway/agents')({
         return new Response(null, { status: 204, headers: CORS_HEADERS_GET })
       },
       GET: async ({ request }) => {
-        if (!IS_DEV && !isAuthenticated(request)) {
+        // Gate on whether a password is actually configured (the real security
+        // signal), NOT on IS_DEV/NODE_ENV which can bake wrong at build time. If
+        // protection is on, this route ALWAYS requires a valid session.
+        if (isPasswordProtectionEnabled() && !isAuthenticated(request)) {
           return withCors({ ok: false, error: 'Unauthorized' }, { status: 401 })
         }
 

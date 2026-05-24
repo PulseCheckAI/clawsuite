@@ -19,6 +19,9 @@ const validTokens = new Map<string, number>()
 // to a 0600 file so the 30-day sessions survive a restart. Strictly best-effort
 // and graceful: ANY file error falls back to in-memory behavior, so it can never
 // regress auth. Never active under `vite` (build/dev).
+// NOTE (audit D-fix-2): mode 0o600 is POSIX-only; on Windows the file inherits
+// the user-profile ACL (still user-scoped, not world-readable). Before enabling
+// persistence on a SHARED Windows host, restrict it explicitly with icacls.
 const isViteRuntime =
   typeof process !== 'undefined' &&
   Array.isArray(process.argv) &&
@@ -65,6 +68,16 @@ if (SESSION_PERSIST) {
   }
 }
 
+// Audit D-fix-2: 0o600 is a no-op on Windows (NTFS ACLs), so warn at runtime
+// instead of leaving the caveat only in a comment.
+if (SESSION_PERSIST && process.platform === 'win32') {
+  console.warn(
+    '[auth-middleware] CLAWSUITE_PERSIST_SESSIONS on Windows: the 0600 file mode ' +
+      'is a no-op (NTFS ACLs). On a SHARED host, lock it down: ' +
+      'icacls "%USERPROFILE%\\.clawsuite-sessions.json" /inheritance:r /grant:r "%USERNAME%":F',
+  )
+}
+
 /**
  * Generate a cryptographically secure session token.
  */
@@ -107,16 +120,11 @@ export function revokeSessionToken(token: string): void {
 // SERVER RUNTIME (node dist/server/server.js) but NOT during `vite build`, which
 // also evaluates server modules with NODE_ENV=production — exiting there would
 // abort the build. Detect the vite build/dev process via argv and skip then.
-const isViteProcess =
-  typeof process !== 'undefined' &&
-  Array.isArray(process.argv) &&
-  process.argv.some((a) => a.includes('vite'))
-
 if (
   typeof process !== 'undefined' &&
   process.env.NODE_ENV === 'production' &&
   !process.env.CLAWSUITE_PASSWORD &&
-  !isViteProcess
+  !isViteRuntime
 ) {
   console.error(
     '[auth-middleware] FATAL: CLAWSUITE_PASSWORD is not set but NODE_ENV=production. ' +

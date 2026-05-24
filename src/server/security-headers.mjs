@@ -7,6 +7,12 @@
  * here stops the dev/prod drift flagged in the integrity audit (S1).
  */
 
+import {
+  join as pathJoin,
+  normalize as pathNormalize,
+  sep as pathSep,
+} from 'node:path'
+
 // Strict app-wide CSP. The 3D graph viewers under /graphs/* are the ONLY surface
 // that needs external origins, so the loosening is scoped to them (GRAPHS_CSP).
 export const STRICT_CSP = [
@@ -91,3 +97,35 @@ export const PROXY_ROUTES = [
   { prefix: '/workspace-api', target: 'workspace-http', ws: false, auth: true },
   { prefix: '/ws-gateway', target: 'gateway-ws', ws: true, auth: true },
 ]
+
+/**
+ * First PROXY_ROUTES entry whose prefix matches the request path, or null.
+ * Single source of truth for which paths are proxied and which require auth.
+ * @param {string} pathname
+ */
+export function matchProxyRoute(pathname) {
+  for (const r of PROXY_ROUTES) if (pathname.startsWith(r.prefix)) return r
+  return null
+}
+
+/**
+ * Resolve a request path to a real file under clientDir, or null if it escapes
+ * (path-traversal guard). Separator-checked so a sibling like `<dir>EVIL` cannot
+ * prefix-match `<dir>`. Pure + unit-testable.
+ * @param {string} clientDir absolute static root
+ * @param {string} pathname request path (may be URL-encoded)
+ * @returns {string | null}
+ */
+export function safeStaticPath(clientDir, pathname) {
+  let rel
+  try {
+    rel = pathNormalize(decodeURIComponent(pathname)).replace(/^([/\\])+/, '')
+  } catch {
+    return null
+  }
+  if (rel.includes('..')) return null
+  const full = pathJoin(clientDir, rel)
+  if (full === clientDir) return null
+  if (!full.startsWith(clientDir + pathSep)) return null
+  return full
+}

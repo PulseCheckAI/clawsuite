@@ -8,16 +8,19 @@
  * entry wraps all of that into one self-listening Node server so the app runs in
  * real production (parity with `vite dev`, minus HMR):
  *
- *   1. Static files from `dist/client` (hashed /assets/* = immutable; rest short).
- *   2. Gateway proxies mirroring vite.config.ts `server.proxy`, ALL auth-gated
- *      (integrity audit P0 — the CLAWSUITE_PASSWORD perimeter only covers SSR
- *      routes, so the proxy layer enforces auth itself):
- *        /ws-gateway        -> gateway WS
- *        /api/gateway-proxy -> gateway HTTP
- *        /gateway-ui        -> gateway HTTP/WS (iframe headers stripped)
- *        /workspace-api     -> workspace daemon HTTP
+ *   1. Static files from `dist/client` (hashed /assets/* = immutable; rest short),
+ *      via the separator-checked safeStaticPath() traversal guard.
+ *   2. Gateway/workspace proxies driven entirely by PROXY_ROUTES (the SSOT in
+ *      security-headers.mjs). Every route with `auth: true` is gated through the
+ *      app's own /api/auth-check (integrity audit P0 + S-fix-1): the
+ *      CLAWSUITE_PASSWORD perimeter only covers SSR routes, so the proxy layer
+ *      enforces auth itself.
  *   3. Everything else -> the SSR fetch handler, with the shared hardening
  *      headers + path-scoped CSP (security-headers.mjs, shared with dev).
+ *
+ * On boot it self-checks the perimeter (S-fix-2): it hits its own gateway proxy
+ * unauthenticated and loudly logs if the gate is NOT 401, so a regression cannot
+ * ship silently.
  *
  * Env: PORT (default 3010), HOST (default 0.0.0.0),
  *      CLAWDBOT_GATEWAY_URL (default ws://127.0.0.1:18789),
@@ -27,7 +30,7 @@ import { createServer } from 'node:http'
 import { Readable } from 'node:stream'
 import { stat } from 'node:fs/promises'
 import { createReadStream } from 'node:fs'
-import { extname, join, normalize } from 'node:path'
+import { extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { WebSocket, WebSocketServer } from 'ws'
 import ssr from './dist/server/server.js'
@@ -36,6 +39,8 @@ import {
   cspFor,
   GATEWAY_WS_DEFAULT,
   WORKSPACE_HTTP_DEFAULT,
+  matchProxyRoute,
+  safeStaticPath,
 } from './src/server/security-headers.mjs'
 
 const PORT = Number(process.env.PORT) || 3010
@@ -50,6 +55,11 @@ const WORKSPACE_HTTP = (
   process.env.WORKSPACE_DAEMON_URL || WORKSPACE_HTTP_DEFAULT
 ).replace(/\/$/, '')
 
+/** HTTP upstream for a proxy route (gateway vs workspace daemon). */
+function httpTargetFor(route) {
+  return route.target === 'workspace-http' ? WORKSPACE_HTTP : GATEWAY_HTTP
+}
+
 function applyHardening(res, pathname) {
   for (const [k, v] of Object.entries(HARDENING)) res.setHeader(k, v)
   res.setHeader('Content-Security-Policy', cspFor(pathname))
@@ -58,7 +68,9 @@ function applyHardening(res, pathname) {
 /**
  * Auth gate for the same-origin proxies. Reuses the app's own /api/auth-check so
  * the in-memory token store + password logic stay the single source of truth.
- * Fails CLOSED on any error (deny by default).
+ * Fails CLOSED on any error (deny by default). No caching: a positive cache here
+ * would let a revoked session keep proxying, trading correctness for speculative
+ * perf (the call is in-process and the gateway is user-paced).
  */
 async function isAuthed(cookie) {
   try {
@@ -67,8 +79,13 @@ async function isAuthed(cookie) {
         headers: { cookie: cookie || '' },
       }),
     )
-    const data = await check.json().catch(() => ({}))
-    return !(data.authRequired && !data.authenticated)
+    const data = await check.json().catch(() => null)
+    // Fail CLOSED on any ambiguous / error / timeout response (deny by default).
+    // Do NOT trust `authRequired:false` from an error payload — /api/auth-check
+    // returns that on its own timeout, which would otherwise open the gate.
+    if (!data || data.error) return false
+    if (data.authRequired === false) return true // no password configured -> open
+    return data.authenticated === true // password mode -> must be authenticated
   } catch {
     return false
   }
@@ -108,15 +125,8 @@ const MIME = {
 // ── Static client assets (dist/client) ───────────────────────────────────────
 async function serveStatic(req, res, pathname) {
   if (req.method !== 'GET' && req.method !== 'HEAD') return false
-  let rel
-  try {
-    rel = normalize(decodeURIComponent(pathname)).replace(/^([/\\])+/, '')
-  } catch {
-    return false
-  }
-  if (rel.includes('..')) return false
-  const filePath = join(CLIENT_DIR, rel)
-  if (!filePath.startsWith(CLIENT_DIR)) return false
+  const filePath = safeStaticPath(CLIENT_DIR, pathname)
+  if (!filePath) return false
   let s
   try {
     s = await stat(filePath)
@@ -182,7 +192,11 @@ async function proxyHttp(req, res, target, stripPrefix) {
       continue
     res.setHeader(key, value)
   }
-  const sc = upstream.headers.getSetCookie?.() ?? []
+  // Defense-in-depth: never let an upstream (gateway/workspace) set or clobber
+  // the dashboard's own session cookie via the proxy.
+  const sc = (upstream.headers.getSetCookie?.() ?? []).filter(
+    (c) => !/^\s*clawsuite-auth=/i.test(c),
+  )
   if (sc.length) res.setHeader('Set-Cookie', sc)
   if (upstream.body) Readable.fromWeb(upstream.body).pipe(res)
   else res.end()
@@ -214,19 +228,13 @@ const httpServer = createServer(async (req, res) => {
   try {
     const pathname = (req.url || '/').split('?')[0]
 
-    // Gateway/workspace HTTP proxies — ALL auth-gated (WS handled in 'upgrade').
-    const gwPrefix = pathname.startsWith('/api/gateway-proxy')
-      ? '/api/gateway-proxy'
-      : pathname.startsWith('/gateway-ui')
-        ? '/gateway-ui'
-        : null
-    if (gwPrefix) {
-      if (!(await isAuthed(req.headers.cookie))) return unauthorized(res)
-      return await proxyHttp(req, res, GATEWAY_HTTP, gwPrefix)
-    }
-    if (pathname.startsWith('/workspace-api')) {
-      if (!(await isAuthed(req.headers.cookie))) return unauthorized(res)
-      return await proxyHttp(req, res, WORKSPACE_HTTP, '/workspace-api')
+    // Gateway/workspace HTTP proxies — driven by PROXY_ROUTES, auth-gated.
+    // (WS upgrades handled in the 'upgrade' listener below.)
+    const route = matchProxyRoute(pathname)
+    if (route) {
+      if (route.auth && !(await isAuthed(req.headers.cookie)))
+        return unauthorized(res)
+      return await proxyHttp(req, res, httpTargetFor(route), route.prefix)
     }
 
     // Static client bundle + public files
@@ -251,28 +259,23 @@ const httpServer = createServer(async (req, res) => {
   }
 })
 
-// ── WebSocket proxy: /ws-gateway + /gateway-ui (both auth-gated) ──────────────
+// ── WebSocket proxy: PROXY_ROUTES entries with ws:true (auth-gated) ───────────
 const wss = new WebSocketServer({ noServer: true })
 httpServer.on('upgrade', async (req, socket, head) => {
   const pathname = (req.url || '/').split('?')[0]
-  let strip = null
-  if (pathname.startsWith('/ws-gateway')) strip = '/ws-gateway'
-  else if (pathname.startsWith('/gateway-ui')) strip = '/gateway-ui'
-  else {
+  const route = matchProxyRoute(pathname)
+  if (!route || !route.ws) {
     socket.destroy()
     return
   }
-
-  // All gateway WS upgrades require a valid session (integrity audit P0).
-  if (!(await isAuthed(req.headers.cookie))) {
+  if (route.auth && !(await isAuthed(req.headers.cookie))) {
     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
     socket.destroy()
     return
   }
-
   wss.handleUpgrade(req, socket, head, (client) => {
     const upstream = new WebSocket(
-      GATEWAY_WS + (req.url || '').replace(strip, ''),
+      GATEWAY_WS + (req.url || '').replace(route.prefix, ''),
     )
     const queue = []
     client.on('message', (data, isBinary) => {
@@ -307,10 +310,41 @@ httpServer.on('upgrade', async (req, socket, head) => {
   })
 })
 
+// ── Boot-time perimeter self-check (S-fix-2): prove the gate every start ──────
+async function selfCheckPerimeter() {
+  try {
+    const ac = await ssr
+      .fetch(new Request('http://localhost/api/auth-check'))
+      .then((r) => r.json())
+      .catch(() => ({}))
+    if (!ac.authRequired) {
+      console.log('[pulseos] perimeter self-check skipped (no password set)')
+      return
+    }
+    const res = await fetch(`http://127.0.0.1:${PORT}/api/gateway-proxy/`, {
+      redirect: 'manual',
+    }).catch(() => null)
+    if (res && res.status === 401) {
+      console.log(
+        '[pulseos] perimeter self-check OK: gateway proxy gated (401)',
+      )
+    } else {
+      console.error(
+        `[pulseos] PERIMETER SELF-CHECK FAILED: /api/gateway-proxy/ returned ${
+          res ? res.status : 'no-response'
+        } unauthenticated (expected 401). THE GATEWAY MAY BE PUBLICLY EXPOSED.`,
+      )
+    }
+  } catch (e) {
+    console.error('[pulseos] perimeter self-check error:', e.message)
+  }
+}
+
 httpServer.listen(PORT, HOST, () => {
   console.log(
     `[pulseos] production server listening on http://${HOST}:${PORT} (gateway ${GATEWAY_WS}, workspace ${WORKSPACE_HTTP})`,
   )
+  setTimeout(selfCheckPerimeter, 1500)
 })
 
 // Keep the process alive on transient errors instead of crashing the fleet.
