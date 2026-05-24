@@ -8,13 +8,19 @@ module.exports = {
     {
       name: 'pulseos',
       cwd: 'C:/Users/costa/Projects/pulsecheck-ai/os/dashboard-clawsuite',
-      // Invoke Vite's JS entry directly under Node — avoids the npm.cmd →
-      // cmd.exe spawn chain that triggers `spawn EINVAL` under PM2 on Windows.
-      script: 'node_modules/vite/bin/vite.js',
-      args: 'dev --port 3010 --strictPort',
+      // Production: the TanStack Start build served by serve.mjs (SSR + static
+      // client + gateway proxies). `node --env-file` loads .env so the SSR
+      // bundle gets CLAWSUITE_PASSWORD, gateway URL/token, Supabase keys, and
+      // CLAWSUITE_ALLOWED_HOSTS/ORIGINS at runtime (parity with vite loadEnv).
+      script: 'serve.mjs',
+      node_args: '--env-file-if-exists=.env',
       env: {
-        NODE_ENV: 'development',
+        NODE_ENV: 'production',
+        PORT: '3010',
       },
+      // windowsHide hides the console window so a vite-dev restart can't flash a
+      // popup on Windows (memory: feedback_node_spawnsync_windowshide_on_pm2).
+      windowsHide: true,
       // Vite handles file-watching itself; PM2 should only restart on crash.
       watch: false,
       autorestart: true,
@@ -119,15 +125,19 @@ module.exports = {
       env: {
         PYTHONPATH: 'C:/Users/costa/Projects/voice-engine',
         // skill-runner subprocess (npx -> tsx -> node) needs node on PATH; the daemon PATH may lack it.
-        PATH: 'C:\\Users\\costa\\AppData\\Roaming\\fnm\\node-versions\\v22.22.2\\installation;C:\\Windows\\System32;C:\\Windows;' + (process.env.PATH || ''),
-        LLM_PROVIDER: 'ollama',             // flip to 'anthropic' once the key has credit or WIF is set
-        LLM_FALLBACK_PROVIDER: '',
+        PATH:
+          'C:\\Users\\costa\\AppData\\Roaming\\fnm\\node-versions\\v22.22.2\\installation;C:\\Windows\\System32;C:\\Windows;' +
+          (process.env.PATH || ''),
+        LLM_PROVIDER: 'anthropic', // flipped 2026-05-22: funded key verified (fp 27d8c7d5); Haiku primary
+        LLM_FALLBACK_PROVIDER: 'ollama', // fall back to local llama3.2 if Anthropic errors
         LOCAL_LLM_MODEL: 'llama3.2:latest',
         SKILLS_ENABLED: '1',
         // verified-real skill ids only (allowlist mode); plugin:skill ids are NOT in the
         // skill-runner catalog so they can't be allowlisted. See voice-engine docs/adr/0002.
-        SKILL_ALLOWLIST: 'creative-director,content-humanizer,brand-voice,cli-marketman,cli-restaurant365,email-sequence,ad-campaign-best-practices,competitive-intel',
-        SKILL_RUNNER_MCP_CMD: 'C:/Users/costa/AppData/Roaming/fnm/node-versions/v22.22.2/installation/npx.cmd',
+        SKILL_ALLOWLIST:
+          'creative-director,content-humanizer,brand-voice,cli-marketman,cli-restaurant365,email-sequence,ad-campaign-best-practices,competitive-intel',
+        SKILL_RUNNER_MCP_CMD:
+          'C:/Users/costa/AppData/Roaming/fnm/node-versions/v22.22.2/installation/npx.cmd',
         MEMORY_ENABLED: '0',
         // Data plane ON — real margin data (marginops-mcp). The server self-loads its DB
         // creds from pulsecheck-ai/main/.env, so NO secret belongs here. Absolute miniconda
@@ -135,11 +145,12 @@ module.exports = {
         // cuts the set_tenant_baseline WRITE tool (read-only posture).
         PULSECHECK_MCP_ENABLED: '1',
         PULSECHECK_AI_ROOT: 'C:/Users/costa/Projects/pulsecheck-ai',
-        PULSECHECK_MCP_SERVERS: 'C:/Users/costa/miniconda3/python.exe C:\\Users\\costa\\Projects\\pulsecheck-ai\\main\\apps\\mcps\\marginops\\server.py=margin_',
-        PULSECHECK_MCP_MAX_TOOLS: '11',
-        // pulse-rag ("the brain") intentionally NOT added — blocked on a valid Windmill
-        // token (both available tokens 401). Add a `…\pulse-rag\server.py=brain_` pair +
-        // WINDMILL_TOKEN (via deploy env, never inlined) once a valid token exists.
+        PULSECHECK_MCP_SERVERS:
+          'C:/Users/costa/miniconda3/python.exe C:\\Users\\costa\\Projects\\pulsecheck-ai\\main\\apps\\mcps\\marginops\\server.py=margin_,C:/Users/costa/miniconda3/python.exe C:\\Users\\costa\\Projects\\pulsecheck-ai\\main\\apps\\mcps\\pulse-rag\\server.py=brain_',
+        PULSECHECK_MCP_MAX_TOOLS: '13',
+        // pulse-rag ("the brain") ADDED 2026-05-22 — fresh user-scope WINDMILL_TOKEN minted
+        // via wmill CLI + persisted to user env, inherited by the stdio child (mcp_stdio.py
+        // env-inheritance). Pulls Supabase creds from Windmill vars at call time.
       },
       out_file: 'C:/Users/costa/.pm2/logs/pulseos-voice-engine-out.log',
       error_file: 'C:/Users/costa/.pm2/logs/pulseos-voice-engine-error.log',
