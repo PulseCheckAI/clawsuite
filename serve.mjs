@@ -9,13 +9,15 @@
  * real production (parity with `vite dev`, minus HMR):
  *
  *   1. Static files from `dist/client` (hashed /assets/* = immutable; rest short).
- *   2. Gateway proxies mirroring vite.config.ts `server.proxy`:
- *        /ws-gateway        -> gateway WS  (auth-gated via the app's /api/auth-check)
+ *   2. Gateway proxies mirroring vite.config.ts `server.proxy`, ALL auth-gated
+ *      (integrity audit P0 — the CLAWSUITE_PASSWORD perimeter only covers SSR
+ *      routes, so the proxy layer enforces auth itself):
+ *        /ws-gateway        -> gateway WS
  *        /api/gateway-proxy -> gateway HTTP
  *        /gateway-ui        -> gateway HTTP/WS (iframe headers stripped)
  *        /workspace-api     -> workspace daemon HTTP
- *   3. Everything else -> the SSR fetch handler, with the same hardening headers
- *      and path-scoped CSP the dev server applies.
+ *   3. Everything else -> the SSR fetch handler, with the shared hardening
+ *      headers + path-scoped CSP (security-headers.mjs, shared with dev).
  *
  * Env: PORT (default 3010), HOST (default 0.0.0.0),
  *      CLAWDBOT_GATEWAY_URL (default ws://127.0.0.1:18789),
@@ -29,78 +31,53 @@ import { extname, join, normalize } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { WebSocket, WebSocketServer } from 'ws'
 import ssr from './dist/server/server.js'
+import {
+  HARDENING,
+  cspFor,
+  GATEWAY_WS_DEFAULT,
+  WORKSPACE_HTTP_DEFAULT,
+} from './src/server/security-headers.mjs'
 
 const PORT = Number(process.env.PORT) || 3010
 const HOST = process.env.HOST || '0.0.0.0'
 const CLIENT_DIR = fileURLToPath(new URL('./dist/client', import.meta.url))
 
 const GATEWAY_WS = (
-  process.env.CLAWDBOT_GATEWAY_URL || 'ws://127.0.0.1:18789'
+  process.env.CLAWDBOT_GATEWAY_URL || GATEWAY_WS_DEFAULT
 ).replace(/\/$/, '')
 const GATEWAY_HTTP = GATEWAY_WS.replace(/^ws/, 'http')
 const WORKSPACE_HTTP = (
-  process.env.WORKSPACE_DAEMON_URL || 'http://127.0.0.1:3099'
+  process.env.WORKSPACE_DAEMON_URL || WORKSPACE_HTTP_DEFAULT
 ).replace(/\/$/, '')
 
-// ── Security headers (mirror of vite.config.ts) ──────────────────────────────
-const STRICT_CSP = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "object-src 'none'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  "script-src 'self' 'unsafe-inline'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
-  "font-src 'self' data:",
-  "connect-src 'self' ws: wss: http: https:",
-  "worker-src 'self' blob:",
-  "media-src 'self' blob: data:",
-  "frame-src 'self' http: https:",
-].join('; ')
-const GRAPHS_CSP = STRICT_CSP.replace(
-  "frame-ancestors 'none'",
-  "frame-ancestors 'self'",
-)
-  .replace(
-    "script-src 'self' 'unsafe-inline'",
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-  )
-  .replace(
-    "style-src 'self' 'unsafe-inline'",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  )
-  .replace(
-    "font-src 'self' data:",
-    "font-src 'self' data: https://fonts.gstatic.com",
-  )
-const HARDENING = {
-  'Permissions-Policy': [
-    'unload=()',
-    'beforeunload=()',
-    'camera=()',
-    'microphone=()',
-    'geolocation=()',
-    'gyroscope=()',
-    'magnetometer=()',
-    'accelerometer=()',
-    'payment=()',
-    'usb=()',
-    'serial=()',
-    'browsing-topics=()',
-    'interest-cohort=()',
-  ].join(', '),
-  'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
-  'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-}
 function applyHardening(res, pathname) {
   for (const [k, v] of Object.entries(HARDENING)) res.setHeader(k, v)
-  res.setHeader(
-    'Content-Security-Policy',
-    pathname.startsWith('/graphs/') ? GRAPHS_CSP : STRICT_CSP,
-  )
+  res.setHeader('Content-Security-Policy', cspFor(pathname))
+}
+
+/**
+ * Auth gate for the same-origin proxies. Reuses the app's own /api/auth-check so
+ * the in-memory token store + password logic stay the single source of truth.
+ * Fails CLOSED on any error (deny by default).
+ */
+async function isAuthed(cookie) {
+  try {
+    const check = await ssr.fetch(
+      new Request('http://localhost/api/auth-check', {
+        headers: { cookie: cookie || '' },
+      }),
+    )
+    const data = await check.json().catch(() => ({}))
+    return !(data.authRequired && !data.authenticated)
+  } catch {
+    return false
+  }
+}
+
+function unauthorized(res) {
+  res.statusCode = 401
+  res.setHeader('Content-Type', 'application/json')
+  res.end('{"ok":false,"error":"Unauthorized"}')
 }
 
 const MIME = {
@@ -237,13 +214,20 @@ const httpServer = createServer(async (req, res) => {
   try {
     const pathname = (req.url || '/').split('?')[0]
 
-    // HTTP proxies (WS handled in the 'upgrade' listener below)
-    if (pathname.startsWith('/api/gateway-proxy'))
-      return await proxyHttp(req, res, GATEWAY_HTTP, '/api/gateway-proxy')
-    if (pathname.startsWith('/gateway-ui'))
-      return await proxyHttp(req, res, GATEWAY_HTTP, '/gateway-ui')
-    if (pathname.startsWith('/workspace-api'))
+    // Gateway/workspace HTTP proxies — ALL auth-gated (WS handled in 'upgrade').
+    const gwPrefix = pathname.startsWith('/api/gateway-proxy')
+      ? '/api/gateway-proxy'
+      : pathname.startsWith('/gateway-ui')
+        ? '/gateway-ui'
+        : null
+    if (gwPrefix) {
+      if (!(await isAuthed(req.headers.cookie))) return unauthorized(res)
+      return await proxyHttp(req, res, GATEWAY_HTTP, gwPrefix)
+    }
+    if (pathname.startsWith('/workspace-api')) {
+      if (!(await isAuthed(req.headers.cookie))) return unauthorized(res)
       return await proxyHttp(req, res, WORKSPACE_HTTP, '/workspace-api')
+    }
 
     // Static client bundle + public files
     if (await serveStatic(req, res, pathname)) return
@@ -267,49 +251,29 @@ const httpServer = createServer(async (req, res) => {
   }
 })
 
-// ── WebSocket proxy: /ws-gateway (auth-gated) + /gateway-ui ───────────────────
+// ── WebSocket proxy: /ws-gateway + /gateway-ui (both auth-gated) ──────────────
 const wss = new WebSocketServer({ noServer: true })
 httpServer.on('upgrade', async (req, socket, head) => {
   const pathname = (req.url || '/').split('?')[0]
-  let target = null
   let strip = null
-  let gate = false
-  if (pathname.startsWith('/ws-gateway')) {
-    target = GATEWAY_WS
-    strip = '/ws-gateway'
-    gate = true
-  } else if (pathname.startsWith('/gateway-ui')) {
-    target = GATEWAY_WS
-    strip = '/gateway-ui'
-  } else {
+  if (pathname.startsWith('/ws-gateway')) strip = '/ws-gateway'
+  else if (pathname.startsWith('/gateway-ui')) strip = '/gateway-ui'
+  else {
     socket.destroy()
     return
   }
 
-  // Gate the gateway WS on a valid session — reuse the app's own auth-check so
-  // the in-memory token store + password logic are the single source of truth.
-  if (gate) {
-    try {
-      const check = await ssr.fetch(
-        new Request('http://localhost/api/auth-check', {
-          headers: { cookie: req.headers.cookie || '' },
-        }),
-      )
-      const data = await check.json().catch(() => ({}))
-      if (data.authRequired && !data.authenticated) {
-        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
-        socket.destroy()
-        return
-      }
-    } catch {
-      socket.write('HTTP/1.1 500 Internal Server Error\r\n\r\n')
-      socket.destroy()
-      return
-    }
+  // All gateway WS upgrades require a valid session (integrity audit P0).
+  if (!(await isAuthed(req.headers.cookie))) {
+    socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
+    socket.destroy()
+    return
   }
 
   wss.handleUpgrade(req, socket, head, (client) => {
-    const upstream = new WebSocket(target + (req.url || '').replace(strip, ''))
+    const upstream = new WebSocket(
+      GATEWAY_WS + (req.url || '').replace(strip, ''),
+    )
     const queue = []
     client.on('message', (data, isBinary) => {
       if (upstream.readyState === WebSocket.OPEN)

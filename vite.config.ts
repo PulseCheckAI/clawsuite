@@ -16,44 +16,13 @@ import {
   isPasswordProtectionEnabled,
   isValidSessionToken,
 } from './src/server/auth-middleware'
-
-// Strict app-wide CSP (the default for every route). The 3D graph viewers under
-// /graphs/* are the ONLY surface that needs external origins, so the loosening is
-// scoped to them by the 'pulseos-scoped-csp' plugin below — the React app keeps
-// strict 'self'.
-const STRICT_CSP = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "object-src 'none'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  "script-src 'self' 'unsafe-inline'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
-  "font-src 'self' data:",
-  "connect-src 'self' ws: wss: http: https:",
-  "worker-src 'self' blob:",
-  "media-src 'self' blob: data:",
-  "frame-src 'self' http: https:",
-].join('; ')
-// /graphs/* (static Three.js viewers): allow pinned jsdelivr modules + Google
-// Fonts, and frame-ancestors 'self' so the PulseOS /graph route can embed them.
-const GRAPHS_CSP = STRICT_CSP.replace(
-  "frame-ancestors 'none'",
-  "frame-ancestors 'self'",
-)
-  .replace(
-    "script-src 'self' 'unsafe-inline'",
-    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-  )
-  .replace(
-    "style-src 'self' 'unsafe-inline'",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  )
-  .replace(
-    "font-src 'self' data:",
-    "font-src 'self' data: https://fonts.gstatic.com",
-  )
+// STRICT_CSP, GRAPHS_CSP, HARDENING come from the SINGLE shared source that
+// serve.mjs (production) also imports — no dev/prod drift (integrity audit S1).
+import {
+  STRICT_CSP,
+  GRAPHS_CSP,
+  HARDENING,
+} from './src/server/security-headers.mjs'
 
 const config = defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -306,35 +275,10 @@ const config = defineConfig(({ mode, command }) => {
         // plugin below: strict 'self' for the app, relaxed only for /graphs/*
         // (the static Three.js viewers). Keeping it out of this static map lets
         // a single middleware branch on the request path.
-        // Permissions-Policy: deny APIs we don't need, including unload semantics.
-        // unload=() tells the browser the document does NOT want unload-style
-        // lifecycle events; doesn't disable extension listeners but signals intent.
-        'Permissions-Policy': [
-          'unload=()',
-          'beforeunload=()',
-          'camera=()',
-          'microphone=()',
-          'geolocation=()',
-          'gyroscope=()',
-          'magnetometer=()',
-          'accelerometer=()',
-          'payment=()',
-          'usb=()',
-          'serial=()',
-          'browsing-topics=()',
-          'interest-cohort=()',
-        ].join(', '),
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'X-Content-Type-Options': 'nosniff',
-        'X-Frame-Options': 'DENY',
-        // COOP: process-isolate from cross-origin openers (mitigates Spectre,
-        // closes side-channel leaks). Allow popups so window.open still works.
-        'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-        // COEP omitted intentionally — require-corp would break iframes/Recharts
-        // SVGs that don't carry explicit CORP headers; not worth the breakage
-        // until every dep ships CORP.
-        // X-XSS-Protection deliberately omitted — deprecated, can introduce its
-        // own XSS via filter bypasses; CSP handles XSS.
+        // Hardening headers (Permissions-Policy, Referrer-Policy, nosniff,
+        // X-Frame-Options DENY, COOP) from the shared module. COEP +
+        // X-XSS-Protection intentionally omitted (CSP handles XSS).
+        ...HARDENING,
       },
       allowedHosts:
         allowedHosts.length > 0
@@ -453,31 +397,7 @@ const config = defineConfig(({ mode, command }) => {
         name: 'clawsuite-hardening-headers',
         configureServer(server) {
           server.middlewares.use((_req, res, next) => {
-            res.setHeader(
-              'Permissions-Policy',
-              [
-                'unload=()',
-                'beforeunload=()',
-                'camera=()',
-                'microphone=()',
-                'geolocation=()',
-                'gyroscope=()',
-                'magnetometer=()',
-                'accelerometer=()',
-                'payment=()',
-                'usb=()',
-                'serial=()',
-                'browsing-topics=()',
-                'interest-cohort=()',
-              ].join(', '),
-            )
-            res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
-            res.setHeader('X-Content-Type-Options', 'nosniff')
-            res.setHeader('X-Frame-Options', 'DENY')
-            res.setHeader(
-              'Cross-Origin-Opener-Policy',
-              'same-origin-allow-popups',
-            )
+            for (const [k, v] of Object.entries(HARDENING)) res.setHeader(k, v)
             // Dev-only: force fresh JS/CSS every load. Without this, browsers
             // cache the HMR-keyed bundle and screen swaps (like /dashboard ->
             // MissionControlScreen) don't show until a full cache purge.

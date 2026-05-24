@@ -24,6 +24,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
+    "smoke": "node scripts/dashboard-smoke.mjs",
     "lint": "eslint",
     "format": "prettier",
     "check": "prettier --write . && eslint --fix",
