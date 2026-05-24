@@ -369,8 +369,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             __html: `
           (function(){
             if (document.getElementById('splash-screen')) return;
-            // Default splash to pulsecheck-navy so no first-paint grey flash.
-            var bg = '#0e1730', txt = '#f8fafc', muted = '#94a3b8';
+            // Default splash to the Mission Control deep-navy so there's no
+            // first-paint grey flash and it matches the dashboard surface.
+            var bg = '#070A11', txt = '#E6F1FF', muted = '#8FA3BF';
             try {
               var enterprise = localStorage.getItem('clawsuite-theme');
               var s = localStorage.getItem('openclaw-settings');
@@ -393,70 +394,78 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               else if (enterprise === 'premium-dark') { bg = '#000000'; }
               else if (enterprise === 'ops-dark') { bg = '#1e1e2e'; }
               else if (enterprise === 'sunset-brand') { bg = '#1a0e05'; }
-              // else: pulsecheck-navy (default) — bg stays #0e1730
+              // else: pulsecheck-navy (default) — bg stays #070A11 (Mission Control)
             } catch(e){}
 
-            var quips = ["Warming up the claws...","Brewing agent espresso...","Deploying crustacean intelligence...","Loading forbidden knowledge...","Calibrating sarcasm module...","Spinning up the hive mind...","Polishing the shell...","Teaching agents to behave...","Summoning the swarm...","Initializing world domination...","Crunching the numbers (with claws)...","Consulting the oracle lobster...","Booting the lobster mainframe...","Decrypting the claw protocol..."];
+            var quips = ["Initializing command center","Connecting to gateway","Syncing the agent fleet","Loading mission control","Calibrating telemetry","Establishing secure channel","Spinning up the swarm","Aligning data planes","Priming the control plane","Warming the neural core","Mapping the constellation","Engaging autonomy systems"];
             var quip = quips[Math.floor(Math.random() * quips.length)];
+            var accent = (typeof t !== 'undefined' && t === 'light') ? '#0E7490' : '#FFB547';
 
             var d = document.createElement('div');
             d.id = 'splash-screen';
-            d.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:'+bg+';transition:opacity 0.8s ease;';
-            d.innerHTML = '<div style="width:96px;height:96px;margin-bottom:20px;filter:drop-shadow(0 8px 32px rgba(249,115,22,0.5))"><svg width="96" height="96" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sOB" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ea580c"/><stop offset="50%" stop-color="#f97316"/><stop offset="100%" stop-color="#fb923c"/></linearGradient></defs><rect x="5" y="5" width="90" height="90" rx="16" fill="url(#sOB)"/><rect x="20" y="25" width="60" height="50" rx="4" stroke="#1e293b" stroke-width="3" fill="none"/><circle cx="28" cy="32" r="2.5" fill="#1e293b"/><circle cx="37" cy="32" r="2.5" fill="#1e293b"/><circle cx="46" cy="32" r="2.5" fill="#1e293b"/><path d="M38 45L32 50L38 55" stroke="#1e293b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M62 45L68 50L62 55" stroke="#1e293b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><style>@keyframes splashBlink{0%,100%{opacity:1}50%{opacity:.3}}.splashCur{animation:splashBlink 1.2s ease-in-out infinite}</style><rect x="47" y="46" width="4" height="10" rx="2" fill="#1e293b" class="splashCur"/></svg></div>'
-              + '<div style="font:700 24px/1 system-ui,-apple-system,sans-serif;letter-spacing:0.06em;color:'+txt+'">PulseOS</div>'
-              + '<div style="margin-top:10px;font:italic 13px/1 system-ui,-apple-system,sans-serif;color:'+muted+'">'+quip+'</div>'
-              + '<div style="margin-top:28px;width:140px;height:3px;background:#1e293b;border-radius:3px;overflow:hidden"><div id=splash-bar style="width:0%;height:100%;background:linear-gradient(90deg,#ea580c,#f97316,#fb923c);border-radius:3px;transition:width 0.4s ease"></div></div>';
+            d.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;overflow:hidden;background:'+bg+';transition:opacity .7s ease, filter .7s ease, transform .7s ease;';
+            d.style.setProperty('--sp-txt', txt);
+            d.style.setProperty('--sp-muted', muted);
+            d.style.setProperty('--sp-accent', accent);
+            d.innerHTML = '<div class="sp-aurora"></div><div class="sp-grid"></div><div class="sp-grain"></div><div class="sp-vignette"></div>'
+              + '<div class="sp-stack">'
+              + '<div class="sp-term" id="sp-term"></div>'
+              + '<div class="sp-badge"><span class="sp-bk tl"></span><span class="sp-bk tr"></span><span class="sp-bk bl"></span><span class="sp-bk br"></span><div class="sp-glow"></div><img class="sp-wave" src="/pulsecheck-wave.svg" alt="PulseCheck" width="150" height="108"/><div class="sp-scanline"></div></div>'
+              + '<div class="sp-word">Pulse<span class="os">OS</span></div>'
+              + '<div class="sp-eyebrow">Command Center</div>'
+              + '<div class="sp-prog"><div class="sp-track"><div id="splash-bar"></div><div class="sp-shimmer"></div></div><div class="sp-pct" id="splash-pct">000</div></div>'
+              + '</div>';
             document.body.prepend(d);
 
+            var term = document.getElementById('sp-term');
+            var bootLines = [["init gateway","OK"],["mount data plane","OK"],["sync agent fleet","OK"],["calibrate telemetry","OK"],["authenticate","OK"]];
+            var li = 0;
+            function addLine(){
+              if(!term || li>=bootLines.length) return;
+              var L = bootLines[li++];
+              var row = document.createElement('div');
+              row.className = 'sp-line';
+              row.innerHTML = '<span class="sp-k">&gt; '+L[0]+'</span><span class="sp-dots"></span><span class="sp-ok">'+L[1]+'</span>';
+              term.appendChild(row);
+              setTimeout(addLine, 190);
+            }
+            setTimeout(addLine, 220);
             var bar = document.getElementById('splash-bar');
-            if (bar) {
-              setTimeout(function(){ bar.style.width='15%' }, 300);
-              setTimeout(function(){ bar.style.width='40%' }, 800);
-              setTimeout(function(){ bar.style.width='65%' }, 1500);
-              setTimeout(function(){ bar.style.width='85%' }, 2500);
-              setTimeout(function(){ bar.style.width='92%' }, 3200);
-            }
+            var pct = document.getElementById('splash-pct');
+            var prog = 0;
+            function spPad(n){ n=Math.round(n); return (n<10?'00':n<100?'0':'')+n; }
+            var spT0 = Date.now();
+            var spRamp = setInterval(function(){
+              var e = (Date.now()-spT0)/1000;
+              var tg = Math.min(92, Math.round(100*(1-Math.exp(-e/1.4))));
+              if(tg>prog) prog=tg;
+              if(bar) bar.style.width = prog+'%';
+              if(pct) pct.textContent = spPad(prog);
+            }, 60);
 
-            // Logo entrance animation
-            var logo = d.querySelector('div');
-            if (logo) {
-              logo.style.cssText += ';opacity:0;transform:scale(0.85);transition:opacity 0.6s ease,transform 0.6s ease;';
-              setTimeout(function(){ logo.style.opacity='1'; logo.style.transform='scale(1)'; }, 100);
-            }
-
-            // Pulsing glow behind logo
-            var glow = document.createElement('div');
-            glow.style.cssText = 'position:absolute;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,0.15) 0%,transparent 70%);animation:splashPulse 2s ease-in-out infinite;pointer-events:none;';
-            d.insertBefore(glow, d.firstChild);
-            // Position glow behind logo
-            glow.style.cssText += 'top:50%;left:50%;transform:translate(-50%,-60%);';
-
-            // Shimmer on progress bar
-            var shimmer = document.createElement('div');
-            shimmer.style.cssText = 'position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);animation:splashShimmer 1.5s ease-in-out infinite;';
-            var barWrap = bar ? bar.parentElement : null;
-            if (barWrap) { barWrap.style.position = 'relative'; barWrap.style.overflow = 'hidden'; barWrap.appendChild(shimmer); }
-
-            // Add keyframes
             var style = document.createElement('style');
-            style.textContent = '@keyframes splashPulse{0%,100%{opacity:0.5;transform:translate(-50%,-60%) scale(1)}50%{opacity:1;transform:translate(-50%,-60%) scale(1.15)}} @keyframes splashShimmer{0%{left:-100%}100%{left:100%}}';
+            style.textContent = '#splash-screen .sp-aurora{position:absolute;inset:-25%;pointer-events:none;filter:blur(48px);opacity:.5;background:radial-gradient(38% 38% at 24% 28%,rgba(255,140,64,.30),transparent 60%),radial-gradient(34% 34% at 80% 22%,rgba(255,107,53,.18),transparent 60%),radial-gradient(46% 46% at 72% 84%,rgba(255,90,40,.22),transparent 62%)}#splash-screen .sp-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,140,64,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,140,64,.05) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(circle at 50% 50%,#000,transparent 72%);mask-image:radial-gradient(circle at 50% 50%,#000,transparent 72%)}#splash-screen .sp-grain{position:absolute;inset:0;pointer-events:none;opacity:.05;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%22160%22%3E%3Cfilter id=%22ns%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%224%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23ns)%22/%3E%3C/svg%3E")}#splash-screen .sp-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(125% 95% at 50% 50%,transparent 50%,rgba(0,0,0,.6))}#splash-screen .sp-stack{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}#splash-screen .sp-term{width:300px;max-width:80vw;margin-bottom:24px;font:500 12px/1.75 ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--sp-muted)}#splash-screen .sp-line{display:flex;align-items:center;gap:8px;opacity:1}#splash-screen .sp-k{color:#9FB3CC;white-space:nowrap}#splash-screen .sp-dots{flex:1;height:1px;background:repeating-linear-gradient(90deg,rgba(255,140,64,.25) 0 2px,transparent 2px 6px)}#splash-screen .sp-ok{color:#FFB547;font-weight:600;letter-spacing:.12em}#splash-screen .sp-badge{position:relative;display:flex;align-items:center;justify-content:center;padding:14px 22px;overflow:hidden}#splash-screen .sp-bk{position:absolute;width:18px;height:18px;border:2px solid rgba(255,140,64,.55)}#splash-screen .sp-bk.tl{top:0;left:0;border-right:0;border-bottom:0}#splash-screen .sp-bk.tr{top:0;right:0;border-left:0;border-bottom:0}#splash-screen .sp-bk.bl{bottom:0;left:0;border-right:0;border-top:0}#splash-screen .sp-bk.br{bottom:0;right:0;border-left:0;border-top:0}#splash-screen .sp-wave{height:94px;width:auto;position:relative;z-index:1;filter:drop-shadow(0 8px 30px rgba(255,107,53,.40))}#splash-screen .sp-glow{position:absolute;top:50%;left:50%;width:230px;height:200px;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(255,120,40,.16),rgba(255,140,64,.05) 45%,transparent 70%);pointer-events:none;z-index:0}#splash-screen .sp-scanline{position:absolute;left:8px;right:8px;top:0;height:2px;z-index:2;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,140,64,.9),transparent);box-shadow:0 0 12px rgba(255,140,64,.85);opacity:0}#splash-screen .sp-word{margin-top:16px;font:700 26px/1 "Bricolage Grotesque",ui-sans-serif,system-ui,-apple-system,sans-serif;letter-spacing:.02em;color:var(--sp-txt)}#splash-screen .sp-word .os{background:linear-gradient(90deg,#E63946 0%,#FF6B35 40%,#FF9F1C 70%,#FFD166 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}#splash-screen .sp-eyebrow{margin-top:9px;font:600 10px/1 ui-monospace,"SF Mono",Menlo,Consolas,monospace;letter-spacing:.34em;text-transform:uppercase;color:#7FB7C4}#splash-screen .sp-prog{margin-top:24px;display:flex;align-items:center;gap:12px}#splash-screen .sp-track{position:relative;width:200px;height:3px;border-radius:3px;overflow:hidden;background:rgba(255,140,64,.12)}#splash-screen #splash-bar{width:0%;height:100%;border-radius:3px;background:linear-gradient(90deg,#E63946,#FF6B35,#FF9F1C,#FFD166);transition:width .3s cubic-bezier(.4,0,.2,1)}#splash-screen .sp-pct{font:600 11px/1 ui-monospace,"SF Mono",Menlo,monospace;color:var(--sp-muted);min-width:30px;text-align:left}#splash-screen .sp-shimmer{position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.32),transparent)}@media (prefers-reduced-motion:no-preference){#splash-screen .sp-aurora{animation:spAurora 18s ease-in-out infinite alternate}#splash-screen .sp-glow{animation:spGlow 2.6s ease-in-out infinite}#splash-screen .sp-wave{animation:spWave 1s cubic-bezier(.2,.7,.2,1) both}#splash-screen .sp-badge{animation:spBadge .7s cubic-bezier(.2,.7,.2,1) both}#splash-screen .sp-scanline{animation:spScan 1.2s ease .85s 1 both}#splash-screen .sp-line{opacity:0;animation:spLine .3s ease forwards}#splash-screen .sp-shimmer{animation:spShimmer 1.7s ease-in-out infinite}}@keyframes spAurora{0%{transform:translate3d(-2%,-1%,0) scale(1)}100%{transform:translate3d(3%,2%,0) scale(1.08)}}@keyframes spGlow{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)}50%{opacity:.9;transform:translate(-50%,-50%) scale(1.1)}}@keyframes spWave{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}@keyframes spBadge{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}@keyframes spScan{0%{top:0;opacity:0}12%{opacity:1}100%{top:100%;opacity:0}}@keyframes spLine{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}@keyframes spShimmer{0%{left:-100%}60%,100%{left:130%}}';
             document.head.appendChild(style);
 
             window.__dismissSplash = function() {
               var el = document.getElementById('splash-screen');
               if (!el) return;
+              try{ clearInterval(spRamp); }catch(e){}
               if (bar) bar.style.width = '100%';
+              if (pct) pct.textContent = '100';
               setTimeout(function(){
                 el.style.opacity = '0';
-                setTimeout(function(){ el.remove(); }, 800);
-              }, 300);
+                el.style.filter = 'blur(8px)';
+                el.style.transform = 'scale(1.04)';
+                setTimeout(function(){ el.remove(); }, 700);
+              }, 260);
             };
             // Fallback: always dismiss after 8s
             setTimeout(function(){ window.__dismissSplash && window.__dismissSplash(); }, 8000);
             // Fast dismiss: if returning user (has gateway config in localStorage), skip splash quickly
             try {
               if (localStorage.getItem('clawsuite-gateway-url') || localStorage.getItem('gateway-url')) {
-                setTimeout(function(){ window.__dismissSplash && window.__dismissSplash(); }, 800);
+                setTimeout(function(){ window.__dismissSplash && window.__dismissSplash(); }, 2000);
               }
             } catch(e) {}
           })()
