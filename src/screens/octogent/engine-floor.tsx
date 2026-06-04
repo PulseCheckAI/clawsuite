@@ -146,7 +146,7 @@ const TONE_COLOR: Record<Tone, string> = {
   bench: 'var(--theme-accent-strong)',
 }
 
-function nodeX(track: Track, t: number): number {
+function nodeX(_track: Track, t: number): number {
   return TRACK_PAD_X + t * (W - TRACK_PAD_X * 2)
 }
 
