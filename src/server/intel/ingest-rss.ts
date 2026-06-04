@@ -114,6 +114,18 @@ export async function ingestSource(source: IntelSource): Promise<IngestResult> {
   }
   const { items } = parseFeed(xml, 50)
   const rows = mapFeedItems(source.id, items)
-  const inserted = await insertItems(rows)
-  return { sourceId: source.id, fetched: items.length, inserted }
+  // Best-effort DB write: a Supabase/network failure here must degrade to a
+  // per-source error (like the feed-fetch failures above), never throw out of
+  // ingestSource — an unhandled throw here previously crashed the dev server.
+  try {
+    const inserted = await insertItems(rows)
+    return { sourceId: source.id, fetched: items.length, inserted }
+  } catch (e) {
+    return {
+      sourceId: source.id,
+      fetched: items.length,
+      inserted: 0,
+      error: e instanceof Error ? e.message : String(e),
+    }
+  }
 }

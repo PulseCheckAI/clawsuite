@@ -10,15 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WizardRouteImport } from './routes/wizard'
+import { Route as VoicePreviewRouteImport } from './routes/voice-preview'
+import { Route as VoiceRouteImport } from './routes/voice'
+import { Route as UsersRouteImport } from './routes/users'
 import { Route as UsageRouteImport } from './routes/usage'
 import { Route as TerminalRouteImport } from './routes/terminal'
 import { Route as TasksRouteImport } from './routes/tasks'
 import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SessionsRouteImport } from './routes/sessions'
+import { Route as SecurityRouteImport } from './routes/security'
 import { Route as RssRouteImport } from './routes/rss'
+import { Route as RpcConsoleRouteImport } from './routes/rpc-console'
 import { Route as PostizRouteImport } from './routes/postiz'
 import { Route as OperationsRouteImport } from './routes/operations'
+import { Route as OctogentRouteImport } from './routes/octogent'
 import { Route as NodesRouteImport } from './routes/nodes'
 import { Route as NewRouteImport } from './routes/new'
 import { Route as MemoryRouteImport } from './routes/memory'
@@ -38,6 +44,7 @@ import { Route as CostsRouteImport } from './routes/costs'
 import { Route as ConnectRouteImport } from './routes/connect'
 import { Route as ConductorRouteImport } from './routes/conductor'
 import { Route as ChannelsRouteImport } from './routes/channels'
+import { Route as AttentionRouteImport } from './routes/attention'
 import { Route as AskRouteImport } from './routes/ask'
 import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as AgentSwarmRouteImport } from './routes/agent-swarm'
@@ -46,7 +53,13 @@ import { Route as SplatRouteImport } from './routes/$'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
+import { Route as VoiceVoicesRouteImport } from './routes/voice.voices'
+import { Route as VoiceSettingsRouteImport } from './routes/voice.settings'
+import { Route as VoiceHumeChatRouteImport } from './routes/voice.hume-chat'
+import { Route as VoiceGrokChatRouteImport } from './routes/voice.grok-chat'
+import { Route as VoiceAgentsRouteImport } from './routes/voice.agents'
 import { Route as SettingsProvidersRouteImport } from './routes/settings/providers'
+import { Route as MediaWalkthroughsRouteImport } from './routes/media.walkthroughs'
 import { Route as GatewayLogsRouteImport } from './routes/gateway/logs'
 import { Route as ChatSessionKeyRouteImport } from './routes/chat/$sessionKey'
 import { Route as ApiWorkspaceRouteImport } from './routes/api/workspace'
@@ -101,16 +114,32 @@ import { Route as ApiAutonomyTickRouteImport } from './routes/api/autonomy-tick'
 import { Route as ApiAutonomyStatusRouteImport } from './routes/api/autonomy-status'
 import { Route as ApiAuthCheckRouteImport } from './routes/api/auth-check'
 import { Route as ApiAuthRouteImport } from './routes/api/auth'
+import { Route as ApiAttentionRouteImport } from './routes/api/attention'
 import { Route as ApiAgentSteerRouteImport } from './routes/api/agent-steer'
 import { Route as ApiAgentPauseRouteImport } from './routes/api/agent-pause'
 import { Route as ApiAgentKillRouteImport } from './routes/api/agent-kill'
 import { Route as ApiAgentDispatchRouteImport } from './routes/api/agent-dispatch'
 import { Route as ApiAgentActivityRouteImport } from './routes/api/agent-activity'
+import { Route as ApiUsersIndexRouteImport } from './routes/api/users/index'
 import { Route as ApiTasksIndexRouteImport } from './routes/api/tasks/index'
 import { Route as ApiIntegrationsIndexRouteImport } from './routes/api/integrations/index'
+import { Route as VoiceCallsIdRouteImport } from './routes/voice.calls.$id'
+import { Route as ApiWorkspaceSkillsRouteImport } from './routes/api/workspace/skills'
+import { Route as ApiWorkspaceMemoryFilesRouteImport } from './routes/api/workspace/memory-files'
+import { Route as ApiWorkspaceEventsRouteImport } from './routes/api/workspace/events'
+import { Route as ApiVoiceEngineVoicesRouteImport } from './routes/api/voice-engine/voices'
+import { Route as ApiVoiceEngineScenariosRouteImport } from './routes/api/voice-engine/scenarios'
+import { Route as ApiVoiceEngineHumeTokenRouteImport } from './routes/api/voice-engine/hume-token'
+import { Route as ApiVoiceEngineGrokTokenRouteImport } from './routes/api/voice-engine/grok-token'
+import { Route as ApiVoiceEngineCustomizeScenarioRouteImport } from './routes/api/voice-engine/customize-scenario'
+import { Route as ApiVoiceEngineContextRouteImport } from './routes/api/voice-engine/context'
+import { Route as ApiVoiceEngineCallsRouteImport } from './routes/api/voice-engine/calls'
+import { Route as ApiUsersIdRouteImport } from './routes/api/users/$id'
+import { Route as ApiTwilioHumeVoiceRouteImport } from './routes/api/twilio/hume-voice'
 import { Route as ApiTasksTaskIdRouteImport } from './routes/api/tasks/$taskId'
 import { Route as ApiSocialDispatchRouteImport } from './routes/api/social/dispatch'
 import { Route as ApiSessionsSendRouteImport } from './routes/api/sessions/send'
+import { Route as ApiSecurityPostureRouteImport } from './routes/api/security/posture'
 import { Route as ApiRssFeedRouteImport } from './routes/api/rss/feed'
 import { Route as ApiRssAutopostConfigRouteImport } from './routes/api/rss/autopost-config'
 import { Route as ApiRssAutopostRouteImport } from './routes/api/rss/autopost'
@@ -124,7 +153,10 @@ import { Route as ApiMemoryWriteRouteImport } from './routes/api/memory/write'
 import { Route as ApiMemorySearchRouteImport } from './routes/api/memory/search'
 import { Route as ApiMemoryReadRouteImport } from './routes/api/memory/read'
 import { Route as ApiMemoryListRouteImport } from './routes/api/memory/list'
+import { Route as ApiMediaWalkthroughsRouteImport } from './routes/api/media/walkthroughs'
+import { Route as ApiMediaSubscribeRouteImport } from './routes/api/media/subscribe'
 import { Route as ApiMediaSkillsRouteImport } from './routes/api/media/skills'
+import { Route as ApiMediaRenderRouteImport } from './routes/api/media/render'
 import { Route as ApiMediaGenerateRouteImport } from './routes/api/media/generate'
 import { Route as ApiLlmLocalRouteImport } from './routes/api/llm/local'
 import { Route as ApiLinkedinWebhookRouteImport } from './routes/api/linkedin/webhook'
@@ -155,6 +187,7 @@ import { Route as ApiGmailMessagesRouteImport } from './routes/api/gmail/message
 import { Route as ApiGatewayUsageRouteImport } from './routes/api/gateway/usage'
 import { Route as ApiGatewayStatusRouteImport } from './routes/api/gateway/status'
 import { Route as ApiGatewaySessionsRouteImport } from './routes/api/gateway/sessions'
+import { Route as ApiGatewayRpcRouteImport } from './routes/api/gateway/rpc'
 import { Route as ApiGatewayNodesRouteImport } from './routes/api/gateway/nodes'
 import { Route as ApiGatewayLogsRouteImport } from './routes/api/gateway/logs'
 import { Route as ApiGatewayChannelsRouteImport } from './routes/api/gateway/channels'
@@ -176,11 +209,16 @@ import { Route as ApiBrowserStatusRouteImport } from './routes/api/browser/statu
 import { Route as ApiBrowserScreenshotRouteImport } from './routes/api/browser/screenshot'
 import { Route as ApiBrowserNavigateRouteImport } from './routes/api/browser/navigate'
 import { Route as ApiGatewayApprovalsIndexRouteImport } from './routes/api/gateway/approvals/index'
+import { Route as ApiVoiceEngineVoicesCloneRouteImport } from './routes/api/voice-engine/voices.clone'
+import { Route as ApiVoiceEngineScenariosIdRouteImport } from './routes/api/voice-engine/scenarios.$id'
+import { Route as ApiVoiceEngineCallsIdRouteImport } from './routes/api/voice-engine/calls.$id'
 import { Route as ApiSessionsSessionKeyStatusRouteImport } from './routes/api/sessions/$sessionKey.status'
 import { Route as ApiPostizOauthStatusRouteImport } from './routes/api/postiz/oauth.status'
 import { Route as ApiPostizOauthStartRouteImport } from './routes/api/postiz/oauth.start'
 import { Route as ApiPostizOauthCallbackRouteImport } from './routes/api/postiz/oauth.callback'
+import { Route as ApiMediaStreamJobIdRouteImport } from './routes/api/media/stream.$jobId'
 import { Route as ApiMediaStatusJobIdRouteImport } from './routes/api/media/status.$jobId'
+import { Route as ApiMediaRenderStatusJobIdRouteImport } from './routes/api/media/render-status.$jobId'
 import { Route as ApiLinkedinAuthStartRouteImport } from './routes/api/linkedin/auth.start'
 import { Route as ApiHubspotOauthStatusRouteImport } from './routes/api/hubspot/oauth.status'
 import { Route as ApiHubspotOauthStartRouteImport } from './routes/api/hubspot/oauth.start'
@@ -190,11 +228,31 @@ import { Route as ApiGmailOauthStartRouteImport } from './routes/api/gmail/oauth
 import { Route as ApiGmailOauthCallbackRouteImport } from './routes/api/gmail/oauth.callback'
 import { Route as ApiCronRunsJobIdRouteImport } from './routes/api/cron/runs/$jobId'
 import { Route as ApiCliAgentsPidKillRouteImport } from './routes/api/cli-agents.$pid.kill'
+import { Route as ApiVoiceEngineVoicesIdPreviewRouteImport } from './routes/api/voice-engine/voices.$id.preview'
+import { Route as ApiVoiceEngineScenariosIdSuggestImprovementsRouteImport } from './routes/api/voice-engine/scenarios.$id.suggest-improvements'
+import { Route as ApiVoiceEngineScenariosIdPerformanceRouteImport } from './routes/api/voice-engine/scenarios.$id.performance'
+import { Route as ApiVoiceEngineOrgOrgIdVoiceConfigRouteImport } from './routes/api/voice-engine/org.$orgId.voice-config'
+import { Route as ApiVoiceEngineCallsIdPromoteScenarioRouteImport } from './routes/api/voice-engine/calls.$id.promote-scenario'
 import { Route as ApiGatewayApprovalsApprovalIdActionRouteImport } from './routes/api/gateway/approvals/$approvalId/$action'
 
 const WizardRoute = WizardRouteImport.update({
   id: '/wizard',
   path: '/wizard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VoicePreviewRoute = VoicePreviewRouteImport.update({
+  id: '/voice-preview',
+  path: '/voice-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VoiceRoute = VoiceRouteImport.update({
+  id: '/voice',
+  path: '/voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsersRoute = UsersRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UsageRoute = UsageRouteImport.update({
@@ -227,9 +285,19 @@ const SessionsRoute = SessionsRouteImport.update({
   path: '/sessions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RssRoute = RssRouteImport.update({
   id: '/rss',
   path: '/rss',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RpcConsoleRoute = RpcConsoleRouteImport.update({
+  id: '/rpc-console',
+  path: '/rpc-console',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PostizRoute = PostizRouteImport.update({
@@ -240,6 +308,11 @@ const PostizRoute = PostizRouteImport.update({
 const OperationsRoute = OperationsRouteImport.update({
   id: '/operations',
   path: '/operations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OctogentRoute = OctogentRouteImport.update({
+  id: '/octogent',
+  path: '/octogent',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NodesRoute = NodesRouteImport.update({
@@ -337,6 +410,11 @@ const ChannelsRoute = ChannelsRouteImport.update({
   path: '/channels',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AttentionRoute = AttentionRouteImport.update({
+  id: '/attention',
+  path: '/attention',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AskRoute = AskRouteImport.update({
   id: '/ask',
   path: '/ask',
@@ -377,10 +455,40 @@ const ChatIndexRoute = ChatIndexRouteImport.update({
   path: '/chat/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VoiceVoicesRoute = VoiceVoicesRouteImport.update({
+  id: '/voices',
+  path: '/voices',
+  getParentRoute: () => VoiceRoute,
+} as any)
+const VoiceSettingsRoute = VoiceSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => VoiceRoute,
+} as any)
+const VoiceHumeChatRoute = VoiceHumeChatRouteImport.update({
+  id: '/hume-chat',
+  path: '/hume-chat',
+  getParentRoute: () => VoiceRoute,
+} as any)
+const VoiceGrokChatRoute = VoiceGrokChatRouteImport.update({
+  id: '/grok-chat',
+  path: '/grok-chat',
+  getParentRoute: () => VoiceRoute,
+} as any)
+const VoiceAgentsRoute = VoiceAgentsRouteImport.update({
+  id: '/agents',
+  path: '/agents',
+  getParentRoute: () => VoiceRoute,
+} as any)
 const SettingsProvidersRoute = SettingsProvidersRouteImport.update({
   id: '/providers',
   path: '/providers',
   getParentRoute: () => SettingsRoute,
+} as any)
+const MediaWalkthroughsRoute = MediaWalkthroughsRouteImport.update({
+  id: '/walkthroughs',
+  path: '/walkthroughs',
+  getParentRoute: () => MediaRoute,
 } as any)
 const GatewayLogsRoute = GatewayLogsRouteImport.update({
   id: '/logs',
@@ -652,6 +760,11 @@ const ApiAuthRoute = ApiAuthRouteImport.update({
   path: '/api/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAttentionRoute = ApiAttentionRouteImport.update({
+  id: '/api/attention',
+  path: '/api/attention',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAgentSteerRoute = ApiAgentSteerRouteImport.update({
   id: '/api/agent-steer',
   path: '/api/agent-steer',
@@ -677,6 +790,11 @@ const ApiAgentActivityRoute = ApiAgentActivityRouteImport.update({
   path: '/api/agent-activity',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUsersIndexRoute = ApiUsersIndexRouteImport.update({
+  id: '/api/users/',
+  path: '/api/users/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTasksIndexRoute = ApiTasksIndexRouteImport.update({
   id: '/api/tasks/',
   path: '/api/tasks/',
@@ -685,6 +803,72 @@ const ApiTasksIndexRoute = ApiTasksIndexRouteImport.update({
 const ApiIntegrationsIndexRoute = ApiIntegrationsIndexRouteImport.update({
   id: '/api/integrations/',
   path: '/api/integrations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VoiceCallsIdRoute = VoiceCallsIdRouteImport.update({
+  id: '/calls/$id',
+  path: '/calls/$id',
+  getParentRoute: () => VoiceRoute,
+} as any)
+const ApiWorkspaceSkillsRoute = ApiWorkspaceSkillsRouteImport.update({
+  id: '/skills',
+  path: '/skills',
+  getParentRoute: () => ApiWorkspaceRoute,
+} as any)
+const ApiWorkspaceMemoryFilesRoute = ApiWorkspaceMemoryFilesRouteImport.update({
+  id: '/memory-files',
+  path: '/memory-files',
+  getParentRoute: () => ApiWorkspaceRoute,
+} as any)
+const ApiWorkspaceEventsRoute = ApiWorkspaceEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => ApiWorkspaceRoute,
+} as any)
+const ApiVoiceEngineVoicesRoute = ApiVoiceEngineVoicesRouteImport.update({
+  id: '/api/voice-engine/voices',
+  path: '/api/voice-engine/voices',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVoiceEngineScenariosRoute = ApiVoiceEngineScenariosRouteImport.update({
+  id: '/api/voice-engine/scenarios',
+  path: '/api/voice-engine/scenarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVoiceEngineHumeTokenRoute = ApiVoiceEngineHumeTokenRouteImport.update({
+  id: '/api/voice-engine/hume-token',
+  path: '/api/voice-engine/hume-token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVoiceEngineGrokTokenRoute = ApiVoiceEngineGrokTokenRouteImport.update({
+  id: '/api/voice-engine/grok-token',
+  path: '/api/voice-engine/grok-token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVoiceEngineCustomizeScenarioRoute =
+  ApiVoiceEngineCustomizeScenarioRouteImport.update({
+    id: '/api/voice-engine/customize-scenario',
+    path: '/api/voice-engine/customize-scenario',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiVoiceEngineContextRoute = ApiVoiceEngineContextRouteImport.update({
+  id: '/api/voice-engine/context',
+  path: '/api/voice-engine/context',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVoiceEngineCallsRoute = ApiVoiceEngineCallsRouteImport.update({
+  id: '/api/voice-engine/calls',
+  path: '/api/voice-engine/calls',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUsersIdRoute = ApiUsersIdRouteImport.update({
+  id: '/api/users/$id',
+  path: '/api/users/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTwilioHumeVoiceRoute = ApiTwilioHumeVoiceRouteImport.update({
+  id: '/api/twilio/hume-voice',
+  path: '/api/twilio/hume-voice',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTasksTaskIdRoute = ApiTasksTaskIdRouteImport.update({
@@ -701,6 +885,11 @@ const ApiSessionsSendRoute = ApiSessionsSendRouteImport.update({
   id: '/send',
   path: '/send',
   getParentRoute: () => ApiSessionsRoute,
+} as any)
+const ApiSecurityPostureRoute = ApiSecurityPostureRouteImport.update({
+  id: '/api/security/posture',
+  path: '/api/security/posture',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiRssFeedRoute = ApiRssFeedRouteImport.update({
   id: '/api/rss/feed',
@@ -767,9 +956,24 @@ const ApiMemoryListRoute = ApiMemoryListRouteImport.update({
   path: '/api/memory/list',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMediaWalkthroughsRoute = ApiMediaWalkthroughsRouteImport.update({
+  id: '/api/media/walkthroughs',
+  path: '/api/media/walkthroughs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMediaSubscribeRoute = ApiMediaSubscribeRouteImport.update({
+  id: '/api/media/subscribe',
+  path: '/api/media/subscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMediaSkillsRoute = ApiMediaSkillsRouteImport.update({
   id: '/api/media/skills',
   path: '/api/media/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMediaRenderRoute = ApiMediaRenderRouteImport.update({
+  id: '/api/media/render',
+  path: '/api/media/render',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMediaGenerateRoute = ApiMediaGenerateRouteImport.update({
@@ -922,6 +1126,11 @@ const ApiGatewaySessionsRoute = ApiGatewaySessionsRouteImport.update({
   path: '/api/gateway/sessions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGatewayRpcRoute = ApiGatewayRpcRouteImport.update({
+  id: '/api/gateway/rpc',
+  path: '/api/gateway/rpc',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGatewayNodesRoute = ApiGatewayNodesRouteImport.update({
   id: '/api/gateway/nodes',
   path: '/api/gateway/nodes',
@@ -1028,6 +1237,23 @@ const ApiGatewayApprovalsIndexRoute =
     path: '/api/gateway/approvals/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiVoiceEngineVoicesCloneRoute =
+  ApiVoiceEngineVoicesCloneRouteImport.update({
+    id: '/clone',
+    path: '/clone',
+    getParentRoute: () => ApiVoiceEngineVoicesRoute,
+  } as any)
+const ApiVoiceEngineScenariosIdRoute =
+  ApiVoiceEngineScenariosIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => ApiVoiceEngineScenariosRoute,
+  } as any)
+const ApiVoiceEngineCallsIdRoute = ApiVoiceEngineCallsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiVoiceEngineCallsRoute,
+} as any)
 const ApiSessionsSessionKeyStatusRoute =
   ApiSessionsSessionKeyStatusRouteImport.update({
     id: '/$sessionKey/status',
@@ -1049,11 +1275,22 @@ const ApiPostizOauthCallbackRoute = ApiPostizOauthCallbackRouteImport.update({
   path: '/callback',
   getParentRoute: () => ApiPostizOauthRoute,
 } as any)
+const ApiMediaStreamJobIdRoute = ApiMediaStreamJobIdRouteImport.update({
+  id: '/api/media/stream/$jobId',
+  path: '/api/media/stream/$jobId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiMediaStatusJobIdRoute = ApiMediaStatusJobIdRouteImport.update({
   id: '/api/media/status/$jobId',
   path: '/api/media/status/$jobId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMediaRenderStatusJobIdRoute =
+  ApiMediaRenderStatusJobIdRouteImport.update({
+    id: '/api/media/render-status/$jobId',
+    path: '/api/media/render-status/$jobId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiLinkedinAuthStartRoute = ApiLinkedinAuthStartRouteImport.update({
   id: '/api/linkedin/auth/start',
   path: '/api/linkedin/auth/start',
@@ -1099,6 +1336,36 @@ const ApiCliAgentsPidKillRoute = ApiCliAgentsPidKillRouteImport.update({
   path: '/$pid/kill',
   getParentRoute: () => ApiCliAgentsRoute,
 } as any)
+const ApiVoiceEngineVoicesIdPreviewRoute =
+  ApiVoiceEngineVoicesIdPreviewRouteImport.update({
+    id: '/$id/preview',
+    path: '/$id/preview',
+    getParentRoute: () => ApiVoiceEngineVoicesRoute,
+  } as any)
+const ApiVoiceEngineScenariosIdSuggestImprovementsRoute =
+  ApiVoiceEngineScenariosIdSuggestImprovementsRouteImport.update({
+    id: '/suggest-improvements',
+    path: '/suggest-improvements',
+    getParentRoute: () => ApiVoiceEngineScenariosIdRoute,
+  } as any)
+const ApiVoiceEngineScenariosIdPerformanceRoute =
+  ApiVoiceEngineScenariosIdPerformanceRouteImport.update({
+    id: '/performance',
+    path: '/performance',
+    getParentRoute: () => ApiVoiceEngineScenariosIdRoute,
+  } as any)
+const ApiVoiceEngineOrgOrgIdVoiceConfigRoute =
+  ApiVoiceEngineOrgOrgIdVoiceConfigRouteImport.update({
+    id: '/api/voice-engine/org/$orgId/voice-config',
+    path: '/api/voice-engine/org/$orgId/voice-config',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiVoiceEngineCallsIdPromoteScenarioRoute =
+  ApiVoiceEngineCallsIdPromoteScenarioRouteImport.update({
+    id: '/promote-scenario',
+    path: '/promote-scenario',
+    getParentRoute: () => ApiVoiceEngineCallsIdRoute,
+  } as any)
 const ApiGatewayApprovalsApprovalIdActionRoute =
   ApiGatewayApprovalsApprovalIdActionRouteImport.update({
     id: '/api/gateway/approvals/$approvalId/$action',
@@ -1113,6 +1380,7 @@ export interface FileRoutesByFullPath {
   '/agent-swarm': typeof AgentSwarmRoute
   '/agents': typeof AgentsRoute
   '/ask': typeof AskRoute
+  '/attention': typeof AttentionRoute
   '/channels': typeof ChannelsRoute
   '/conductor': typeof ConductorRoute
   '/connect': typeof ConnectRoute
@@ -1128,25 +1396,32 @@ export interface FileRoutesByFullPath {
   '/integrations': typeof IntegrationsRoute
   '/linkedin': typeof LinkedinRoute
   '/logs': typeof LogsRoute
-  '/media': typeof MediaRoute
+  '/media': typeof MediaRouteWithChildren
   '/memory': typeof MemoryRoute
   '/new': typeof NewRoute
   '/nodes': typeof NodesRoute
+  '/octogent': typeof OctogentRoute
   '/operations': typeof OperationsRoute
   '/postiz': typeof PostizRoute
+  '/rpc-console': typeof RpcConsoleRoute
   '/rss': typeof RssRoute
+  '/security': typeof SecurityRoute
   '/sessions': typeof SessionsRoute
   '/settings': typeof SettingsRouteWithChildren
   '/skills': typeof SkillsRoute
   '/tasks': typeof TasksRoute
   '/terminal': typeof TerminalRoute
   '/usage': typeof UsageRoute
+  '/users': typeof UsersRoute
+  '/voice': typeof VoiceRouteWithChildren
+  '/voice-preview': typeof VoicePreviewRoute
   '/wizard': typeof WizardRoute
   '/api/agent-activity': typeof ApiAgentActivityRoute
   '/api/agent-dispatch': typeof ApiAgentDispatchRoute
   '/api/agent-kill': typeof ApiAgentKillRoute
   '/api/agent-pause': typeof ApiAgentPauseRoute
   '/api/agent-steer': typeof ApiAgentSteerRoute
+  '/api/attention': typeof ApiAttentionRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
   '/api/autonomy-status': typeof ApiAutonomyStatusRoute
@@ -1198,10 +1473,16 @@ export interface FileRoutesByFullPath {
   '/api/usage': typeof ApiUsageRoute
   '/api/usage-analytics': typeof ApiUsageAnalyticsRoute
   '/api/validate-provider': typeof ApiValidateProviderRoute
-  '/api/workspace': typeof ApiWorkspaceRoute
+  '/api/workspace': typeof ApiWorkspaceRouteWithChildren
   '/chat/$sessionKey': typeof ChatSessionKeyRoute
   '/gateway/logs': typeof GatewayLogsRoute
+  '/media/walkthroughs': typeof MediaWalkthroughsRoute
   '/settings/providers': typeof SettingsProvidersRoute
+  '/voice/agents': typeof VoiceAgentsRoute
+  '/voice/grok-chat': typeof VoiceGrokChatRoute
+  '/voice/hume-chat': typeof VoiceHumeChatRoute
+  '/voice/settings': typeof VoiceSettingsRoute
+  '/voice/voices': typeof VoiceVoicesRoute
   '/chat/': typeof ChatIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/browser/navigate': typeof ApiBrowserNavigateRoute
@@ -1224,6 +1505,7 @@ export interface FileRoutesByFullPath {
   '/api/gateway/channels': typeof ApiGatewayChannelsRoute
   '/api/gateway/logs': typeof ApiGatewayLogsRoute
   '/api/gateway/nodes': typeof ApiGatewayNodesRoute
+  '/api/gateway/rpc': typeof ApiGatewayRpcRoute
   '/api/gateway/sessions': typeof ApiGatewaySessionsRoute
   '/api/gateway/status': typeof ApiGatewayStatusRoute
   '/api/gateway/usage': typeof ApiGatewayUsageRoute
@@ -1254,7 +1536,10 @@ export interface FileRoutesByFullPath {
   '/api/linkedin/webhook': typeof ApiLinkedinWebhookRoute
   '/api/llm/local': typeof ApiLlmLocalRoute
   '/api/media/generate': typeof ApiMediaGenerateRoute
+  '/api/media/render': typeof ApiMediaRenderRoute
   '/api/media/skills': typeof ApiMediaSkillsRoute
+  '/api/media/subscribe': typeof ApiMediaSubscribeRoute
+  '/api/media/walkthroughs': typeof ApiMediaWalkthroughsRoute
   '/api/memory/list': typeof ApiMemoryListRoute
   '/api/memory/read': typeof ApiMemoryReadRoute
   '/api/memory/search': typeof ApiMemorySearchRoute
@@ -1268,11 +1553,26 @@ export interface FileRoutesByFullPath {
   '/api/rss/autopost': typeof ApiRssAutopostRoute
   '/api/rss/autopost-config': typeof ApiRssAutopostConfigRoute
   '/api/rss/feed': typeof ApiRssFeedRoute
+  '/api/security/posture': typeof ApiSecurityPostureRoute
   '/api/sessions/send': typeof ApiSessionsSendRoute
   '/api/social/dispatch': typeof ApiSocialDispatchRoute
   '/api/tasks/$taskId': typeof ApiTasksTaskIdRoute
+  '/api/twilio/hume-voice': typeof ApiTwilioHumeVoiceRoute
+  '/api/users/$id': typeof ApiUsersIdRoute
+  '/api/voice-engine/calls': typeof ApiVoiceEngineCallsRouteWithChildren
+  '/api/voice-engine/context': typeof ApiVoiceEngineContextRoute
+  '/api/voice-engine/customize-scenario': typeof ApiVoiceEngineCustomizeScenarioRoute
+  '/api/voice-engine/grok-token': typeof ApiVoiceEngineGrokTokenRoute
+  '/api/voice-engine/hume-token': typeof ApiVoiceEngineHumeTokenRoute
+  '/api/voice-engine/scenarios': typeof ApiVoiceEngineScenariosRouteWithChildren
+  '/api/voice-engine/voices': typeof ApiVoiceEngineVoicesRouteWithChildren
+  '/api/workspace/events': typeof ApiWorkspaceEventsRoute
+  '/api/workspace/memory-files': typeof ApiWorkspaceMemoryFilesRoute
+  '/api/workspace/skills': typeof ApiWorkspaceSkillsRoute
+  '/voice/calls/$id': typeof VoiceCallsIdRoute
   '/api/integrations/': typeof ApiIntegrationsIndexRoute
   '/api/tasks/': typeof ApiTasksIndexRoute
+  '/api/users/': typeof ApiUsersIndexRoute
   '/api/cli-agents/$pid/kill': typeof ApiCliAgentsPidKillRoute
   '/api/cron/runs/$jobId': typeof ApiCronRunsJobIdRoute
   '/api/gmail/oauth/callback': typeof ApiGmailOauthCallbackRoute
@@ -1282,13 +1582,23 @@ export interface FileRoutesByFullPath {
   '/api/hubspot/oauth/start': typeof ApiHubspotOauthStartRoute
   '/api/hubspot/oauth/status': typeof ApiHubspotOauthStatusRoute
   '/api/linkedin/auth/start': typeof ApiLinkedinAuthStartRoute
+  '/api/media/render-status/$jobId': typeof ApiMediaRenderStatusJobIdRoute
   '/api/media/status/$jobId': typeof ApiMediaStatusJobIdRoute
+  '/api/media/stream/$jobId': typeof ApiMediaStreamJobIdRoute
   '/api/postiz/oauth/callback': typeof ApiPostizOauthCallbackRoute
   '/api/postiz/oauth/start': typeof ApiPostizOauthStartRoute
   '/api/postiz/oauth/status': typeof ApiPostizOauthStatusRoute
   '/api/sessions/$sessionKey/status': typeof ApiSessionsSessionKeyStatusRoute
+  '/api/voice-engine/calls/$id': typeof ApiVoiceEngineCallsIdRouteWithChildren
+  '/api/voice-engine/scenarios/$id': typeof ApiVoiceEngineScenariosIdRouteWithChildren
+  '/api/voice-engine/voices/clone': typeof ApiVoiceEngineVoicesCloneRoute
   '/api/gateway/approvals/': typeof ApiGatewayApprovalsIndexRoute
   '/api/gateway/approvals/$approvalId/$action': typeof ApiGatewayApprovalsApprovalIdActionRoute
+  '/api/voice-engine/calls/$id/promote-scenario': typeof ApiVoiceEngineCallsIdPromoteScenarioRoute
+  '/api/voice-engine/org/$orgId/voice-config': typeof ApiVoiceEngineOrgOrgIdVoiceConfigRoute
+  '/api/voice-engine/scenarios/$id/performance': typeof ApiVoiceEngineScenariosIdPerformanceRoute
+  '/api/voice-engine/scenarios/$id/suggest-improvements': typeof ApiVoiceEngineScenariosIdSuggestImprovementsRoute
+  '/api/voice-engine/voices/$id/preview': typeof ApiVoiceEngineVoicesIdPreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -1297,6 +1607,7 @@ export interface FileRoutesByTo {
   '/agent-swarm': typeof AgentSwarmRoute
   '/agents': typeof AgentsRoute
   '/ask': typeof AskRoute
+  '/attention': typeof AttentionRoute
   '/channels': typeof ChannelsRoute
   '/conductor': typeof ConductorRoute
   '/connect': typeof ConnectRoute
@@ -1312,24 +1623,31 @@ export interface FileRoutesByTo {
   '/integrations': typeof IntegrationsRoute
   '/linkedin': typeof LinkedinRoute
   '/logs': typeof LogsRoute
-  '/media': typeof MediaRoute
+  '/media': typeof MediaRouteWithChildren
   '/memory': typeof MemoryRoute
   '/new': typeof NewRoute
   '/nodes': typeof NodesRoute
+  '/octogent': typeof OctogentRoute
   '/operations': typeof OperationsRoute
   '/postiz': typeof PostizRoute
+  '/rpc-console': typeof RpcConsoleRoute
   '/rss': typeof RssRoute
+  '/security': typeof SecurityRoute
   '/sessions': typeof SessionsRoute
   '/skills': typeof SkillsRoute
   '/tasks': typeof TasksRoute
   '/terminal': typeof TerminalRoute
   '/usage': typeof UsageRoute
+  '/users': typeof UsersRoute
+  '/voice': typeof VoiceRouteWithChildren
+  '/voice-preview': typeof VoicePreviewRoute
   '/wizard': typeof WizardRoute
   '/api/agent-activity': typeof ApiAgentActivityRoute
   '/api/agent-dispatch': typeof ApiAgentDispatchRoute
   '/api/agent-kill': typeof ApiAgentKillRoute
   '/api/agent-pause': typeof ApiAgentPauseRoute
   '/api/agent-steer': typeof ApiAgentSteerRoute
+  '/api/attention': typeof ApiAttentionRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
   '/api/autonomy-status': typeof ApiAutonomyStatusRoute
@@ -1381,10 +1699,16 @@ export interface FileRoutesByTo {
   '/api/usage': typeof ApiUsageRoute
   '/api/usage-analytics': typeof ApiUsageAnalyticsRoute
   '/api/validate-provider': typeof ApiValidateProviderRoute
-  '/api/workspace': typeof ApiWorkspaceRoute
+  '/api/workspace': typeof ApiWorkspaceRouteWithChildren
   '/chat/$sessionKey': typeof ChatSessionKeyRoute
   '/gateway/logs': typeof GatewayLogsRoute
+  '/media/walkthroughs': typeof MediaWalkthroughsRoute
   '/settings/providers': typeof SettingsProvidersRoute
+  '/voice/agents': typeof VoiceAgentsRoute
+  '/voice/grok-chat': typeof VoiceGrokChatRoute
+  '/voice/hume-chat': typeof VoiceHumeChatRoute
+  '/voice/settings': typeof VoiceSettingsRoute
+  '/voice/voices': typeof VoiceVoicesRoute
   '/chat': typeof ChatIndexRoute
   '/settings': typeof SettingsIndexRoute
   '/api/browser/navigate': typeof ApiBrowserNavigateRoute
@@ -1407,6 +1731,7 @@ export interface FileRoutesByTo {
   '/api/gateway/channels': typeof ApiGatewayChannelsRoute
   '/api/gateway/logs': typeof ApiGatewayLogsRoute
   '/api/gateway/nodes': typeof ApiGatewayNodesRoute
+  '/api/gateway/rpc': typeof ApiGatewayRpcRoute
   '/api/gateway/sessions': typeof ApiGatewaySessionsRoute
   '/api/gateway/status': typeof ApiGatewayStatusRoute
   '/api/gateway/usage': typeof ApiGatewayUsageRoute
@@ -1437,7 +1762,10 @@ export interface FileRoutesByTo {
   '/api/linkedin/webhook': typeof ApiLinkedinWebhookRoute
   '/api/llm/local': typeof ApiLlmLocalRoute
   '/api/media/generate': typeof ApiMediaGenerateRoute
+  '/api/media/render': typeof ApiMediaRenderRoute
   '/api/media/skills': typeof ApiMediaSkillsRoute
+  '/api/media/subscribe': typeof ApiMediaSubscribeRoute
+  '/api/media/walkthroughs': typeof ApiMediaWalkthroughsRoute
   '/api/memory/list': typeof ApiMemoryListRoute
   '/api/memory/read': typeof ApiMemoryReadRoute
   '/api/memory/search': typeof ApiMemorySearchRoute
@@ -1451,11 +1779,26 @@ export interface FileRoutesByTo {
   '/api/rss/autopost': typeof ApiRssAutopostRoute
   '/api/rss/autopost-config': typeof ApiRssAutopostConfigRoute
   '/api/rss/feed': typeof ApiRssFeedRoute
+  '/api/security/posture': typeof ApiSecurityPostureRoute
   '/api/sessions/send': typeof ApiSessionsSendRoute
   '/api/social/dispatch': typeof ApiSocialDispatchRoute
   '/api/tasks/$taskId': typeof ApiTasksTaskIdRoute
+  '/api/twilio/hume-voice': typeof ApiTwilioHumeVoiceRoute
+  '/api/users/$id': typeof ApiUsersIdRoute
+  '/api/voice-engine/calls': typeof ApiVoiceEngineCallsRouteWithChildren
+  '/api/voice-engine/context': typeof ApiVoiceEngineContextRoute
+  '/api/voice-engine/customize-scenario': typeof ApiVoiceEngineCustomizeScenarioRoute
+  '/api/voice-engine/grok-token': typeof ApiVoiceEngineGrokTokenRoute
+  '/api/voice-engine/hume-token': typeof ApiVoiceEngineHumeTokenRoute
+  '/api/voice-engine/scenarios': typeof ApiVoiceEngineScenariosRouteWithChildren
+  '/api/voice-engine/voices': typeof ApiVoiceEngineVoicesRouteWithChildren
+  '/api/workspace/events': typeof ApiWorkspaceEventsRoute
+  '/api/workspace/memory-files': typeof ApiWorkspaceMemoryFilesRoute
+  '/api/workspace/skills': typeof ApiWorkspaceSkillsRoute
+  '/voice/calls/$id': typeof VoiceCallsIdRoute
   '/api/integrations': typeof ApiIntegrationsIndexRoute
   '/api/tasks': typeof ApiTasksIndexRoute
+  '/api/users': typeof ApiUsersIndexRoute
   '/api/cli-agents/$pid/kill': typeof ApiCliAgentsPidKillRoute
   '/api/cron/runs/$jobId': typeof ApiCronRunsJobIdRoute
   '/api/gmail/oauth/callback': typeof ApiGmailOauthCallbackRoute
@@ -1465,13 +1808,23 @@ export interface FileRoutesByTo {
   '/api/hubspot/oauth/start': typeof ApiHubspotOauthStartRoute
   '/api/hubspot/oauth/status': typeof ApiHubspotOauthStatusRoute
   '/api/linkedin/auth/start': typeof ApiLinkedinAuthStartRoute
+  '/api/media/render-status/$jobId': typeof ApiMediaRenderStatusJobIdRoute
   '/api/media/status/$jobId': typeof ApiMediaStatusJobIdRoute
+  '/api/media/stream/$jobId': typeof ApiMediaStreamJobIdRoute
   '/api/postiz/oauth/callback': typeof ApiPostizOauthCallbackRoute
   '/api/postiz/oauth/start': typeof ApiPostizOauthStartRoute
   '/api/postiz/oauth/status': typeof ApiPostizOauthStatusRoute
   '/api/sessions/$sessionKey/status': typeof ApiSessionsSessionKeyStatusRoute
+  '/api/voice-engine/calls/$id': typeof ApiVoiceEngineCallsIdRouteWithChildren
+  '/api/voice-engine/scenarios/$id': typeof ApiVoiceEngineScenariosIdRouteWithChildren
+  '/api/voice-engine/voices/clone': typeof ApiVoiceEngineVoicesCloneRoute
   '/api/gateway/approvals': typeof ApiGatewayApprovalsIndexRoute
   '/api/gateway/approvals/$approvalId/$action': typeof ApiGatewayApprovalsApprovalIdActionRoute
+  '/api/voice-engine/calls/$id/promote-scenario': typeof ApiVoiceEngineCallsIdPromoteScenarioRoute
+  '/api/voice-engine/org/$orgId/voice-config': typeof ApiVoiceEngineOrgOrgIdVoiceConfigRoute
+  '/api/voice-engine/scenarios/$id/performance': typeof ApiVoiceEngineScenariosIdPerformanceRoute
+  '/api/voice-engine/scenarios/$id/suggest-improvements': typeof ApiVoiceEngineScenariosIdSuggestImprovementsRoute
+  '/api/voice-engine/voices/$id/preview': typeof ApiVoiceEngineVoicesIdPreviewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -1481,6 +1834,7 @@ export interface FileRoutesById {
   '/agent-swarm': typeof AgentSwarmRoute
   '/agents': typeof AgentsRoute
   '/ask': typeof AskRoute
+  '/attention': typeof AttentionRoute
   '/channels': typeof ChannelsRoute
   '/conductor': typeof ConductorRoute
   '/connect': typeof ConnectRoute
@@ -1496,25 +1850,32 @@ export interface FileRoutesById {
   '/integrations': typeof IntegrationsRoute
   '/linkedin': typeof LinkedinRoute
   '/logs': typeof LogsRoute
-  '/media': typeof MediaRoute
+  '/media': typeof MediaRouteWithChildren
   '/memory': typeof MemoryRoute
   '/new': typeof NewRoute
   '/nodes': typeof NodesRoute
+  '/octogent': typeof OctogentRoute
   '/operations': typeof OperationsRoute
   '/postiz': typeof PostizRoute
+  '/rpc-console': typeof RpcConsoleRoute
   '/rss': typeof RssRoute
+  '/security': typeof SecurityRoute
   '/sessions': typeof SessionsRoute
   '/settings': typeof SettingsRouteWithChildren
   '/skills': typeof SkillsRoute
   '/tasks': typeof TasksRoute
   '/terminal': typeof TerminalRoute
   '/usage': typeof UsageRoute
+  '/users': typeof UsersRoute
+  '/voice': typeof VoiceRouteWithChildren
+  '/voice-preview': typeof VoicePreviewRoute
   '/wizard': typeof WizardRoute
   '/api/agent-activity': typeof ApiAgentActivityRoute
   '/api/agent-dispatch': typeof ApiAgentDispatchRoute
   '/api/agent-kill': typeof ApiAgentKillRoute
   '/api/agent-pause': typeof ApiAgentPauseRoute
   '/api/agent-steer': typeof ApiAgentSteerRoute
+  '/api/attention': typeof ApiAttentionRoute
   '/api/auth': typeof ApiAuthRoute
   '/api/auth-check': typeof ApiAuthCheckRoute
   '/api/autonomy-status': typeof ApiAutonomyStatusRoute
@@ -1566,10 +1927,16 @@ export interface FileRoutesById {
   '/api/usage': typeof ApiUsageRoute
   '/api/usage-analytics': typeof ApiUsageAnalyticsRoute
   '/api/validate-provider': typeof ApiValidateProviderRoute
-  '/api/workspace': typeof ApiWorkspaceRoute
+  '/api/workspace': typeof ApiWorkspaceRouteWithChildren
   '/chat/$sessionKey': typeof ChatSessionKeyRoute
   '/gateway/logs': typeof GatewayLogsRoute
+  '/media/walkthroughs': typeof MediaWalkthroughsRoute
   '/settings/providers': typeof SettingsProvidersRoute
+  '/voice/agents': typeof VoiceAgentsRoute
+  '/voice/grok-chat': typeof VoiceGrokChatRoute
+  '/voice/hume-chat': typeof VoiceHumeChatRoute
+  '/voice/settings': typeof VoiceSettingsRoute
+  '/voice/voices': typeof VoiceVoicesRoute
   '/chat/': typeof ChatIndexRoute
   '/settings/': typeof SettingsIndexRoute
   '/api/browser/navigate': typeof ApiBrowserNavigateRoute
@@ -1592,6 +1959,7 @@ export interface FileRoutesById {
   '/api/gateway/channels': typeof ApiGatewayChannelsRoute
   '/api/gateway/logs': typeof ApiGatewayLogsRoute
   '/api/gateway/nodes': typeof ApiGatewayNodesRoute
+  '/api/gateway/rpc': typeof ApiGatewayRpcRoute
   '/api/gateway/sessions': typeof ApiGatewaySessionsRoute
   '/api/gateway/status': typeof ApiGatewayStatusRoute
   '/api/gateway/usage': typeof ApiGatewayUsageRoute
@@ -1622,7 +1990,10 @@ export interface FileRoutesById {
   '/api/linkedin/webhook': typeof ApiLinkedinWebhookRoute
   '/api/llm/local': typeof ApiLlmLocalRoute
   '/api/media/generate': typeof ApiMediaGenerateRoute
+  '/api/media/render': typeof ApiMediaRenderRoute
   '/api/media/skills': typeof ApiMediaSkillsRoute
+  '/api/media/subscribe': typeof ApiMediaSubscribeRoute
+  '/api/media/walkthroughs': typeof ApiMediaWalkthroughsRoute
   '/api/memory/list': typeof ApiMemoryListRoute
   '/api/memory/read': typeof ApiMemoryReadRoute
   '/api/memory/search': typeof ApiMemorySearchRoute
@@ -1636,11 +2007,26 @@ export interface FileRoutesById {
   '/api/rss/autopost': typeof ApiRssAutopostRoute
   '/api/rss/autopost-config': typeof ApiRssAutopostConfigRoute
   '/api/rss/feed': typeof ApiRssFeedRoute
+  '/api/security/posture': typeof ApiSecurityPostureRoute
   '/api/sessions/send': typeof ApiSessionsSendRoute
   '/api/social/dispatch': typeof ApiSocialDispatchRoute
   '/api/tasks/$taskId': typeof ApiTasksTaskIdRoute
+  '/api/twilio/hume-voice': typeof ApiTwilioHumeVoiceRoute
+  '/api/users/$id': typeof ApiUsersIdRoute
+  '/api/voice-engine/calls': typeof ApiVoiceEngineCallsRouteWithChildren
+  '/api/voice-engine/context': typeof ApiVoiceEngineContextRoute
+  '/api/voice-engine/customize-scenario': typeof ApiVoiceEngineCustomizeScenarioRoute
+  '/api/voice-engine/grok-token': typeof ApiVoiceEngineGrokTokenRoute
+  '/api/voice-engine/hume-token': typeof ApiVoiceEngineHumeTokenRoute
+  '/api/voice-engine/scenarios': typeof ApiVoiceEngineScenariosRouteWithChildren
+  '/api/voice-engine/voices': typeof ApiVoiceEngineVoicesRouteWithChildren
+  '/api/workspace/events': typeof ApiWorkspaceEventsRoute
+  '/api/workspace/memory-files': typeof ApiWorkspaceMemoryFilesRoute
+  '/api/workspace/skills': typeof ApiWorkspaceSkillsRoute
+  '/voice/calls/$id': typeof VoiceCallsIdRoute
   '/api/integrations/': typeof ApiIntegrationsIndexRoute
   '/api/tasks/': typeof ApiTasksIndexRoute
+  '/api/users/': typeof ApiUsersIndexRoute
   '/api/cli-agents/$pid/kill': typeof ApiCliAgentsPidKillRoute
   '/api/cron/runs/$jobId': typeof ApiCronRunsJobIdRoute
   '/api/gmail/oauth/callback': typeof ApiGmailOauthCallbackRoute
@@ -1650,13 +2036,23 @@ export interface FileRoutesById {
   '/api/hubspot/oauth/start': typeof ApiHubspotOauthStartRoute
   '/api/hubspot/oauth/status': typeof ApiHubspotOauthStatusRoute
   '/api/linkedin/auth/start': typeof ApiLinkedinAuthStartRoute
+  '/api/media/render-status/$jobId': typeof ApiMediaRenderStatusJobIdRoute
   '/api/media/status/$jobId': typeof ApiMediaStatusJobIdRoute
+  '/api/media/stream/$jobId': typeof ApiMediaStreamJobIdRoute
   '/api/postiz/oauth/callback': typeof ApiPostizOauthCallbackRoute
   '/api/postiz/oauth/start': typeof ApiPostizOauthStartRoute
   '/api/postiz/oauth/status': typeof ApiPostizOauthStatusRoute
   '/api/sessions/$sessionKey/status': typeof ApiSessionsSessionKeyStatusRoute
+  '/api/voice-engine/calls/$id': typeof ApiVoiceEngineCallsIdRouteWithChildren
+  '/api/voice-engine/scenarios/$id': typeof ApiVoiceEngineScenariosIdRouteWithChildren
+  '/api/voice-engine/voices/clone': typeof ApiVoiceEngineVoicesCloneRoute
   '/api/gateway/approvals/': typeof ApiGatewayApprovalsIndexRoute
   '/api/gateway/approvals/$approvalId/$action': typeof ApiGatewayApprovalsApprovalIdActionRoute
+  '/api/voice-engine/calls/$id/promote-scenario': typeof ApiVoiceEngineCallsIdPromoteScenarioRoute
+  '/api/voice-engine/org/$orgId/voice-config': typeof ApiVoiceEngineOrgOrgIdVoiceConfigRoute
+  '/api/voice-engine/scenarios/$id/performance': typeof ApiVoiceEngineScenariosIdPerformanceRoute
+  '/api/voice-engine/scenarios/$id/suggest-improvements': typeof ApiVoiceEngineScenariosIdSuggestImprovementsRoute
+  '/api/voice-engine/voices/$id/preview': typeof ApiVoiceEngineVoicesIdPreviewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1667,6 +2063,7 @@ export interface FileRouteTypes {
     | '/agent-swarm'
     | '/agents'
     | '/ask'
+    | '/attention'
     | '/channels'
     | '/conductor'
     | '/connect'
@@ -1686,21 +2083,28 @@ export interface FileRouteTypes {
     | '/memory'
     | '/new'
     | '/nodes'
+    | '/octogent'
     | '/operations'
     | '/postiz'
+    | '/rpc-console'
     | '/rss'
+    | '/security'
     | '/sessions'
     | '/settings'
     | '/skills'
     | '/tasks'
     | '/terminal'
     | '/usage'
+    | '/users'
+    | '/voice'
+    | '/voice-preview'
     | '/wizard'
     | '/api/agent-activity'
     | '/api/agent-dispatch'
     | '/api/agent-kill'
     | '/api/agent-pause'
     | '/api/agent-steer'
+    | '/api/attention'
     | '/api/auth'
     | '/api/auth-check'
     | '/api/autonomy-status'
@@ -1755,7 +2159,13 @@ export interface FileRouteTypes {
     | '/api/workspace'
     | '/chat/$sessionKey'
     | '/gateway/logs'
+    | '/media/walkthroughs'
     | '/settings/providers'
+    | '/voice/agents'
+    | '/voice/grok-chat'
+    | '/voice/hume-chat'
+    | '/voice/settings'
+    | '/voice/voices'
     | '/chat/'
     | '/settings/'
     | '/api/browser/navigate'
@@ -1778,6 +2188,7 @@ export interface FileRouteTypes {
     | '/api/gateway/channels'
     | '/api/gateway/logs'
     | '/api/gateway/nodes'
+    | '/api/gateway/rpc'
     | '/api/gateway/sessions'
     | '/api/gateway/status'
     | '/api/gateway/usage'
@@ -1808,7 +2219,10 @@ export interface FileRouteTypes {
     | '/api/linkedin/webhook'
     | '/api/llm/local'
     | '/api/media/generate'
+    | '/api/media/render'
     | '/api/media/skills'
+    | '/api/media/subscribe'
+    | '/api/media/walkthroughs'
     | '/api/memory/list'
     | '/api/memory/read'
     | '/api/memory/search'
@@ -1822,11 +2236,26 @@ export interface FileRouteTypes {
     | '/api/rss/autopost'
     | '/api/rss/autopost-config'
     | '/api/rss/feed'
+    | '/api/security/posture'
     | '/api/sessions/send'
     | '/api/social/dispatch'
     | '/api/tasks/$taskId'
+    | '/api/twilio/hume-voice'
+    | '/api/users/$id'
+    | '/api/voice-engine/calls'
+    | '/api/voice-engine/context'
+    | '/api/voice-engine/customize-scenario'
+    | '/api/voice-engine/grok-token'
+    | '/api/voice-engine/hume-token'
+    | '/api/voice-engine/scenarios'
+    | '/api/voice-engine/voices'
+    | '/api/workspace/events'
+    | '/api/workspace/memory-files'
+    | '/api/workspace/skills'
+    | '/voice/calls/$id'
     | '/api/integrations/'
     | '/api/tasks/'
+    | '/api/users/'
     | '/api/cli-agents/$pid/kill'
     | '/api/cron/runs/$jobId'
     | '/api/gmail/oauth/callback'
@@ -1836,13 +2265,23 @@ export interface FileRouteTypes {
     | '/api/hubspot/oauth/start'
     | '/api/hubspot/oauth/status'
     | '/api/linkedin/auth/start'
+    | '/api/media/render-status/$jobId'
     | '/api/media/status/$jobId'
+    | '/api/media/stream/$jobId'
     | '/api/postiz/oauth/callback'
     | '/api/postiz/oauth/start'
     | '/api/postiz/oauth/status'
     | '/api/sessions/$sessionKey/status'
+    | '/api/voice-engine/calls/$id'
+    | '/api/voice-engine/scenarios/$id'
+    | '/api/voice-engine/voices/clone'
     | '/api/gateway/approvals/'
     | '/api/gateway/approvals/$approvalId/$action'
+    | '/api/voice-engine/calls/$id/promote-scenario'
+    | '/api/voice-engine/org/$orgId/voice-config'
+    | '/api/voice-engine/scenarios/$id/performance'
+    | '/api/voice-engine/scenarios/$id/suggest-improvements'
+    | '/api/voice-engine/voices/$id/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1851,6 +2290,7 @@ export interface FileRouteTypes {
     | '/agent-swarm'
     | '/agents'
     | '/ask'
+    | '/attention'
     | '/channels'
     | '/conductor'
     | '/connect'
@@ -1870,20 +2310,27 @@ export interface FileRouteTypes {
     | '/memory'
     | '/new'
     | '/nodes'
+    | '/octogent'
     | '/operations'
     | '/postiz'
+    | '/rpc-console'
     | '/rss'
+    | '/security'
     | '/sessions'
     | '/skills'
     | '/tasks'
     | '/terminal'
     | '/usage'
+    | '/users'
+    | '/voice'
+    | '/voice-preview'
     | '/wizard'
     | '/api/agent-activity'
     | '/api/agent-dispatch'
     | '/api/agent-kill'
     | '/api/agent-pause'
     | '/api/agent-steer'
+    | '/api/attention'
     | '/api/auth'
     | '/api/auth-check'
     | '/api/autonomy-status'
@@ -1938,7 +2385,13 @@ export interface FileRouteTypes {
     | '/api/workspace'
     | '/chat/$sessionKey'
     | '/gateway/logs'
+    | '/media/walkthroughs'
     | '/settings/providers'
+    | '/voice/agents'
+    | '/voice/grok-chat'
+    | '/voice/hume-chat'
+    | '/voice/settings'
+    | '/voice/voices'
     | '/chat'
     | '/settings'
     | '/api/browser/navigate'
@@ -1961,6 +2414,7 @@ export interface FileRouteTypes {
     | '/api/gateway/channels'
     | '/api/gateway/logs'
     | '/api/gateway/nodes'
+    | '/api/gateway/rpc'
     | '/api/gateway/sessions'
     | '/api/gateway/status'
     | '/api/gateway/usage'
@@ -1991,7 +2445,10 @@ export interface FileRouteTypes {
     | '/api/linkedin/webhook'
     | '/api/llm/local'
     | '/api/media/generate'
+    | '/api/media/render'
     | '/api/media/skills'
+    | '/api/media/subscribe'
+    | '/api/media/walkthroughs'
     | '/api/memory/list'
     | '/api/memory/read'
     | '/api/memory/search'
@@ -2005,11 +2462,26 @@ export interface FileRouteTypes {
     | '/api/rss/autopost'
     | '/api/rss/autopost-config'
     | '/api/rss/feed'
+    | '/api/security/posture'
     | '/api/sessions/send'
     | '/api/social/dispatch'
     | '/api/tasks/$taskId'
+    | '/api/twilio/hume-voice'
+    | '/api/users/$id'
+    | '/api/voice-engine/calls'
+    | '/api/voice-engine/context'
+    | '/api/voice-engine/customize-scenario'
+    | '/api/voice-engine/grok-token'
+    | '/api/voice-engine/hume-token'
+    | '/api/voice-engine/scenarios'
+    | '/api/voice-engine/voices'
+    | '/api/workspace/events'
+    | '/api/workspace/memory-files'
+    | '/api/workspace/skills'
+    | '/voice/calls/$id'
     | '/api/integrations'
     | '/api/tasks'
+    | '/api/users'
     | '/api/cli-agents/$pid/kill'
     | '/api/cron/runs/$jobId'
     | '/api/gmail/oauth/callback'
@@ -2019,13 +2491,23 @@ export interface FileRouteTypes {
     | '/api/hubspot/oauth/start'
     | '/api/hubspot/oauth/status'
     | '/api/linkedin/auth/start'
+    | '/api/media/render-status/$jobId'
     | '/api/media/status/$jobId'
+    | '/api/media/stream/$jobId'
     | '/api/postiz/oauth/callback'
     | '/api/postiz/oauth/start'
     | '/api/postiz/oauth/status'
     | '/api/sessions/$sessionKey/status'
+    | '/api/voice-engine/calls/$id'
+    | '/api/voice-engine/scenarios/$id'
+    | '/api/voice-engine/voices/clone'
     | '/api/gateway/approvals'
     | '/api/gateway/approvals/$approvalId/$action'
+    | '/api/voice-engine/calls/$id/promote-scenario'
+    | '/api/voice-engine/org/$orgId/voice-config'
+    | '/api/voice-engine/scenarios/$id/performance'
+    | '/api/voice-engine/scenarios/$id/suggest-improvements'
+    | '/api/voice-engine/voices/$id/preview'
   id:
     | '__root__'
     | '/'
@@ -2034,6 +2516,7 @@ export interface FileRouteTypes {
     | '/agent-swarm'
     | '/agents'
     | '/ask'
+    | '/attention'
     | '/channels'
     | '/conductor'
     | '/connect'
@@ -2053,21 +2536,28 @@ export interface FileRouteTypes {
     | '/memory'
     | '/new'
     | '/nodes'
+    | '/octogent'
     | '/operations'
     | '/postiz'
+    | '/rpc-console'
     | '/rss'
+    | '/security'
     | '/sessions'
     | '/settings'
     | '/skills'
     | '/tasks'
     | '/terminal'
     | '/usage'
+    | '/users'
+    | '/voice'
+    | '/voice-preview'
     | '/wizard'
     | '/api/agent-activity'
     | '/api/agent-dispatch'
     | '/api/agent-kill'
     | '/api/agent-pause'
     | '/api/agent-steer'
+    | '/api/attention'
     | '/api/auth'
     | '/api/auth-check'
     | '/api/autonomy-status'
@@ -2122,7 +2612,13 @@ export interface FileRouteTypes {
     | '/api/workspace'
     | '/chat/$sessionKey'
     | '/gateway/logs'
+    | '/media/walkthroughs'
     | '/settings/providers'
+    | '/voice/agents'
+    | '/voice/grok-chat'
+    | '/voice/hume-chat'
+    | '/voice/settings'
+    | '/voice/voices'
     | '/chat/'
     | '/settings/'
     | '/api/browser/navigate'
@@ -2145,6 +2641,7 @@ export interface FileRouteTypes {
     | '/api/gateway/channels'
     | '/api/gateway/logs'
     | '/api/gateway/nodes'
+    | '/api/gateway/rpc'
     | '/api/gateway/sessions'
     | '/api/gateway/status'
     | '/api/gateway/usage'
@@ -2175,7 +2672,10 @@ export interface FileRouteTypes {
     | '/api/linkedin/webhook'
     | '/api/llm/local'
     | '/api/media/generate'
+    | '/api/media/render'
     | '/api/media/skills'
+    | '/api/media/subscribe'
+    | '/api/media/walkthroughs'
     | '/api/memory/list'
     | '/api/memory/read'
     | '/api/memory/search'
@@ -2189,11 +2689,26 @@ export interface FileRouteTypes {
     | '/api/rss/autopost'
     | '/api/rss/autopost-config'
     | '/api/rss/feed'
+    | '/api/security/posture'
     | '/api/sessions/send'
     | '/api/social/dispatch'
     | '/api/tasks/$taskId'
+    | '/api/twilio/hume-voice'
+    | '/api/users/$id'
+    | '/api/voice-engine/calls'
+    | '/api/voice-engine/context'
+    | '/api/voice-engine/customize-scenario'
+    | '/api/voice-engine/grok-token'
+    | '/api/voice-engine/hume-token'
+    | '/api/voice-engine/scenarios'
+    | '/api/voice-engine/voices'
+    | '/api/workspace/events'
+    | '/api/workspace/memory-files'
+    | '/api/workspace/skills'
+    | '/voice/calls/$id'
     | '/api/integrations/'
     | '/api/tasks/'
+    | '/api/users/'
     | '/api/cli-agents/$pid/kill'
     | '/api/cron/runs/$jobId'
     | '/api/gmail/oauth/callback'
@@ -2203,13 +2718,23 @@ export interface FileRouteTypes {
     | '/api/hubspot/oauth/start'
     | '/api/hubspot/oauth/status'
     | '/api/linkedin/auth/start'
+    | '/api/media/render-status/$jobId'
     | '/api/media/status/$jobId'
+    | '/api/media/stream/$jobId'
     | '/api/postiz/oauth/callback'
     | '/api/postiz/oauth/start'
     | '/api/postiz/oauth/status'
     | '/api/sessions/$sessionKey/status'
+    | '/api/voice-engine/calls/$id'
+    | '/api/voice-engine/scenarios/$id'
+    | '/api/voice-engine/voices/clone'
     | '/api/gateway/approvals/'
     | '/api/gateway/approvals/$approvalId/$action'
+    | '/api/voice-engine/calls/$id/promote-scenario'
+    | '/api/voice-engine/org/$orgId/voice-config'
+    | '/api/voice-engine/scenarios/$id/performance'
+    | '/api/voice-engine/scenarios/$id/suggest-improvements'
+    | '/api/voice-engine/voices/$id/preview'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -2219,6 +2744,7 @@ export interface RootRouteChildren {
   AgentSwarmRoute: typeof AgentSwarmRoute
   AgentsRoute: typeof AgentsRoute
   AskRoute: typeof AskRoute
+  AttentionRoute: typeof AttentionRoute
   ChannelsRoute: typeof ChannelsRoute
   ConductorRoute: typeof ConductorRoute
   ConnectRoute: typeof ConnectRoute
@@ -2234,25 +2760,32 @@ export interface RootRouteChildren {
   IntegrationsRoute: typeof IntegrationsRoute
   LinkedinRoute: typeof LinkedinRoute
   LogsRoute: typeof LogsRoute
-  MediaRoute: typeof MediaRoute
+  MediaRoute: typeof MediaRouteWithChildren
   MemoryRoute: typeof MemoryRoute
   NewRoute: typeof NewRoute
   NodesRoute: typeof NodesRoute
+  OctogentRoute: typeof OctogentRoute
   OperationsRoute: typeof OperationsRoute
   PostizRoute: typeof PostizRoute
+  RpcConsoleRoute: typeof RpcConsoleRoute
   RssRoute: typeof RssRoute
+  SecurityRoute: typeof SecurityRoute
   SessionsRoute: typeof SessionsRoute
   SettingsRoute: typeof SettingsRouteWithChildren
   SkillsRoute: typeof SkillsRoute
   TasksRoute: typeof TasksRoute
   TerminalRoute: typeof TerminalRoute
   UsageRoute: typeof UsageRoute
+  UsersRoute: typeof UsersRoute
+  VoiceRoute: typeof VoiceRouteWithChildren
+  VoicePreviewRoute: typeof VoicePreviewRoute
   WizardRoute: typeof WizardRoute
   ApiAgentActivityRoute: typeof ApiAgentActivityRoute
   ApiAgentDispatchRoute: typeof ApiAgentDispatchRoute
   ApiAgentKillRoute: typeof ApiAgentKillRoute
   ApiAgentPauseRoute: typeof ApiAgentPauseRoute
   ApiAgentSteerRoute: typeof ApiAgentSteerRoute
+  ApiAttentionRoute: typeof ApiAttentionRoute
   ApiAuthRoute: typeof ApiAuthRoute
   ApiAuthCheckRoute: typeof ApiAuthCheckRoute
   ApiAutonomyStatusRoute: typeof ApiAutonomyStatusRoute
@@ -2304,7 +2837,7 @@ export interface RootRouteChildren {
   ApiUsageRoute: typeof ApiUsageRoute
   ApiUsageAnalyticsRoute: typeof ApiUsageAnalyticsRoute
   ApiValidateProviderRoute: typeof ApiValidateProviderRoute
-  ApiWorkspaceRoute: typeof ApiWorkspaceRoute
+  ApiWorkspaceRoute: typeof ApiWorkspaceRouteWithChildren
   ChatSessionKeyRoute: typeof ChatSessionKeyRoute
   ChatIndexRoute: typeof ChatIndexRoute
   ApiCloudProvisionRoute: typeof ApiCloudProvisionRoute
@@ -2316,6 +2849,7 @@ export interface RootRouteChildren {
   ApiGatewayChannelsRoute: typeof ApiGatewayChannelsRoute
   ApiGatewayLogsRoute: typeof ApiGatewayLogsRoute
   ApiGatewayNodesRoute: typeof ApiGatewayNodesRoute
+  ApiGatewayRpcRoute: typeof ApiGatewayRpcRoute
   ApiGatewaySessionsRoute: typeof ApiGatewaySessionsRoute
   ApiGatewayStatusRoute: typeof ApiGatewayStatusRoute
   ApiGatewayUsageRoute: typeof ApiGatewayUsageRoute
@@ -2346,7 +2880,10 @@ export interface RootRouteChildren {
   ApiLinkedinWebhookRoute: typeof ApiLinkedinWebhookRoute
   ApiLlmLocalRoute: typeof ApiLlmLocalRoute
   ApiMediaGenerateRoute: typeof ApiMediaGenerateRoute
+  ApiMediaRenderRoute: typeof ApiMediaRenderRoute
   ApiMediaSkillsRoute: typeof ApiMediaSkillsRoute
+  ApiMediaSubscribeRoute: typeof ApiMediaSubscribeRoute
+  ApiMediaWalkthroughsRoute: typeof ApiMediaWalkthroughsRoute
   ApiMemoryListRoute: typeof ApiMemoryListRoute
   ApiMemoryReadRoute: typeof ApiMemoryReadRoute
   ApiMemorySearchRoute: typeof ApiMemorySearchRoute
@@ -2360,14 +2897,28 @@ export interface RootRouteChildren {
   ApiRssAutopostRoute: typeof ApiRssAutopostRoute
   ApiRssAutopostConfigRoute: typeof ApiRssAutopostConfigRoute
   ApiRssFeedRoute: typeof ApiRssFeedRoute
+  ApiSecurityPostureRoute: typeof ApiSecurityPostureRoute
   ApiSocialDispatchRoute: typeof ApiSocialDispatchRoute
   ApiTasksTaskIdRoute: typeof ApiTasksTaskIdRoute
+  ApiTwilioHumeVoiceRoute: typeof ApiTwilioHumeVoiceRoute
+  ApiUsersIdRoute: typeof ApiUsersIdRoute
+  ApiVoiceEngineCallsRoute: typeof ApiVoiceEngineCallsRouteWithChildren
+  ApiVoiceEngineContextRoute: typeof ApiVoiceEngineContextRoute
+  ApiVoiceEngineCustomizeScenarioRoute: typeof ApiVoiceEngineCustomizeScenarioRoute
+  ApiVoiceEngineGrokTokenRoute: typeof ApiVoiceEngineGrokTokenRoute
+  ApiVoiceEngineHumeTokenRoute: typeof ApiVoiceEngineHumeTokenRoute
+  ApiVoiceEngineScenariosRoute: typeof ApiVoiceEngineScenariosRouteWithChildren
+  ApiVoiceEngineVoicesRoute: typeof ApiVoiceEngineVoicesRouteWithChildren
   ApiIntegrationsIndexRoute: typeof ApiIntegrationsIndexRoute
   ApiTasksIndexRoute: typeof ApiTasksIndexRoute
+  ApiUsersIndexRoute: typeof ApiUsersIndexRoute
   ApiLinkedinAuthStartRoute: typeof ApiLinkedinAuthStartRoute
+  ApiMediaRenderStatusJobIdRoute: typeof ApiMediaRenderStatusJobIdRoute
   ApiMediaStatusJobIdRoute: typeof ApiMediaStatusJobIdRoute
+  ApiMediaStreamJobIdRoute: typeof ApiMediaStreamJobIdRoute
   ApiGatewayApprovalsIndexRoute: typeof ApiGatewayApprovalsIndexRoute
   ApiGatewayApprovalsApprovalIdActionRoute: typeof ApiGatewayApprovalsApprovalIdActionRoute
+  ApiVoiceEngineOrgOrgIdVoiceConfigRoute: typeof ApiVoiceEngineOrgOrgIdVoiceConfigRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -2377,6 +2928,27 @@ declare module '@tanstack/react-router' {
       path: '/wizard'
       fullPath: '/wizard'
       preLoaderRoute: typeof WizardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/voice-preview': {
+      id: '/voice-preview'
+      path: '/voice-preview'
+      fullPath: '/voice-preview'
+      preLoaderRoute: typeof VoicePreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/voice': {
+      id: '/voice'
+      path: '/voice'
+      fullPath: '/voice'
+      preLoaderRoute: typeof VoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/users': {
+      id: '/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof UsersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/usage': {
@@ -2421,11 +2993,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SessionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rss': {
       id: '/rss'
       path: '/rss'
       fullPath: '/rss'
       preLoaderRoute: typeof RssRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rpc-console': {
+      id: '/rpc-console'
+      path: '/rpc-console'
+      fullPath: '/rpc-console'
+      preLoaderRoute: typeof RpcConsoleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/postiz': {
@@ -2440,6 +3026,13 @@ declare module '@tanstack/react-router' {
       path: '/operations'
       fullPath: '/operations'
       preLoaderRoute: typeof OperationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/octogent': {
+      id: '/octogent'
+      path: '/octogent'
+      fullPath: '/octogent'
+      preLoaderRoute: typeof OctogentRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/nodes': {
@@ -2575,6 +3168,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChannelsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/attention': {
+      id: '/attention'
+      path: '/attention'
+      fullPath: '/attention'
+      preLoaderRoute: typeof AttentionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ask': {
       id: '/ask'
       path: '/ask'
@@ -2631,12 +3231,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChatIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/voice/voices': {
+      id: '/voice/voices'
+      path: '/voices'
+      fullPath: '/voice/voices'
+      preLoaderRoute: typeof VoiceVoicesRouteImport
+      parentRoute: typeof VoiceRoute
+    }
+    '/voice/settings': {
+      id: '/voice/settings'
+      path: '/settings'
+      fullPath: '/voice/settings'
+      preLoaderRoute: typeof VoiceSettingsRouteImport
+      parentRoute: typeof VoiceRoute
+    }
+    '/voice/hume-chat': {
+      id: '/voice/hume-chat'
+      path: '/hume-chat'
+      fullPath: '/voice/hume-chat'
+      preLoaderRoute: typeof VoiceHumeChatRouteImport
+      parentRoute: typeof VoiceRoute
+    }
+    '/voice/grok-chat': {
+      id: '/voice/grok-chat'
+      path: '/grok-chat'
+      fullPath: '/voice/grok-chat'
+      preLoaderRoute: typeof VoiceGrokChatRouteImport
+      parentRoute: typeof VoiceRoute
+    }
+    '/voice/agents': {
+      id: '/voice/agents'
+      path: '/agents'
+      fullPath: '/voice/agents'
+      preLoaderRoute: typeof VoiceAgentsRouteImport
+      parentRoute: typeof VoiceRoute
+    }
     '/settings/providers': {
       id: '/settings/providers'
       path: '/providers'
       fullPath: '/settings/providers'
       preLoaderRoute: typeof SettingsProvidersRouteImport
       parentRoute: typeof SettingsRoute
+    }
+    '/media/walkthroughs': {
+      id: '/media/walkthroughs'
+      path: '/walkthroughs'
+      fullPath: '/media/walkthroughs'
+      preLoaderRoute: typeof MediaWalkthroughsRouteImport
+      parentRoute: typeof MediaRoute
     }
     '/gateway/logs': {
       id: '/gateway/logs'
@@ -3016,6 +3658,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/attention': {
+      id: '/api/attention'
+      path: '/api/attention'
+      fullPath: '/api/attention'
+      preLoaderRoute: typeof ApiAttentionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/agent-steer': {
       id: '/api/agent-steer'
       path: '/api/agent-steer'
@@ -3051,6 +3700,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAgentActivityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/users/': {
+      id: '/api/users/'
+      path: '/api/users'
+      fullPath: '/api/users/'
+      preLoaderRoute: typeof ApiUsersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/tasks/': {
       id: '/api/tasks/'
       path: '/api/tasks'
@@ -3063,6 +3719,97 @@ declare module '@tanstack/react-router' {
       path: '/api/integrations'
       fullPath: '/api/integrations/'
       preLoaderRoute: typeof ApiIntegrationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/voice/calls/$id': {
+      id: '/voice/calls/$id'
+      path: '/calls/$id'
+      fullPath: '/voice/calls/$id'
+      preLoaderRoute: typeof VoiceCallsIdRouteImport
+      parentRoute: typeof VoiceRoute
+    }
+    '/api/workspace/skills': {
+      id: '/api/workspace/skills'
+      path: '/skills'
+      fullPath: '/api/workspace/skills'
+      preLoaderRoute: typeof ApiWorkspaceSkillsRouteImport
+      parentRoute: typeof ApiWorkspaceRoute
+    }
+    '/api/workspace/memory-files': {
+      id: '/api/workspace/memory-files'
+      path: '/memory-files'
+      fullPath: '/api/workspace/memory-files'
+      preLoaderRoute: typeof ApiWorkspaceMemoryFilesRouteImport
+      parentRoute: typeof ApiWorkspaceRoute
+    }
+    '/api/workspace/events': {
+      id: '/api/workspace/events'
+      path: '/events'
+      fullPath: '/api/workspace/events'
+      preLoaderRoute: typeof ApiWorkspaceEventsRouteImport
+      parentRoute: typeof ApiWorkspaceRoute
+    }
+    '/api/voice-engine/voices': {
+      id: '/api/voice-engine/voices'
+      path: '/api/voice-engine/voices'
+      fullPath: '/api/voice-engine/voices'
+      preLoaderRoute: typeof ApiVoiceEngineVoicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/voice-engine/scenarios': {
+      id: '/api/voice-engine/scenarios'
+      path: '/api/voice-engine/scenarios'
+      fullPath: '/api/voice-engine/scenarios'
+      preLoaderRoute: typeof ApiVoiceEngineScenariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/voice-engine/hume-token': {
+      id: '/api/voice-engine/hume-token'
+      path: '/api/voice-engine/hume-token'
+      fullPath: '/api/voice-engine/hume-token'
+      preLoaderRoute: typeof ApiVoiceEngineHumeTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/voice-engine/grok-token': {
+      id: '/api/voice-engine/grok-token'
+      path: '/api/voice-engine/grok-token'
+      fullPath: '/api/voice-engine/grok-token'
+      preLoaderRoute: typeof ApiVoiceEngineGrokTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/voice-engine/customize-scenario': {
+      id: '/api/voice-engine/customize-scenario'
+      path: '/api/voice-engine/customize-scenario'
+      fullPath: '/api/voice-engine/customize-scenario'
+      preLoaderRoute: typeof ApiVoiceEngineCustomizeScenarioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/voice-engine/context': {
+      id: '/api/voice-engine/context'
+      path: '/api/voice-engine/context'
+      fullPath: '/api/voice-engine/context'
+      preLoaderRoute: typeof ApiVoiceEngineContextRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/voice-engine/calls': {
+      id: '/api/voice-engine/calls'
+      path: '/api/voice-engine/calls'
+      fullPath: '/api/voice-engine/calls'
+      preLoaderRoute: typeof ApiVoiceEngineCallsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/users/$id': {
+      id: '/api/users/$id'
+      path: '/api/users/$id'
+      fullPath: '/api/users/$id'
+      preLoaderRoute: typeof ApiUsersIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/twilio/hume-voice': {
+      id: '/api/twilio/hume-voice'
+      path: '/api/twilio/hume-voice'
+      fullPath: '/api/twilio/hume-voice'
+      preLoaderRoute: typeof ApiTwilioHumeVoiceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/tasks/$taskId': {
@@ -3085,6 +3832,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/sessions/send'
       preLoaderRoute: typeof ApiSessionsSendRouteImport
       parentRoute: typeof ApiSessionsRoute
+    }
+    '/api/security/posture': {
+      id: '/api/security/posture'
+      path: '/api/security/posture'
+      fullPath: '/api/security/posture'
+      preLoaderRoute: typeof ApiSecurityPostureRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/rss/feed': {
       id: '/api/rss/feed'
@@ -3177,11 +3931,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMemoryListRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/media/walkthroughs': {
+      id: '/api/media/walkthroughs'
+      path: '/api/media/walkthroughs'
+      fullPath: '/api/media/walkthroughs'
+      preLoaderRoute: typeof ApiMediaWalkthroughsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/media/subscribe': {
+      id: '/api/media/subscribe'
+      path: '/api/media/subscribe'
+      fullPath: '/api/media/subscribe'
+      preLoaderRoute: typeof ApiMediaSubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/media/skills': {
       id: '/api/media/skills'
       path: '/api/media/skills'
       fullPath: '/api/media/skills'
       preLoaderRoute: typeof ApiMediaSkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/media/render': {
+      id: '/api/media/render'
+      path: '/api/media/render'
+      fullPath: '/api/media/render'
+      preLoaderRoute: typeof ApiMediaRenderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/media/generate': {
@@ -3394,6 +4169,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGatewaySessionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/gateway/rpc': {
+      id: '/api/gateway/rpc'
+      path: '/api/gateway/rpc'
+      fullPath: '/api/gateway/rpc'
+      preLoaderRoute: typeof ApiGatewayRpcRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/gateway/nodes': {
       id: '/api/gateway/nodes'
       path: '/api/gateway/nodes'
@@ -3541,6 +4323,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGatewayApprovalsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/voice-engine/voices/clone': {
+      id: '/api/voice-engine/voices/clone'
+      path: '/clone'
+      fullPath: '/api/voice-engine/voices/clone'
+      preLoaderRoute: typeof ApiVoiceEngineVoicesCloneRouteImport
+      parentRoute: typeof ApiVoiceEngineVoicesRoute
+    }
+    '/api/voice-engine/scenarios/$id': {
+      id: '/api/voice-engine/scenarios/$id'
+      path: '/$id'
+      fullPath: '/api/voice-engine/scenarios/$id'
+      preLoaderRoute: typeof ApiVoiceEngineScenariosIdRouteImport
+      parentRoute: typeof ApiVoiceEngineScenariosRoute
+    }
+    '/api/voice-engine/calls/$id': {
+      id: '/api/voice-engine/calls/$id'
+      path: '/$id'
+      fullPath: '/api/voice-engine/calls/$id'
+      preLoaderRoute: typeof ApiVoiceEngineCallsIdRouteImport
+      parentRoute: typeof ApiVoiceEngineCallsRoute
+    }
     '/api/sessions/$sessionKey/status': {
       id: '/api/sessions/$sessionKey/status'
       path: '/$sessionKey/status'
@@ -3569,11 +4372,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPostizOauthCallbackRouteImport
       parentRoute: typeof ApiPostizOauthRoute
     }
+    '/api/media/stream/$jobId': {
+      id: '/api/media/stream/$jobId'
+      path: '/api/media/stream/$jobId'
+      fullPath: '/api/media/stream/$jobId'
+      preLoaderRoute: typeof ApiMediaStreamJobIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/media/status/$jobId': {
       id: '/api/media/status/$jobId'
       path: '/api/media/status/$jobId'
       fullPath: '/api/media/status/$jobId'
       preLoaderRoute: typeof ApiMediaStatusJobIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/media/render-status/$jobId': {
+      id: '/api/media/render-status/$jobId'
+      path: '/api/media/render-status/$jobId'
+      fullPath: '/api/media/render-status/$jobId'
+      preLoaderRoute: typeof ApiMediaRenderStatusJobIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/linkedin/auth/start': {
@@ -3639,6 +4456,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCliAgentsPidKillRouteImport
       parentRoute: typeof ApiCliAgentsRoute
     }
+    '/api/voice-engine/voices/$id/preview': {
+      id: '/api/voice-engine/voices/$id/preview'
+      path: '/$id/preview'
+      fullPath: '/api/voice-engine/voices/$id/preview'
+      preLoaderRoute: typeof ApiVoiceEngineVoicesIdPreviewRouteImport
+      parentRoute: typeof ApiVoiceEngineVoicesRoute
+    }
+    '/api/voice-engine/scenarios/$id/suggest-improvements': {
+      id: '/api/voice-engine/scenarios/$id/suggest-improvements'
+      path: '/suggest-improvements'
+      fullPath: '/api/voice-engine/scenarios/$id/suggest-improvements'
+      preLoaderRoute: typeof ApiVoiceEngineScenariosIdSuggestImprovementsRouteImport
+      parentRoute: typeof ApiVoiceEngineScenariosIdRoute
+    }
+    '/api/voice-engine/scenarios/$id/performance': {
+      id: '/api/voice-engine/scenarios/$id/performance'
+      path: '/performance'
+      fullPath: '/api/voice-engine/scenarios/$id/performance'
+      preLoaderRoute: typeof ApiVoiceEngineScenariosIdPerformanceRouteImport
+      parentRoute: typeof ApiVoiceEngineScenariosIdRoute
+    }
+    '/api/voice-engine/org/$orgId/voice-config': {
+      id: '/api/voice-engine/org/$orgId/voice-config'
+      path: '/api/voice-engine/org/$orgId/voice-config'
+      fullPath: '/api/voice-engine/org/$orgId/voice-config'
+      preLoaderRoute: typeof ApiVoiceEngineOrgOrgIdVoiceConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/voice-engine/calls/$id/promote-scenario': {
+      id: '/api/voice-engine/calls/$id/promote-scenario'
+      path: '/promote-scenario'
+      fullPath: '/api/voice-engine/calls/$id/promote-scenario'
+      preLoaderRoute: typeof ApiVoiceEngineCallsIdPromoteScenarioRouteImport
+      parentRoute: typeof ApiVoiceEngineCallsIdRoute
+    }
     '/api/gateway/approvals/$approvalId/$action': {
       id: '/api/gateway/approvals/$approvalId/$action'
       path: '/api/gateway/approvals/$approvalId/$action'
@@ -3660,6 +4512,16 @@ const GatewayRouteChildren: GatewayRouteChildren = {
 const GatewayRouteWithChildren =
   GatewayRoute._addFileChildren(GatewayRouteChildren)
 
+interface MediaRouteChildren {
+  MediaWalkthroughsRoute: typeof MediaWalkthroughsRoute
+}
+
+const MediaRouteChildren: MediaRouteChildren = {
+  MediaWalkthroughsRoute: MediaWalkthroughsRoute,
+}
+
+const MediaRouteWithChildren = MediaRoute._addFileChildren(MediaRouteChildren)
+
 interface SettingsRouteChildren {
   SettingsProvidersRoute: typeof SettingsProvidersRoute
   SettingsIndexRoute: typeof SettingsIndexRoute
@@ -3673,6 +4535,26 @@ const SettingsRouteChildren: SettingsRouteChildren = {
 const SettingsRouteWithChildren = SettingsRoute._addFileChildren(
   SettingsRouteChildren,
 )
+
+interface VoiceRouteChildren {
+  VoiceAgentsRoute: typeof VoiceAgentsRoute
+  VoiceGrokChatRoute: typeof VoiceGrokChatRoute
+  VoiceHumeChatRoute: typeof VoiceHumeChatRoute
+  VoiceSettingsRoute: typeof VoiceSettingsRoute
+  VoiceVoicesRoute: typeof VoiceVoicesRoute
+  VoiceCallsIdRoute: typeof VoiceCallsIdRoute
+}
+
+const VoiceRouteChildren: VoiceRouteChildren = {
+  VoiceAgentsRoute: VoiceAgentsRoute,
+  VoiceGrokChatRoute: VoiceGrokChatRoute,
+  VoiceHumeChatRoute: VoiceHumeChatRoute,
+  VoiceSettingsRoute: VoiceSettingsRoute,
+  VoiceVoicesRoute: VoiceVoicesRoute,
+  VoiceCallsIdRoute: VoiceCallsIdRoute,
+}
+
+const VoiceRouteWithChildren = VoiceRoute._addFileChildren(VoiceRouteChildren)
 
 interface ApiBrowserRouteChildren {
   ApiBrowserNavigateRoute: typeof ApiBrowserNavigateRoute
@@ -3753,6 +4635,22 @@ const ApiSessionsRouteWithChildren = ApiSessionsRoute._addFileChildren(
   ApiSessionsRouteChildren,
 )
 
+interface ApiWorkspaceRouteChildren {
+  ApiWorkspaceEventsRoute: typeof ApiWorkspaceEventsRoute
+  ApiWorkspaceMemoryFilesRoute: typeof ApiWorkspaceMemoryFilesRoute
+  ApiWorkspaceSkillsRoute: typeof ApiWorkspaceSkillsRoute
+}
+
+const ApiWorkspaceRouteChildren: ApiWorkspaceRouteChildren = {
+  ApiWorkspaceEventsRoute: ApiWorkspaceEventsRoute,
+  ApiWorkspaceMemoryFilesRoute: ApiWorkspaceMemoryFilesRoute,
+  ApiWorkspaceSkillsRoute: ApiWorkspaceSkillsRoute,
+}
+
+const ApiWorkspaceRouteWithChildren = ApiWorkspaceRoute._addFileChildren(
+  ApiWorkspaceRouteChildren,
+)
+
 interface ApiGmailOauthRouteChildren {
   ApiGmailOauthCallbackRoute: typeof ApiGmailOauthCallbackRoute
   ApiGmailOauthStartRoute: typeof ApiGmailOauthStartRoute
@@ -3801,6 +4699,76 @@ const ApiPostizOauthRouteWithChildren = ApiPostizOauthRoute._addFileChildren(
   ApiPostizOauthRouteChildren,
 )
 
+interface ApiVoiceEngineCallsIdRouteChildren {
+  ApiVoiceEngineCallsIdPromoteScenarioRoute: typeof ApiVoiceEngineCallsIdPromoteScenarioRoute
+}
+
+const ApiVoiceEngineCallsIdRouteChildren: ApiVoiceEngineCallsIdRouteChildren = {
+  ApiVoiceEngineCallsIdPromoteScenarioRoute:
+    ApiVoiceEngineCallsIdPromoteScenarioRoute,
+}
+
+const ApiVoiceEngineCallsIdRouteWithChildren =
+  ApiVoiceEngineCallsIdRoute._addFileChildren(
+    ApiVoiceEngineCallsIdRouteChildren,
+  )
+
+interface ApiVoiceEngineCallsRouteChildren {
+  ApiVoiceEngineCallsIdRoute: typeof ApiVoiceEngineCallsIdRouteWithChildren
+}
+
+const ApiVoiceEngineCallsRouteChildren: ApiVoiceEngineCallsRouteChildren = {
+  ApiVoiceEngineCallsIdRoute: ApiVoiceEngineCallsIdRouteWithChildren,
+}
+
+const ApiVoiceEngineCallsRouteWithChildren =
+  ApiVoiceEngineCallsRoute._addFileChildren(ApiVoiceEngineCallsRouteChildren)
+
+interface ApiVoiceEngineScenariosIdRouteChildren {
+  ApiVoiceEngineScenariosIdPerformanceRoute: typeof ApiVoiceEngineScenariosIdPerformanceRoute
+  ApiVoiceEngineScenariosIdSuggestImprovementsRoute: typeof ApiVoiceEngineScenariosIdSuggestImprovementsRoute
+}
+
+const ApiVoiceEngineScenariosIdRouteChildren: ApiVoiceEngineScenariosIdRouteChildren =
+  {
+    ApiVoiceEngineScenariosIdPerformanceRoute:
+      ApiVoiceEngineScenariosIdPerformanceRoute,
+    ApiVoiceEngineScenariosIdSuggestImprovementsRoute:
+      ApiVoiceEngineScenariosIdSuggestImprovementsRoute,
+  }
+
+const ApiVoiceEngineScenariosIdRouteWithChildren =
+  ApiVoiceEngineScenariosIdRoute._addFileChildren(
+    ApiVoiceEngineScenariosIdRouteChildren,
+  )
+
+interface ApiVoiceEngineScenariosRouteChildren {
+  ApiVoiceEngineScenariosIdRoute: typeof ApiVoiceEngineScenariosIdRouteWithChildren
+}
+
+const ApiVoiceEngineScenariosRouteChildren: ApiVoiceEngineScenariosRouteChildren =
+  {
+    ApiVoiceEngineScenariosIdRoute: ApiVoiceEngineScenariosIdRouteWithChildren,
+  }
+
+const ApiVoiceEngineScenariosRouteWithChildren =
+  ApiVoiceEngineScenariosRoute._addFileChildren(
+    ApiVoiceEngineScenariosRouteChildren,
+  )
+
+interface ApiVoiceEngineVoicesRouteChildren {
+  ApiVoiceEngineVoicesCloneRoute: typeof ApiVoiceEngineVoicesCloneRoute
+  ApiVoiceEngineVoicesIdPreviewRoute: typeof ApiVoiceEngineVoicesIdPreviewRoute
+}
+
+const ApiVoiceEngineVoicesRouteChildren: ApiVoiceEngineVoicesRouteChildren = {
+  ApiVoiceEngineVoicesCloneRoute: ApiVoiceEngineVoicesCloneRoute,
+  ApiVoiceEngineVoicesIdPreviewRoute: ApiVoiceEngineVoicesIdPreviewRoute,
+}
+
+const ApiVoiceEngineVoicesRouteWithChildren =
+  ApiVoiceEngineVoicesRoute._addFileChildren(ApiVoiceEngineVoicesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
@@ -3808,6 +4776,7 @@ const rootRouteChildren: RootRouteChildren = {
   AgentSwarmRoute: AgentSwarmRoute,
   AgentsRoute: AgentsRoute,
   AskRoute: AskRoute,
+  AttentionRoute: AttentionRoute,
   ChannelsRoute: ChannelsRoute,
   ConductorRoute: ConductorRoute,
   ConnectRoute: ConnectRoute,
@@ -3823,25 +4792,32 @@ const rootRouteChildren: RootRouteChildren = {
   IntegrationsRoute: IntegrationsRoute,
   LinkedinRoute: LinkedinRoute,
   LogsRoute: LogsRoute,
-  MediaRoute: MediaRoute,
+  MediaRoute: MediaRouteWithChildren,
   MemoryRoute: MemoryRoute,
   NewRoute: NewRoute,
   NodesRoute: NodesRoute,
+  OctogentRoute: OctogentRoute,
   OperationsRoute: OperationsRoute,
   PostizRoute: PostizRoute,
+  RpcConsoleRoute: RpcConsoleRoute,
   RssRoute: RssRoute,
+  SecurityRoute: SecurityRoute,
   SessionsRoute: SessionsRoute,
   SettingsRoute: SettingsRouteWithChildren,
   SkillsRoute: SkillsRoute,
   TasksRoute: TasksRoute,
   TerminalRoute: TerminalRoute,
   UsageRoute: UsageRoute,
+  UsersRoute: UsersRoute,
+  VoiceRoute: VoiceRouteWithChildren,
+  VoicePreviewRoute: VoicePreviewRoute,
   WizardRoute: WizardRoute,
   ApiAgentActivityRoute: ApiAgentActivityRoute,
   ApiAgentDispatchRoute: ApiAgentDispatchRoute,
   ApiAgentKillRoute: ApiAgentKillRoute,
   ApiAgentPauseRoute: ApiAgentPauseRoute,
   ApiAgentSteerRoute: ApiAgentSteerRoute,
+  ApiAttentionRoute: ApiAttentionRoute,
   ApiAuthRoute: ApiAuthRoute,
   ApiAuthCheckRoute: ApiAuthCheckRoute,
   ApiAutonomyStatusRoute: ApiAutonomyStatusRoute,
@@ -3893,7 +4869,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiUsageRoute: ApiUsageRoute,
   ApiUsageAnalyticsRoute: ApiUsageAnalyticsRoute,
   ApiValidateProviderRoute: ApiValidateProviderRoute,
-  ApiWorkspaceRoute: ApiWorkspaceRoute,
+  ApiWorkspaceRoute: ApiWorkspaceRouteWithChildren,
   ChatSessionKeyRoute: ChatSessionKeyRoute,
   ChatIndexRoute: ChatIndexRoute,
   ApiCloudProvisionRoute: ApiCloudProvisionRoute,
@@ -3905,6 +4881,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiGatewayChannelsRoute: ApiGatewayChannelsRoute,
   ApiGatewayLogsRoute: ApiGatewayLogsRoute,
   ApiGatewayNodesRoute: ApiGatewayNodesRoute,
+  ApiGatewayRpcRoute: ApiGatewayRpcRoute,
   ApiGatewaySessionsRoute: ApiGatewaySessionsRoute,
   ApiGatewayStatusRoute: ApiGatewayStatusRoute,
   ApiGatewayUsageRoute: ApiGatewayUsageRoute,
@@ -3935,7 +4912,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLinkedinWebhookRoute: ApiLinkedinWebhookRoute,
   ApiLlmLocalRoute: ApiLlmLocalRoute,
   ApiMediaGenerateRoute: ApiMediaGenerateRoute,
+  ApiMediaRenderRoute: ApiMediaRenderRoute,
   ApiMediaSkillsRoute: ApiMediaSkillsRoute,
+  ApiMediaSubscribeRoute: ApiMediaSubscribeRoute,
+  ApiMediaWalkthroughsRoute: ApiMediaWalkthroughsRoute,
   ApiMemoryListRoute: ApiMemoryListRoute,
   ApiMemoryReadRoute: ApiMemoryReadRoute,
   ApiMemorySearchRoute: ApiMemorySearchRoute,
@@ -3949,15 +4929,30 @@ const rootRouteChildren: RootRouteChildren = {
   ApiRssAutopostRoute: ApiRssAutopostRoute,
   ApiRssAutopostConfigRoute: ApiRssAutopostConfigRoute,
   ApiRssFeedRoute: ApiRssFeedRoute,
+  ApiSecurityPostureRoute: ApiSecurityPostureRoute,
   ApiSocialDispatchRoute: ApiSocialDispatchRoute,
   ApiTasksTaskIdRoute: ApiTasksTaskIdRoute,
+  ApiTwilioHumeVoiceRoute: ApiTwilioHumeVoiceRoute,
+  ApiUsersIdRoute: ApiUsersIdRoute,
+  ApiVoiceEngineCallsRoute: ApiVoiceEngineCallsRouteWithChildren,
+  ApiVoiceEngineContextRoute: ApiVoiceEngineContextRoute,
+  ApiVoiceEngineCustomizeScenarioRoute: ApiVoiceEngineCustomizeScenarioRoute,
+  ApiVoiceEngineGrokTokenRoute: ApiVoiceEngineGrokTokenRoute,
+  ApiVoiceEngineHumeTokenRoute: ApiVoiceEngineHumeTokenRoute,
+  ApiVoiceEngineScenariosRoute: ApiVoiceEngineScenariosRouteWithChildren,
+  ApiVoiceEngineVoicesRoute: ApiVoiceEngineVoicesRouteWithChildren,
   ApiIntegrationsIndexRoute: ApiIntegrationsIndexRoute,
   ApiTasksIndexRoute: ApiTasksIndexRoute,
+  ApiUsersIndexRoute: ApiUsersIndexRoute,
   ApiLinkedinAuthStartRoute: ApiLinkedinAuthStartRoute,
+  ApiMediaRenderStatusJobIdRoute: ApiMediaRenderStatusJobIdRoute,
   ApiMediaStatusJobIdRoute: ApiMediaStatusJobIdRoute,
+  ApiMediaStreamJobIdRoute: ApiMediaStreamJobIdRoute,
   ApiGatewayApprovalsIndexRoute: ApiGatewayApprovalsIndexRoute,
   ApiGatewayApprovalsApprovalIdActionRoute:
     ApiGatewayApprovalsApprovalIdActionRoute,
+  ApiVoiceEngineOrgOrgIdVoiceConfigRoute:
+    ApiVoiceEngineOrgOrgIdVoiceConfigRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,7 +1,6 @@
 'use client'
 
 import { useSyncExternalStore } from 'react'
-import { OpenClawStudioIcon } from '@/components/icons/clawsuite'
 import {
   TooltipContent,
   TooltipProvider,
@@ -142,8 +141,14 @@ function AgentAvatar({
               🦞
             </span>
           ) : (
-            <OpenClawStudioIcon
-              className={cn(getLogoSizeClassName(size), iconClassName)}
+            <img
+              src="/pulsecheck-wave.svg"
+              alt="PulseCheck"
+              className={cn(
+                getLogoSizeClassName(size),
+                'object-contain',
+                iconClassName,
+              )}
             />
           )}
         </TooltipTrigger>

@@ -35,8 +35,14 @@ describe('matchProxyRoute (proxy SSOT)', () => {
     expect(r?.ws).toBe(true)
     expect(r?.auth).toBe(true)
   })
-  it('matches the workspace daemon proxy to its own target', () => {
-    expect(matchProxyRoute('/workspace-api/x')?.target).toBe('workspace-http')
+  it('matches the octogent proxy to its own target with stripPrefix=/octogent', () => {
+    const r = matchProxyRoute('/octogent/api/setup')
+    expect(r?.target).toBe('octogent-http')
+    expect(r?.stripPrefix).toBe('/octogent')
+    expect(r?.auth).toBe(true)
+  })
+  it('no longer matches the removed /workspace-api proxy', () => {
+    expect(matchProxyRoute('/workspace-api/x')).toBeNull()
   })
   it('returns null for app + SSR-API routes (not proxied)', () => {
     expect(matchProxyRoute('/dashboard')).toBeNull()

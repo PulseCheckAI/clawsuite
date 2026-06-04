@@ -42,6 +42,7 @@
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@hugeicons/core-free-icons": "^3.1.1",
     "@hugeicons/react": "^1.1.4",
+    "@humeai/voice-react": "^0.2.14",
     "@lobehub/icons": "^5.0.1",
     "@monaco-editor/react": "^4.7.0",
     "@postiz/node": "^1.0.8",

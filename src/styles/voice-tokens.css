@@ -1,0 +1,20 @@
+/* voice-tokens.css
+   ────────────────────────────────────────────────────────────────────────
+   PUBLIC ENTRY for voice hub design tokens.
+
+   This file exists at the brief-specified path (src/styles/voice-tokens.css)
+   and re-exports the SCOPED tokens that live in voice-hub-tokens.css. The
+   scoped variant (gated by [data-voice-hub]) is the production-correct
+   pattern: it keeps the voice-only palette out of every other route
+   (Mission Control, RSS, Postiz, etc.) which already define their own
+   --theme-* + --mc-* variables.
+
+   Consumers may import either file — both resolve to the same definitions.
+   New voice-hub code should reach for var(--vh-*) inside any element
+   wrapped by [data-voice-hub] (HubOverview, VoicePreview, and the
+   VoiceFloatingButton all set this attribute at their root).
+
+   See ./voice-hub-tokens.css for the full token catalogue + comments.
+   ──────────────────────────────────────────────────────────────────────── */
+
+@import './voice-hub-tokens.css';

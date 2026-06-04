@@ -339,10 +339,18 @@ const config = defineConfig(({ mode, command }) => {
             })
           },
         },
-        '/workspace-api': {
-          target: 'http://127.0.0.1:3099',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/workspace-api/, ''),
+        // Render-server WS push channel (replaces /jobs + /jobs/:id polling
+        // in /media/walkthroughs). The HTTP equivalent lives at
+        // /api/media/walkthroughs + /render-status/:jobId (file-routes); this
+        // entry exists purely for the WS upgrade. Prod parity lives in
+        // serve.mjs's PROXY_ROUTES `render-ws` target.
+        '/api/media/subscribe': {
+          target: (
+            env.RENDER_SERVER_URL?.trim() || 'http://127.0.0.1:8140'
+          ).replace(/\/$/, ''),
+          ws: true,
+          changeOrigin: false,
+          rewrite: () => '/jobs/subscribe',
         },
       },
     },

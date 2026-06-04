@@ -1,9 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { HugeiconsIcon } from '@hugeicons/react'
-import {
-  Folder01Icon,
-} from '@hugeicons/core-free-icons'
-import { OpenClawStudioIcon } from '@/components/icons/clawsuite'
+import { Folder01Icon } from '@hugeicons/core-free-icons'
 import { OrchestratorAvatar } from '@/components/orchestrator-avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,7 +29,10 @@ function formatMobileSessionTitle(rawTitle: string): string {
   if (normalized === 'agent:main:main' || normalized === 'agent:main') {
     return 'Main Chat'
   }
-  const parts = title.split(':').map((part) => part.trim()).filter(Boolean)
+  const parts = title
+    .split(':')
+    .map((part) => part.trim())
+    .filter(Boolean)
   if (
     parts.length >= 2 &&
     parts[0].toLowerCase() === 'agent' &&
@@ -64,7 +64,6 @@ function formatMobileSessionTitle(rawTitle: string): string {
   return title
 }
 
-
 type ThinkingLevel = 'off' | 'low' | 'adaptive'
 
 type ChatHeaderProps = {
@@ -73,7 +72,13 @@ type ChatHeaderProps = {
   renamingTitle?: boolean
   wrapperRef?: React.Ref<HTMLDivElement>
   onOpenSessions?: () => void
-  sessions?: Array<{ key?: string; friendlyId?: string; label?: string; derivedTitle?: string; title?: string }>
+  sessions?: Array<{
+    key?: string
+    friendlyId?: string
+    label?: string
+    derivedTitle?: string
+    title?: string
+  }>
   activeFriendlyId?: string
   onSelectSession?: (key: string) => void
   showFileExplorerButton?: boolean
@@ -133,7 +138,8 @@ function ChatHeaderComponent({
     if (!sessionPopoverOpen) return
     const handler = (e: MouseEvent) => {
       if (sessionPopoverRef.current?.contains(e.target as Node)) return
-      setSessionPopoverOpen(false); setSessionSearch('')
+      setSessionPopoverOpen(false)
+      setSessionSearch('')
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
@@ -152,7 +158,12 @@ function ChatHeaderComponent({
 
   const isStale = dataUpdatedAt > 0 && Date.now() - dataUpdatedAt > 15000
   const mobileTitle = formatMobileSessionTitle(activeTitle)
-  void _agentModel; void agentConnected; void statusMode; void activeToolName; void isFocusMode; void onToggleFocusMode // kept for prop compat
+  void _agentModel
+  void agentConnected
+  void statusMode
+  void activeToolName
+  void isFocusMode
+  void onToggleFocusMode // kept for prop compat
   const showThinkingIndicator = thinkingLevel === 'adaptive'
 
   const handleRefresh = useCallback(() => {
@@ -225,7 +236,11 @@ function ChatHeaderComponent({
       <div
         ref={wrapperRef}
         className="shrink-0 border-b border-primary-200 bg-surface transition-transform"
-        style={pullOffset > 0 ? { transform: `translateY(${pullOffset}px)` } : undefined}
+        style={
+          pullOffset > 0
+            ? { transform: `translateY(${pullOffset}px)` }
+            : undefined
+        }
       >
         <div className="px-4 h-12 flex items-center justify-between">
           <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -235,7 +250,11 @@ function ChatHeaderComponent({
               className="shrink-0 min-h-11 min-w-11 rounded-lg transition-transform active:scale-95"
               aria-label="Open sessions"
             >
-              <OpenClawStudioIcon className="size-8 rounded-xl overflow-hidden" />
+              <img
+                src="/pulsecheck-wave.svg"
+                alt="PulseCheck"
+                className="size-8 rounded-xl overflow-hidden object-contain"
+              />
             </button>
             <div className="min-w-0 max-w-[45vw] overflow-hidden text-ellipsis whitespace-nowrap text-sm font-semibold tracking-tight text-ink">
               {mobileTitle}
@@ -292,101 +311,163 @@ function ChatHeaderComponent({
           </TooltipProvider>
         ) : null}
         <div className="group min-w-0 flex-1">
-        {isEditingTitle ? (
-          <input
-            ref={titleInputRef}
-            value={titleDraft}
-            disabled={renamingTitle}
-            onChange={(event) => setTitleDraft(event.target.value)}
-            onBlur={() => {
-              void saveTitleEdit()
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault()
+          {isEditingTitle ? (
+            <input
+              ref={titleInputRef}
+              value={titleDraft}
+              disabled={renamingTitle}
+              onChange={(event) => setTitleDraft(event.target.value)}
+              onBlur={() => {
                 void saveTitleEdit()
-                return
-              }
-              if (event.key === 'Escape') {
-                event.preventDefault()
-                cancelTitleEdit()
-              }
-            }}
-            className="h-7 w-full min-w-0 border-b border-transparent bg-transparent px-0 text-sm font-medium text-balance text-ink outline-none transition-colors focus:border-primary-300"
-            aria-label="Session name"
-          />
-        ) : (
-          <div className="relative flex items-center gap-1" ref={sessionPopoverRef}>
-            <button type="button" onClick={() => setSessionPopoverOpen((p) => !p)}
-              className="min-w-0 truncate text-sm font-medium text-balance hover:text-accent-600 transition-colors rounded-sm text-left"
-              title="Click to switch session">
-              {activeTitle}
-            </button>
-            {canRenameTitle && !renamingTitle && (
-              <button type="button" onClick={startTitleEdit}
-                className="text-xs text-primary-400 opacity-0 group-hover:opacity-100 hover:text-primary-600 transition-opacity shrink-0"
-                title="Rename session">✏️</button>
-            )}
-            {sessionPopoverOpen && (
-              <div className="absolute left-0 top-[calc(100%+6px)] z-50 w-80 rounded-xl border border-primary-200 bg-surface shadow-lg overflow-hidden">
-                <div className="flex items-center gap-2 border-b border-primary-100 px-3 py-2">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary-400 shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                  <input autoFocus type="text" placeholder="Search sessions..." value={sessionSearch}
-                    onChange={(e) => setSessionSearch(e.target.value)}
-                    className="flex-1 bg-transparent text-sm outline-none text-primary-700 placeholder-primary-400 dark:text-primary-200" />
-                </div>
-                <div className="max-h-60 overflow-y-auto p-1">
-                  {sessions.filter((s) => {
-                    if (!sessionSearch.trim()) return true
-                    const q = sessionSearch.toLowerCase()
-                    return (s.label || s.derivedTitle || s.title || '').toLowerCase().includes(q) || s.friendlyId?.toLowerCase().includes(q)
-                  }).slice(0, 20).map((s) => {
-                    const label = s.label || s.derivedTitle || s.title || s.friendlyId?.slice(0, 8) || 'Session'
-                    const isActive = Boolean(activeFriendlyId) && (s.friendlyId === activeFriendlyId || s.key?.endsWith(`:${activeFriendlyId}`))
-                    return (
-                      <button key={s.key || s.friendlyId} type="button"
-                        onClick={() => { setSessionPopoverOpen(false); setSessionSearch(''); onSelectSession?.(s.key || s.friendlyId || '') }}
-                        className={cn('flex w-full items-center gap-2 px-3 py-2 text-sm text-left border-b border-primary-100 last:border-0 hover:bg-primary-50 dark:hover:bg-white/10 transition-colors', isActive && 'bg-primary-50 font-medium text-primary-900')}>
-                        <span className="flex-1 min-w-0 truncate text-primary-700 dark:text-primary-200">{label}</span>
-                        {isActive && <span className="size-1.5 rounded-full bg-accent-500 shrink-0" />}
-                      </button>
-                    )
-                  })}
-                  {sessions.length === 0 && <p className="px-3 py-4 text-sm text-primary-400">No sessions</p>}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-      {renamingTitle ? (
-        <span
-          className="mr-1 inline-flex size-3 animate-spin rounded-full border border-primary-300 border-t-primary-700"
-          aria-label="Saving session name"
-        />
-      ) : null}
-      {showThinkingIndicator ? (
-        <TooltipProvider>
-          <TooltipRoot>
-            <TooltipTrigger
-              render={
-                <span
-                  className="mr-2 inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-300 dark:bg-amber-900/30 dark:text-amber-400"
-                  aria-label="Thinking: Adaptive"
-                  role="status"
-                  style={{ boxShadow: '0 0 6px 1px rgba(251,191,36,0.4)' }}
-                >
-                  🧠
-                </span>
-              }
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault()
+                  void saveTitleEdit()
+                  return
+                }
+                if (event.key === 'Escape') {
+                  event.preventDefault()
+                  cancelTitleEdit()
+                }
+              }}
+              className="h-7 w-full min-w-0 border-b border-transparent bg-transparent px-0 text-sm font-medium text-balance text-ink outline-none transition-colors focus:border-primary-300"
+              aria-label="Session name"
             />
-            <TooltipContent side="bottom">
-              Thinking: Adaptive — Claude reasons before responding
-            </TooltipContent>
-          </TooltipRoot>
-        </TooltipProvider>
-      ) : null}
-      {dataUpdatedAt > 0 ? (
+          ) : (
+            <div
+              className="relative flex items-center gap-1"
+              ref={sessionPopoverRef}
+            >
+              <button
+                type="button"
+                onClick={() => setSessionPopoverOpen((p) => !p)}
+                className="min-w-0 truncate text-sm font-medium text-balance hover:text-accent-600 transition-colors rounded-sm text-left"
+                title="Click to switch session"
+              >
+                {activeTitle}
+              </button>
+              {canRenameTitle && !renamingTitle && (
+                <button
+                  type="button"
+                  onClick={startTitleEdit}
+                  className="text-xs text-primary-400 opacity-0 group-hover:opacity-100 hover:text-primary-600 transition-opacity shrink-0"
+                  title="Rename session"
+                >
+                  ✏️
+                </button>
+              )}
+              {sessionPopoverOpen && (
+                <div className="absolute left-0 top-[calc(100%+6px)] z-50 w-80 rounded-xl border border-primary-200 bg-surface shadow-lg overflow-hidden">
+                  <div className="flex items-center gap-2 border-b border-primary-100 px-3 py-2">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="text-primary-400 shrink-0"
+                    >
+                      <circle cx="11" cy="11" r="8" />
+                      <path d="m21 21-4.35-4.35" />
+                    </svg>
+                    <input
+                      autoFocus
+                      type="text"
+                      placeholder="Search sessions..."
+                      value={sessionSearch}
+                      onChange={(e) => setSessionSearch(e.target.value)}
+                      className="flex-1 bg-transparent text-sm outline-none text-primary-700 placeholder-primary-400 dark:text-primary-200"
+                    />
+                  </div>
+                  <div className="max-h-60 overflow-y-auto p-1">
+                    {sessions
+                      .filter((s) => {
+                        if (!sessionSearch.trim()) return true
+                        const q = sessionSearch.toLowerCase()
+                        return (
+                          (s.label || s.derivedTitle || s.title || '')
+                            .toLowerCase()
+                            .includes(q) ||
+                          s.friendlyId?.toLowerCase().includes(q)
+                        )
+                      })
+                      .slice(0, 20)
+                      .map((s) => {
+                        const label =
+                          s.label ||
+                          s.derivedTitle ||
+                          s.title ||
+                          s.friendlyId?.slice(0, 8) ||
+                          'Session'
+                        const isActive =
+                          Boolean(activeFriendlyId) &&
+                          (s.friendlyId === activeFriendlyId ||
+                            s.key?.endsWith(`:${activeFriendlyId}`))
+                        return (
+                          <button
+                            key={s.key || s.friendlyId}
+                            type="button"
+                            onClick={() => {
+                              setSessionPopoverOpen(false)
+                              setSessionSearch('')
+                              onSelectSession?.(s.key || s.friendlyId || '')
+                            }}
+                            className={cn(
+                              'flex w-full items-center gap-2 px-3 py-2 text-sm text-left border-b border-primary-100 last:border-0 hover:bg-primary-50 dark:hover:bg-white/10 transition-colors',
+                              isActive &&
+                                'bg-primary-50 font-medium text-primary-900',
+                            )}
+                          >
+                            <span className="flex-1 min-w-0 truncate text-primary-700 dark:text-primary-200">
+                              {label}
+                            </span>
+                            {isActive && (
+                              <span className="size-1.5 rounded-full bg-accent-500 shrink-0" />
+                            )}
+                          </button>
+                        )
+                      })}
+                    {sessions.length === 0 && (
+                      <p className="px-3 py-4 text-sm text-primary-400">
+                        No sessions
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        {renamingTitle ? (
+          <span
+            className="mr-1 inline-flex size-3 animate-spin rounded-full border border-primary-300 border-t-primary-700"
+            aria-label="Saving session name"
+          />
+        ) : null}
+        {showThinkingIndicator ? (
+          <TooltipProvider>
+            <TooltipRoot>
+              <TooltipTrigger
+                render={
+                  <span
+                    className="mr-2 inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-300 dark:bg-amber-900/30 dark:text-amber-400"
+                    aria-label="Thinking: Adaptive"
+                    role="status"
+                    style={{ boxShadow: '0 0 6px 1px rgba(251,191,36,0.4)' }}
+                  >
+                    🧠
+                  </span>
+                }
+              />
+              <TooltipContent side="bottom">
+                Thinking: Adaptive — Claude reasons before responding
+              </TooltipContent>
+            </TooltipRoot>
+          </TooltipProvider>
+        ) : null}
+        {dataUpdatedAt > 0 ? (
           <TooltipProvider>
             <TooltipRoot>
               <TooltipTrigger
@@ -398,7 +479,9 @@ function ChatHeaderComponent({
                     className={cn(
                       'mr-2 inline-flex items-center justify-center rounded-full transition-colors',
                       isRefreshing && 'animate-pulse',
-                      onRefresh ? 'cursor-pointer hover:opacity-70' : 'cursor-default',
+                      onRefresh
+                        ? 'cursor-pointer hover:opacity-70'
+                        : 'cursor-default',
                     )}
                   >
                     <span
@@ -416,7 +499,6 @@ function ChatHeaderComponent({
             </TooltipRoot>
           </TooltipProvider>
         ) : null}
-
       </div>
     </div>
   )

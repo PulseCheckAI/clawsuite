@@ -14,17 +14,35 @@ export const Route = createFileRoute('/api/intel/ingest')({
       POST: async ({ request }) => {
         if (!isAuthenticated(request))
           return json({ ok: false, error: 'Unauthorized' }, { status: 401 })
-        const sources = await listEnabledSources()
+        let sources
+        try {
+          sources = await listEnabledSources()
+        } catch (e) {
+          return json(
+            { ok: false, error: e instanceof Error ? e.message : String(e) },
+            { status: 500 },
+          )
+        }
         let inserted = 0
         const results: IngestResult[] = []
         for (const s of sources) {
-          const r = await ingestSource(s)
-          inserted += r.inserted
-          results.push(r)
-          await markPolled(
-            s.id,
-            r.error ? `error: ${r.error}` : `ok (${r.inserted} new)`,
-          )
+          // Best-effort per source — one failure (ingest or markPolled) never aborts the rest.
+          try {
+            const r = await ingestSource(s)
+            inserted += r.inserted
+            results.push(r)
+            await markPolled(
+              s.id,
+              r.error ? `error: ${r.error}` : `ok (${r.inserted} new)`,
+            )
+          } catch (e) {
+            results.push({
+              sourceId: s.id,
+              fetched: 0,
+              inserted: 0,
+              error: e instanceof Error ? e.message : String(e),
+            })
+          }
         }
         return json({ ok: true, sources: sources.length, inserted, results })
       },

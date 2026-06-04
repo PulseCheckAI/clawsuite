@@ -78,14 +78,28 @@ export const HARDENING = {
 
 // ── Same-origin proxy topology (mirrors vite.config.ts server.proxy) ──────────
 export const GATEWAY_WS_DEFAULT = 'ws://127.0.0.1:18789'
-export const WORKSPACE_HTTP_DEFAULT = 'http://127.0.0.1:3099'
+export const RENDER_WS_DEFAULT = 'ws://127.0.0.1:8140'
 
 /**
- * Every gateway/workspace proxy prefix and whether it requires an authenticated
+ * Every same-origin proxy prefix and whether it requires an authenticated
  * session. ALL of them are gated when the origin is internet-exposed: the
  * CLAWSUITE_PASSWORD perimeter only covers SSR routes, NOT proxy paths, so the
  * proxy layer must enforce auth itself (integrity audit P0).
+ *
+ * `target` discriminates which upstream the serve.mjs proxy routes to:
+ *   * gateway-http / gateway-ws → CLAWDBOT_GATEWAY_URL (default :18789)
+ *   * render-ws                 → RENDER_SERVER_URL (default :8140), ws upgrade
+ *                                forwarded to /jobs/subscribe
+ *   * octogent-http             → OCTOGENT_URL (default :8787)
+ *   * lightrag-http             → LIGHTRAG_URL (default :9622)
+ *
+ * `rewriteTo` overrides the upstream path. Without it the proxy strips the
+ * route prefix (or `stripPrefix` if set) and forwards the remainder verbatim.
  */
+export const OCTOGENT_HTTP_DEFAULT = 'http://127.0.0.1:8787'
+export const OCTOGENT_WS_DEFAULT = 'ws://127.0.0.1:8787'
+export const LIGHTRAG_HTTP_DEFAULT = 'http://127.0.0.1:9622'
+
 export const PROXY_ROUTES = [
   {
     prefix: '/api/gateway-proxy',
@@ -94,8 +108,46 @@ export const PROXY_ROUTES = [
     auth: true,
   },
   { prefix: '/gateway-ui', target: 'gateway-http', ws: true, auth: true },
-  { prefix: '/workspace-api', target: 'workspace-http', ws: false, auth: true },
   { prefix: '/ws-gateway', target: 'gateway-ws', ws: true, auth: true },
+  {
+    // Render-server job event stream — drains 5s + 1.5s polls in
+    // /media/walkthroughs. Single sink at /jobs/subscribe.
+    prefix: '/api/media/subscribe',
+    target: 'render-ws',
+    ws: true,
+    auth: true,
+    rewriteTo: '/jobs/subscribe',
+  },
+  // Octogent (multi-agent terminal orchestrator) — proxy ONLY /octogent/api/*
+  // and /octogent/ws so the bare /octogent URL falls through to the dashboard's
+  // own SSR (OctogentStage screen). `stripPrefix` removes only the /octogent
+  // segment so the upstream still receives /api/... as it expects.
+  // Loopback-bound upstream + PulseOS auth gate = no external exposure.
+  {
+    prefix: '/octogent/api',
+    stripPrefix: '/octogent',
+    target: 'octogent-http',
+    ws: true,
+    auth: true,
+  },
+  {
+    prefix: '/octogent/ws',
+    stripPrefix: '/octogent',
+    target: 'octogent-http',
+    ws: true,
+    auth: true,
+  },
+  // LightRAG (knowledge graph + vector) — agents use this for institutional
+  // memory via the lightrag MCP. Proxy mounts /lightrag/* on the dashboard;
+  // stripPrefix removes /lightrag so upstream sees /health, /docs, /api/*.
+  // Loopback-only upstream + PulseOS auth gate = no external exposure.
+  {
+    prefix: '/lightrag',
+    stripPrefix: '/lightrag',
+    target: 'lightrag-http',
+    ws: false,
+    auth: true,
+  },
 ]
 
 /**

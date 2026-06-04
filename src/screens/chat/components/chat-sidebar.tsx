@@ -25,6 +25,7 @@ import {
   Share01Icon,
   ApiIcon,
   Settings01Icon,
+  Logout01Icon,
   SmartPhone01Icon,
   Task01Icon,
   UserGroupIcon,
@@ -1327,6 +1328,22 @@ function ChatSidebarComponent({
                 <kbd className="ml-auto text-[10px] text-primary-500 dark:text-primary-400 font-mono">
                   {mod}P
                 </kbd>
+              </MenuItem>
+              <MenuItem
+                onClick={function onLogout() {
+                  void fetch('/api/auth', { method: 'DELETE' }).finally(() => {
+                    window.location.href = '/'
+                  })
+                }}
+              >
+                <span className="flex items-center gap-2">
+                  <HugeiconsIcon
+                    icon={Logout01Icon}
+                    size={20}
+                    strokeWidth={1.5}
+                  />
+                  Log out
+                </span>
               </MenuItem>
             </MenuContent>
           </MenuRoot>

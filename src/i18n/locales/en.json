@@ -1,0 +1,23 @@
+{
+  "common.refresh": "Refresh",
+  "common.loading": "Loading…",
+  "common.save": "Save",
+  "common.cancel": "Cancel",
+  "common.create": "Create",
+  "common.search": "Search",
+  "common.noData": "No data yet",
+  "common.error": "Something went wrong",
+  "nav.dashboard": "Dashboard",
+  "nav.users": "Users & Access",
+  "nav.settings": "Settings",
+  "auth.signIn": "Sign in",
+  "auth.continue": "Continue",
+  "auth.password": "Password",
+  "auth.email": "Email",
+  "auth.invalidCredentials": "Invalid credentials",
+  "users.title": "Users & Access",
+  "users.createUser": "Create user",
+  "users.role": "Role",
+  "users.active": "active",
+  "users.disabled": "disabled"
+}

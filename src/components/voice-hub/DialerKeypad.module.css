@@ -1,0 +1,272 @@
+/* DialerKeypad.module.css
+   ────────────────────────────────────────────────────────────────────────
+   Local styles for the DialerKeypad. Scoped via CSS modules so token vars
+   are looked up against the [data-voice-hub] ancestor set by the panel.
+
+   Why a module file (not Tailwind)? Two effects need it:
+     1. Cursor-proximity light refraction (CSS :has() + --cursor-x/-y
+        custom props updated from JS) — Tailwind has no clean arbitrary-
+        property-with-runtime-value path.
+     2. The big call button's emerald inner glow + bottom-weighted halo
+        composes 4 shadow layers; expressing that inline gets unreadable.
+
+   Consumer: DialerKeypad.tsx (sibling file).
+   ──────────────────────────────────────────────────────────────────────── */
+
+.keypadFrame {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  --cursor-x: 50%;
+  --cursor-y: 50%;
+}
+
+/* ── Display strip ───────────────────────────────────────────────────── */
+.display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--vh-base-elevated);
+  border: 1px solid var(--vh-glass-border);
+  font-variant-numeric: tabular-nums;
+  min-height: 56px;
+}
+
+.displayNumber {
+  font-family:
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--vh-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  text-align: left;
+}
+
+.displayPlaceholder {
+  color: var(--vh-text-faint);
+  font-weight: 500;
+}
+
+.displayHint {
+  font-size: 11px;
+  font-family:
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vh-text-muted);
+  white-space: nowrap;
+}
+
+.displayHintCompliant {
+  color: var(--vh-compliant);
+}
+.displayHintBlocked {
+  color: var(--vh-blocked);
+}
+
+/* ── Grid ────────────────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  position: relative;
+}
+
+.grid::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  pointer-events: none;
+  border-radius: 18px;
+  background: radial-gradient(
+    180px circle at var(--cursor-x) var(--cursor-y),
+    rgba(46, 150, 255, 0.12) 0%,
+    rgba(46, 150, 255, 0.04) 40%,
+    transparent 70%
+  );
+  z-index: 0;
+  transition: opacity 240ms ease;
+  opacity: 0;
+}
+
+.grid:has(.key:hover)::before {
+  opacity: 1;
+}
+
+/* ── Keys (digit + glyph buttons) ─────────────────────────────────────── */
+.key {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  padding: 8px 4px 6px;
+  border-radius: 14px;
+  border: 1px solid var(--vh-glass-border);
+  background: var(--vh-glass-bg);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  color: var(--vh-text);
+  cursor: pointer;
+  user-select: none;
+  font-family: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  transition:
+    background-color var(--vh-duration-quick) ease,
+    border-color var(--vh-duration-quick) ease,
+    color var(--vh-duration-quick) ease;
+  box-shadow:
+    inset 0 1px 0 0 var(--vh-glass-rim),
+    0 1px 2px rgba(0, 0, 0, 0.25);
+  will-change: transform;
+}
+
+.keyDigit {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.keyLetters {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vh-text-muted);
+  margin-top: 4px;
+  min-height: 12px;
+}
+
+.key:hover {
+  background: var(--vh-glass-bg-strong);
+  border-color: var(--vh-glass-border-bright);
+}
+
+.key:active {
+  box-shadow: var(--vh-shadow-press);
+}
+
+/* ── Action row ──────────────────────────────────────────────────────── */
+.actionRow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.actionGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--vh-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    color var(--vh-duration-quick) ease,
+    background-color var(--vh-duration-quick) ease,
+    border-color var(--vh-duration-quick) ease;
+}
+
+.actionGhost:hover {
+  color: var(--vh-text);
+  background: var(--vh-glass-bg);
+  border-color: var(--vh-glass-border);
+}
+
+.actionGhostDestructive:hover {
+  color: var(--vh-blocked);
+  border-color: var(--vh-blocked-border);
+}
+
+/* ── The big emerald call button ─────────────────────────────────────── */
+.callButton {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 1px solid var(--vh-compliant-border);
+  background: radial-gradient(
+    circle at 35% 30%,
+    #1dd99b 0%,
+    var(--vh-compliant) 60%,
+    #0c8b62 100%
+  );
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.4),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.18),
+    0 8px 20px -4px rgba(16, 185, 129, 0.5),
+    0 0 0 0 rgba(16, 185, 129, 0);
+  transition:
+    box-shadow var(--vh-duration-quick) ease,
+    transform var(--vh-duration-quick) ease;
+}
+
+.callButton:hover {
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+    inset 0 -3px 8px rgba(0, 0, 0, 0.18),
+    0 12px 28px -4px rgba(16, 185, 129, 0.6),
+    0 0 0 6px rgba(16, 185, 129, 0.18);
+}
+
+.callButton:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.6) brightness(0.7);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+    0 4px 10px -2px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Compliance line under the keypad ────────────────────────────────── */
+.complianceLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-family:
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vh-text-muted);
+  margin-top: 6px;
+}
+
+.complianceDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.complianceDotCompliant {
+  background: var(--vh-compliant);
+  box-shadow: 0 0 8px var(--vh-compliant);
+}
+.complianceDotWarming {
+  background: var(--vh-warming);
+}
+.complianceDotBlocked {
+  background: var(--vh-blocked);
+}

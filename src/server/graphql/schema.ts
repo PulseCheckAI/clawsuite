@@ -289,11 +289,11 @@ builder.queryType({
     marginLeaksTop: t.field({
       type: [MarginLeakRef],
       description:
-        'Top margin leaks for ONE org by annualized impact (tenant-scoped). ' +
-        'tenantId is REQUIRED; once auth lands it will be validated against the ' +
-        "session's allowed orgs rather than trusted from the client.",
+        'Top margin leaks for ONE org by annualized impact (org-scoped). ' +
+        'organizationId is REQUIRED; once auth lands it will be validated ' +
+        "against the session's allowed orgs rather than trusted from the client.",
       args: {
-        tenantId: t.arg.id({ required: true }),
+        organizationId: t.arg.id({ required: true }),
         locationId: t.arg.id({ required: false }),
         severity: t.arg.string({ required: false }),
         domain: t.arg.string({ required: false }),
@@ -303,7 +303,7 @@ builder.queryType({
       resolve: (_parent, args, ctx) => {
         requireAuth(ctx)
         return listMarginLeaks({
-          organizationId: String(args.tenantId),
+          organizationId: String(args.organizationId),
           locationId:
             args.locationId == null ? undefined : String(args.locationId),
           severity: args.severity ?? undefined,
@@ -316,10 +316,10 @@ builder.queryType({
     marginOpsSummary: t.field({
       type: [MarginSnapshotRef],
       description:
-        'Recent per-location margin snapshots for ONE org (tenant-scoped). ' +
-        'tenantId is REQUIRED; session-validated once auth lands.',
+        'Recent per-location margin snapshots for ONE org (org-scoped). ' +
+        'organizationId is REQUIRED; session-validated once auth lands.',
       args: {
-        tenantId: t.arg.id({ required: true }),
+        organizationId: t.arg.id({ required: true }),
         locationId: t.arg.id({ required: false }),
         days: t.arg.int({ required: false }),
         limit: t.arg.int({ required: false }),
@@ -327,7 +327,7 @@ builder.queryType({
       resolve: (_parent, args, ctx) => {
         requireAuth(ctx)
         return listMarginOps({
-          organizationId: String(args.tenantId),
+          organizationId: String(args.organizationId),
           locationId:
             args.locationId == null ? undefined : String(args.locationId),
           days: args.days ?? undefined,

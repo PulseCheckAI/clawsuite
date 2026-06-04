@@ -1,11 +1,6 @@
 import { HugeiconsIcon } from '@hugeicons/react'
-import {
-  BrainIcon,
-  CodeIcon,
-  Edit02Icon,
-} from '@hugeicons/core-free-icons'
+import { BrainIcon, CodeIcon, Edit02Icon } from '@hugeicons/core-free-icons'
 import { motion } from 'motion/react'
-import { OpenClawStudioIcon } from '@/components/icons/clawsuite'
 
 type SuggestionChip = {
   label: string
@@ -53,7 +48,11 @@ export function ChatEmptyState({
           animate={{ scale: 1 }}
           transition={{ type: 'spring', damping: 20, stiffness: 300 }}
         >
-          <OpenClawStudioIcon className="mb-3 size-10 rounded-xl overflow-hidden opacity-60 md:mb-4 md:size-12" />
+          <img
+            src="/pulsecheck-wave.svg"
+            alt="PulseCheck"
+            className="mb-3 size-10 rounded-xl overflow-hidden opacity-60 object-contain md:mb-4 md:size-12"
+          />
         </motion.div>
 
         <h2 className="mb-4 text-sm font-semibold text-primary-300">

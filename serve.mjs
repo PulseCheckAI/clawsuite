@@ -24,7 +24,8 @@
  *
  * Env: PORT (default 3010), HOST (default 0.0.0.0),
  *      CLAWDBOT_GATEWAY_URL (default ws://127.0.0.1:18789),
- *      WORKSPACE_DAEMON_URL (default http://127.0.0.1:3099).
+ *      OCTOGENT_URL (default http://127.0.0.1:8787),
+ *      RENDER_SERVER_URL (default http://127.0.0.1:8140).
  */
 import { createServer } from 'node:http'
 import { randomBytes } from 'node:crypto'
@@ -39,7 +40,10 @@ import {
   HARDENING,
   cspFor,
   GATEWAY_WS_DEFAULT,
-  WORKSPACE_HTTP_DEFAULT,
+  RENDER_WS_DEFAULT,
+  OCTOGENT_HTTP_DEFAULT,
+  OCTOGENT_WS_DEFAULT,
+  LIGHTRAG_HTTP_DEFAULT,
   matchProxyRoute,
   safeStaticPath,
 } from './src/server/security-headers.mjs'
@@ -52,13 +56,30 @@ const GATEWAY_WS = (
   process.env.CLAWDBOT_GATEWAY_URL || GATEWAY_WS_DEFAULT
 ).replace(/\/$/, '')
 const GATEWAY_HTTP = GATEWAY_WS.replace(/^ws/, 'http')
-const WORKSPACE_HTTP = (
-  process.env.WORKSPACE_DAEMON_URL || WORKSPACE_HTTP_DEFAULT
+// Render server WS base — RENDER_SERVER_URL may be http://… (matching the
+// existing HTTP-proxy env in src/server/render-server.ts); normalize to ws://.
+const RENDER_WS = (process.env.RENDER_SERVER_URL || RENDER_WS_DEFAULT)
+  .replace(/\/$/, '')
+  .replace(/^http/, 'ws')
+// Octogent (multi-agent terminal orchestrator) — same base for HTTP + WS.
+// OCTOGENT_URL can point at any host:port (default loopback :8787).
+const OCTOGENT_HTTP = (
+  process.env.OCTOGENT_URL || OCTOGENT_HTTP_DEFAULT
+).replace(/\/$/, '')
+const OCTOGENT_WS = (process.env.OCTOGENT_URL || OCTOGENT_WS_DEFAULT)
+  .replace(/\/$/, '')
+  .replace(/^http/, 'ws')
+// LightRAG (knowledge graph + vector) HTTP base. LIGHTRAG_URL overrides the
+// default loopback :9622 if you want to point the dashboard at a remote KG.
+const LIGHTRAG_HTTP = (
+  process.env.LIGHTRAG_URL || LIGHTRAG_HTTP_DEFAULT
 ).replace(/\/$/, '')
 
-/** HTTP upstream for a proxy route (gateway vs workspace daemon). */
+/** HTTP upstream for a proxy route (gateway vs octogent vs lightrag; falls through to gateway). */
 function httpTargetFor(route) {
-  return route.target === 'workspace-http' ? WORKSPACE_HTTP : GATEWAY_HTTP
+  if (route.target === 'octogent-http') return OCTOGENT_HTTP
+  if (route.target === 'lightrag-http') return LIGHTRAG_HTTP
+  return GATEWAY_HTTP
 }
 
 function applyHardening(res, pathname, nonce) {
@@ -246,7 +267,12 @@ const httpServer = createServer(async (req, res) => {
     if (route) {
       if (route.auth && !(await isAuthed(req.headers.cookie)))
         return unauthorized(res)
-      return await proxyHttp(req, res, httpTargetFor(route), route.prefix)
+      return await proxyHttp(
+        req,
+        res,
+        httpTargetFor(route),
+        route.stripPrefix || route.prefix,
+      )
     }
 
     // Static client bundle + public files
@@ -274,6 +300,33 @@ const httpServer = createServer(async (req, res) => {
 })
 
 // ── WebSocket proxy: PROXY_ROUTES entries with ws:true (auth-gated) ───────────
+//
+// Upstream selection is driven by route.target:
+//   * gateway-ws / gateway-http → GATEWAY_WS    (default ws://127.0.0.1:18789)
+//   * render-ws                 → RENDER_WS     (default ws://127.0.0.1:8140)
+// When route.rewriteTo is set, the upstream path is REPLACED entirely with it
+// (plus the search string), so /api/media/subscribe?x=1 → /jobs/subscribe?x=1.
+// Otherwise the route.prefix is stripped and the remainder forwarded as-is
+// (legacy behaviour for /ws-gateway etc.).
+function upstreamUrlFor(route, reqUrl) {
+  const url = reqUrl || '/'
+  const qIdx = url.indexOf('?')
+  const search = qIdx >= 0 ? url.slice(qIdx) : ''
+  if (route.rewriteTo) {
+    const base = route.target === 'render-ws' ? RENDER_WS : GATEWAY_WS
+    return base + route.rewriteTo + search
+  }
+  // Octogent: WS upstream is its own host; strip the configured prefix
+  // (defaults to route.prefix; explicit stripPrefix wins for routes whose
+  // upstream path expects /api/... to remain after the strip).
+  if (route.target === 'octogent-http') {
+    return OCTOGENT_WS + url.replace(route.stripPrefix || route.prefix, '')
+  }
+  // Legacy: strip-prefix + forward to gateway. We keep the original behaviour
+  // bit-exact for the existing /ws-gateway + /gateway-ui routes.
+  return GATEWAY_WS + url.replace(route.prefix, '')
+}
+
 const wss = new WebSocketServer({ noServer: true })
 httpServer.on('upgrade', async (req, socket, head) => {
   const pathname = (req.url || '/').split('?')[0]
@@ -288,9 +341,7 @@ httpServer.on('upgrade', async (req, socket, head) => {
     return
   }
   wss.handleUpgrade(req, socket, head, (client) => {
-    const upstream = new WebSocket(
-      GATEWAY_WS + (req.url || '').replace(route.prefix, ''),
-    )
+    const upstream = new WebSocket(upstreamUrlFor(route, req.url))
     const queue = []
     client.on('message', (data, isBinary) => {
       if (upstream.readyState === WebSocket.OPEN)
@@ -356,7 +407,7 @@ async function selfCheckPerimeter() {
 
 httpServer.listen(PORT, HOST, () => {
   console.log(
-    `[pulseos] production server listening on http://${HOST}:${PORT} (gateway ${GATEWAY_WS}, workspace ${WORKSPACE_HTTP})`,
+    `[pulseos] production server listening on http://${HOST}:${PORT} (gateway ${GATEWAY_WS}, octogent ${OCTOGENT_HTTP}, lightrag ${LIGHTRAG_HTTP})`,
   )
   setTimeout(selfCheckPerimeter, 1500)
 })

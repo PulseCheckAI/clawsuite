@@ -953,6 +953,14 @@ if (!(globalThis as any)[GW_UHR_KEY]) {
     console.error('[unhandledRejection]', reason)
   })
 
+  // Last-resort guard: a synchronously-thrown error out of an awaited route
+  // handler (e.g. a Supabase `fetch failed` during intel ingest) would otherwise
+  // surface as an uncaughtException and kill the process. For an always-on
+  // internal dashboard, "log loudly and stay up" beats "crash on any route error".
+  process.on('uncaughtException', (err: unknown) => {
+    console.error('[uncaughtException]', err)
+  })
+
   // Graceful shutdown: clean up WebSocket on SIGTERM/SIGINT so the process
   // exits cleanly instead of hanging on an open socket.
   const shutdownHandler = () => {

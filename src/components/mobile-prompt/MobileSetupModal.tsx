@@ -1,16 +1,19 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Cancel01Icon, Tick01Icon, Sent02Icon } from '@hugeicons/core-free-icons';
-import { OpenClawStudioIcon } from '@/components/icons/clawsuite';
+import { useEffect, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import { HugeiconsIcon } from '@hugeicons/react'
+import {
+  Cancel01Icon,
+  Tick01Icon,
+  Sent02Icon,
+} from '@hugeicons/core-free-icons'
 
-const STORAGE_KEY_SEEN = 'clawsuite-mobile-setup-seen';
+const STORAGE_KEY_SEEN = 'clawsuite-mobile-setup-seen'
 
 interface MobileSetupModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
 function TailscaleIcon() {
@@ -26,54 +29,68 @@ function TailscaleIcon() {
       <circle cx="10" cy="50" r="10" fill="#fff" opacity="0.3" />
       <circle cx="90" cy="50" r="10" fill="#fff" opacity="0.3" />
     </svg>
-  );
+  )
 }
 
 export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
-  const [step, setStep] = useState(0);
-  const [exposeSent, setExposeSent] = useState(false);
-  const [exposeSending, setExposeSending] = useState(false);
-  const [networkUrl, setNetworkUrl] = useState<{ url: string; source: 'tailscale' | 'lan' | 'localhost' } | null>(null);
+  const [step, setStep] = useState(0)
+  const [exposeSent, setExposeSent] = useState(false)
+  const [exposeSending, setExposeSending] = useState(false)
+  const [networkUrl, setNetworkUrl] = useState<{
+    url: string
+    source: 'tailscale' | 'lan' | 'localhost'
+  } | null>(null)
 
   useEffect(() => {
     fetch(`/api/network-url?port=${window.location.port || 3000}`)
-      .then((r) => r.json() as Promise<{ url: string; source: 'tailscale' | 'lan' | 'localhost' }>)
+      .then(
+        (r) =>
+          r.json() as Promise<{
+            url: string
+            source: 'tailscale' | 'lan' | 'localhost'
+          }>,
+      )
       .then((data) => setNetworkUrl(data))
-      .catch(() => setNetworkUrl({ url: window.location.origin, source: 'localhost' }));
-  }, []);
+      .catch(() =>
+        setNetworkUrl({ url: window.location.origin, source: 'localhost' }),
+      )
+  }, [])
 
   const sendExpose = async () => {
-    setExposeSending(true);
+    setExposeSending(true)
     try {
       // Get the active session key
-      const sessionsRes = await fetch('/api/sessions');
-      const sessionsData = await sessionsRes.json() as { sessions?: Array<{ key: string; kind?: string }> };
-      const sessions = sessionsData.sessions ?? [];
-      const mainSession = sessions.find((s) => s.kind === 'main') ?? sessions[0];
-      if (!mainSession?.key) throw new Error('No active session');
+      const sessionsRes = await fetch('/api/sessions')
+      const sessionsData = (await sessionsRes.json()) as {
+        sessions?: Array<{ key: string; kind?: string }>
+      }
+      const sessions = sessionsData.sessions ?? []
+      const mainSession = sessions.find((s) => s.kind === 'main') ?? sessions[0]
+      if (!mainSession?.key) throw new Error('No active session')
 
       await fetch('/api/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sessionKey: mainSession.key,
-          message: 'Expose yourself on the network so I can access you from my phone',
+          message:
+            'Expose yourself on the network so I can access you from my phone',
         }),
-      });
-      setExposeSent(true);
+      })
+      setExposeSent(true)
     } catch {
-      setExposeSent(true); // still advance UX
+      setExposeSent(true) // still advance UX
     } finally {
-      setExposeSending(false);
+      setExposeSending(false)
     }
-  };
+  }
 
   useEffect(() => {
-    if (isOpen) setStep(0);
-  }, [isOpen]);
+    if (isOpen) setStep(0)
+  }, [isOpen])
 
   if (!isOpen) {
-    return null;
+    return null
   }
 
   const steps = [
@@ -149,16 +166,20 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
     },
     {
       title: 'Open PulseOS on your phone',
-      body: networkUrl?.source === 'tailscale'
-        ? 'Your Tailscale address — open this on your phone browser.'
-        : networkUrl?.source === 'lan'
-        ? 'Your local network address — phone must be on the same WiFi.'
-        : 'Make sure Tailscale is running on this machine for a shareable link.',
+      body:
+        networkUrl?.source === 'tailscale'
+          ? 'Your Tailscale address — open this on your phone browser.'
+          : networkUrl?.source === 'lan'
+            ? 'Your local network address — phone must be on the same WiFi.'
+            : 'Make sure Tailscale is running on this machine for a shareable link.',
       showTailscaleIcon: networkUrl?.source === 'tailscale',
       action: (
         <button
           type="button"
-          onClick={() => networkUrl && navigator.clipboard.writeText(networkUrl.url).catch(() => {})}
+          onClick={() =>
+            networkUrl &&
+            navigator.clipboard.writeText(networkUrl.url).catch(() => {})
+          }
           className="group flex w-full items-center justify-between rounded-lg border border-primary-700 bg-primary-950 px-4 py-3 transition-colors hover:border-accent-500/50"
         >
           <span className="break-all font-mono text-sm text-accent-300">
@@ -167,37 +188,73 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
           <span className="ml-3 shrink-0 text-primary-500 group-hover:text-accent-400">
             {networkUrl?.source === 'tailscale' && (
               <svg viewBox="0 0 100 100" className="size-4 opacity-60">
-                <circle cx="50" cy="10" r="10" fill="currentColor" opacity="0.9" />
+                <circle
+                  cx="50"
+                  cy="10"
+                  r="10"
+                  fill="currentColor"
+                  opacity="0.9"
+                />
                 <circle cx="50" cy="50" r="10" fill="currentColor" />
-                <circle cx="50" cy="90" r="10" fill="currentColor" opacity="0.9" />
-                <circle cx="10" cy="30" r="10" fill="currentColor" opacity="0.6" />
-                <circle cx="90" cy="30" r="10" fill="currentColor" opacity="0.6" />
-                <circle cx="10" cy="70" r="10" fill="currentColor" opacity="0.6" />
-                <circle cx="90" cy="70" r="10" fill="currentColor" opacity="0.6" />
+                <circle
+                  cx="50"
+                  cy="90"
+                  r="10"
+                  fill="currentColor"
+                  opacity="0.9"
+                />
+                <circle
+                  cx="10"
+                  cy="30"
+                  r="10"
+                  fill="currentColor"
+                  opacity="0.6"
+                />
+                <circle
+                  cx="90"
+                  cy="30"
+                  r="10"
+                  fill="currentColor"
+                  opacity="0.6"
+                />
+                <circle
+                  cx="10"
+                  cy="70"
+                  r="10"
+                  fill="currentColor"
+                  opacity="0.6"
+                />
+                <circle
+                  cx="90"
+                  cy="70"
+                  r="10"
+                  fill="currentColor"
+                  opacity="0.6"
+                />
               </svg>
             )}
           </span>
         </button>
       ),
     },
-  ];
+  ]
 
-  const currentStep = steps[step];
-  const isLastStep = step === steps.length - 1;
+  const currentStep = steps[step]
+  const isLastStep = step === steps.length - 1
 
   const handleNext = () => {
     if (!isLastStep) {
-      setStep((prev) => prev + 1);
-      return;
+      setStep((prev) => prev + 1)
+      return
     }
 
-    localStorage.setItem(STORAGE_KEY_SEEN, 'true');
-    onClose();
-  };
+    localStorage.setItem(STORAGE_KEY_SEEN, 'true')
+    onClose()
+  }
 
   const handleBack = () => {
-    setStep((prev) => Math.max(prev - 1, 0));
-  };
+    setStep((prev) => Math.max(prev - 1, 0))
+  }
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
@@ -217,7 +274,11 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
         </button>
 
         <div className="mb-4 flex items-center gap-3 pr-10">
-          <OpenClawStudioIcon className="size-9 overflow-hidden rounded-xl" />
+          <img
+            src="/pulsecheck-wave.svg"
+            alt="PulseCheck"
+            className="size-9 overflow-hidden rounded-xl object-contain"
+          />
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-white">Mobile Setup</h2>
             <div className="mt-1 flex items-center gap-1.5">
@@ -244,9 +305,13 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
             >
               <div className="mb-2 flex items-center gap-2">
                 {currentStep.showTailscaleIcon ? <TailscaleIcon /> : null}
-                <h3 className="text-sm font-semibold text-primary-100">{currentStep.title}</h3>
+                <h3 className="text-sm font-semibold text-primary-100">
+                  {currentStep.title}
+                </h3>
               </div>
-              <p className="mb-4 text-sm text-primary-300">{currentStep.body}</p>
+              <p className="mb-4 text-sm text-primary-300">
+                {currentStep.body}
+              </p>
               <div>{currentStep.action}</div>
             </motion.div>
           </AnimatePresence>
@@ -280,5 +345,5 @@ export function MobileSetupModal({ isOpen, onClose }: MobileSetupModalProps) {
         </div>
       </motion.div>
     </div>
-  );
+  )
 }

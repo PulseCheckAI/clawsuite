@@ -7,7 +7,14 @@ import {
   storeSessionToken,
   createSessionCookie,
   isPasswordProtectionEnabled,
+  getSessionTokenFromCookie,
+  revokeSessionToken,
 } from '../../server/auth-middleware'
+import {
+  isMultiUserEnabled,
+  verifyUserCredentials,
+  attachSessionUser,
+} from '../../server/auth-users'
 import {
   getClientIp,
   rateLimit,
@@ -16,6 +23,8 @@ import {
 } from '../../server/rate-limit'
 
 const AuthSchema = z.object({
+  // email is used only in multi-user mode; the legacy shared-password flow omits it.
+  email: z.string().email().max(320).optional(),
   password: z.string().max(1000),
 })
 
@@ -51,8 +60,32 @@ export const Route = createFileRoute('/api/auth')({
             )
           }
 
-          const { password } = parsed.data
+          const { email, password } = parsed.data
 
+          // Multi-user mode: verify the user's own email + password via Supabase
+          // Auth, then mint our opaque session token + attach identity/role/org.
+          if (isMultiUserEnabled() && email) {
+            const user = await verifyUserCredentials(email, password)
+            if (!user) {
+              await new Promise((resolve) => setTimeout(resolve, 1000))
+              return json(
+                { ok: false, error: 'Invalid credentials' },
+                { status: 401 },
+              )
+            }
+            const token = generateSessionToken()
+            storeSessionToken(token)
+            attachSessionUser(token, user)
+            return json(
+              { ok: true, user: { email: user.email, role: user.role } },
+              {
+                status: 200,
+                headers: { 'Set-Cookie': createSessionCookie(token) },
+              },
+            )
+          }
+
+          // Legacy shared-password flow (perimeter / break-glass).
           // Verify password
           const valid = verifyPassword(password)
 
@@ -86,6 +119,21 @@ export const Route = createFileRoute('/api/auth')({
             { status: 500 },
           )
         }
+      },
+      // Logout — revoke the session token + clear the auth cookie.
+      DELETE: async ({ request }) => {
+        const token = getSessionTokenFromCookie(request.headers.get('cookie'))
+        if (token) revokeSessionToken(token)
+        return json(
+          { ok: true },
+          {
+            status: 200,
+            headers: {
+              'Set-Cookie':
+                'clawsuite-auth=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0',
+            },
+          },
+        )
       },
     },
   },

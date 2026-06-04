@@ -234,14 +234,17 @@ function AnimatedAgent({
   }
 
   return (
+    // Position via CSS transitions on left/top instead of motion's animate prop.
+    // motion 12.x throws "Cannot create property '_i' on number" while
+    // interpolating percentage-string keyframes every frame. CSS transitions
+    // are visually equivalent, GPU-friendly, and don't trip the motion
+    // keyframe-iteration logic.
     <motion.div
       className="absolute flex flex-col items-center"
-      animate={{
+      style={{
         left: `${behavior.position.x}%`,
         top: `${behavior.position.y}%`,
-      }}
-      transition={{ duration: 0.9, ease: 'easeInOut' }}
-      style={{
+        transition: 'left 0.9s ease-in-out, top 0.9s ease-in-out',
         transform: 'translate(-50%, -50%)',
         zIndex: Math.round(behavior.position.y) + 10,
       }}

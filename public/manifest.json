@@ -1,11 +1,11 @@
 {
-  "name": "ClawSuite",
-  "short_name": "ClawSuite",
-  "description": "The Full-Stack Command Center for OpenClaw",
+  "name": "PulseOS",
+  "short_name": "PulseOS",
+  "description": "PulseOS — the PulseCheck AI command center",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#fafaf9",
-  "theme_color": "#f97316",
+  "background_color": "#070a11",
+  "theme_color": "#0d131d",
   "categories": ["productivity", "utilities"],
   "icons": [
     {
@@ -14,13 +14,13 @@
       "type": "image/png"
     },
     {
-      "src": "/clawsuite-icon-192.png",
+      "src": "/pulseos-icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/clawsuite-icon-512.png",
+      "src": "/pulseos-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

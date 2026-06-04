@@ -1,0 +1,161 @@
+/* ===========================================================================
+   PulseOS Voice Hub — design tokens
+   ===========================================================================
+   Voice-only semantic palette + glass + motion vars. SCOPED under
+   [data-voice-hub] so it never leaks to Mission Control, RSS, Postiz, etc.
+   Brand pulse-orange is preserved (used as a secondary "outbound dialing"
+   accent); the primary live-call accent is electric-blue, with emerald for
+   "compliant" / "connected" — TCPA traffic-light semantics.
+
+   These are deliberately CSS custom properties (not @theme tokens) because
+   they should NOT generate Tailwind utility classes — every voice-hub
+   component reads them via `var(--vh-*)` to stay self-contained.
+
+   Aesthetic sources: ui-ux-pro-max (4.5:1 contrast, 150-300ms timing,
+   focus rings), antigravity-design-expert (layered soft shadows, glass,
+   z-axis depth), framer-motion (spring physics, gesture feedback).
+
+   Consumers: src/routes/voice.tsx imports this file; HubOverview /
+   LiquidGlassPanel / DialerKeypad read these vars.
+   =========================================================================== */
+
+[data-voice-hub] {
+  /* ── Color semantics ────────────────────────────────────────────────────
+     Every voice surface uses these instead of raw hex. Each ramps from
+     subtle (15% alpha — backgrounds) → solid (100% — strokes/text).
+     Contrast verified ≥4.5:1 vs --vh-base for text use.
+  */
+  --vh-active: #2e96ff; /* electric blue — in-progress call          */
+  --vh-active-soft: rgba(46, 150, 255, 0.14);
+  --vh-active-border: rgba(46, 150, 255, 0.4);
+
+  --vh-compliant: #10b981; /* emerald — TCPA cleared / dialing / connected */
+  --vh-compliant-soft: rgba(16, 185, 129, 0.14);
+  --vh-compliant-border: rgba(16, 185, 129, 0.4);
+
+  --vh-warming: #fcb22c; /* amber — queued / DNC review / pending consent */
+  --vh-warming-soft: rgba(252, 178, 44, 0.14);
+  --vh-warming-border: rgba(252, 178, 44, 0.45);
+
+  --vh-blocked: #fe380b; /* TCPA-blocked / refused / failed call           */
+  --vh-blocked-soft: rgba(254, 56, 11, 0.14);
+  --vh-blocked-border: rgba(254, 56, 11, 0.5);
+
+  --vh-base: #0f1729; /* deep navy base — surface beneath every glass    */
+  --vh-base-elevated: #131c33; /* slight lift                                */
+  --vh-text: #f7f4ee; /* warm-white body text                            */
+  --vh-text-muted: rgba(247, 244, 238, 0.6);
+  --vh-text-faint: rgba(247, 244, 238, 0.38);
+
+  /* Brand pulse-orange persists as the secondary "outbound" accent so the
+     hub still reads as PulseOS — not a transplant. */
+  --vh-pulse: #ff6b35;
+  --vh-pulse-soft: rgba(255, 107, 53, 0.14);
+
+  /* ── Glass surfaces ─────────────────────────────────────────────────────
+     Translucent navy fill + backdrop blur. Lighter rim + bottom-weighted
+     shadow = weightlessness (antigravity principle).
+  */
+  --vh-glass-bg: rgba(13, 19, 29, 0.55);
+  --vh-glass-bg-strong: rgba(13, 19, 29, 0.78);
+  --vh-glass-border: rgba(170, 200, 255, 0.14);
+  --vh-glass-border-bright: rgba(170, 200, 255, 0.32);
+  --vh-glass-rim: rgba(255, 255, 255, 0.06); /* inset top highlight       */
+  --vh-glass-blur: 40px;
+  --vh-glass-saturate: 180%;
+
+  /* ── Elevation (z-axis float) ──────────────────────────────────────────
+     "Floating" = soft + offset + diffused. Two-layer: tight contact shadow
+     + wide ambient shadow. Never animate these continuously.
+  */
+  --vh-shadow-rest:
+    0 1px 2px rgba(0, 0, 0, 0.28), 0 12px 32px -8px rgba(0, 0, 0, 0.42);
+  --vh-shadow-float:
+    0 2px 4px rgba(0, 0, 0, 0.32), 0 20px 44px -10px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(46, 150, 255, 0.08);
+  --vh-shadow-press:
+    inset 0 2px 6px rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.04);
+  --vh-shadow-glow-active: 0 0 24px -4px rgba(46, 150, 255, 0.45);
+  --vh-shadow-glow-compliant: 0 0 24px -4px rgba(16, 185, 129, 0.45);
+  --vh-shadow-glow-blocked: 0 0 24px -4px rgba(254, 56, 11, 0.4);
+
+  /* ── Motion ─────────────────────────────────────────────────────────────
+     ui-ux-pro-max says 150-300ms for micro-interactions. Spring tunings
+     are surfaced here so JS (DialerKeypad / HubOverview) can read them
+     via getComputedStyle when needed; the strings are space-separated
+     `stiffness damping mass` triplets.
+  */
+  --vh-duration-quick: 150ms; /* button color / opacity                   */
+  --vh-duration-natural: 240ms; /* layout shifts, panel reveals           */
+  --vh-duration-slow: 420ms; /* large entrance / dismiss                  */
+  --vh-ease-natural: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --vh-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --vh-spring-bouncy: 420 22 0.9;
+  --vh-spring-snap: 520 38 1;
+  --vh-spring-soft: 220 28 1.1;
+
+  /* ── Body-default reset under the voice hub ────────────────────────────
+     Voice hub uses its own warm-white body text + the navy floor — but only
+     when this root attribute is present, so other routes are unaffected.
+  */
+  color: var(--vh-text);
+}
+
+/* Reduced-motion users get no transforms / no animations anywhere in voice
+   hub. (ui-ux-pro-max rule + antigravity execution constraint.) */
+@media (prefers-reduced-motion: reduce) {
+  [data-voice-hub] *,
+  [data-voice-hub] *::before,
+  [data-voice-hub] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+  }
+}
+
+/* Focus rings — visible, brand-coherent, never invisible (a11y critical) */
+[data-voice-hub] :where(button, a, [role='button']):focus-visible {
+  outline: 2px solid var(--vh-active);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Live waveform — pure CSS bars driven by --i index. GPU-friendly: only
+   scaleY animates (not height), so no layout reflow. */
+@keyframes vh-waveform-pulse {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+[data-voice-hub] .vh-wave-bar {
+  display: inline-block;
+  width: 3px;
+  height: 28px;
+  margin: 0 1px;
+  background: linear-gradient(
+    180deg,
+    var(--vh-active) 0%,
+    var(--vh-compliant) 100%
+  );
+  border-radius: 2px;
+  transform-origin: center;
+  will-change: transform;
+  animation: vh-waveform-pulse 1.4s ease-in-out infinite;
+}
+
+/* Subtle compliance traffic-light glow on row hover */
+[data-voice-hub] .vh-row-glow-compliant:hover {
+  box-shadow: inset 3px 0 0 var(--vh-compliant);
+}
+[data-voice-hub] .vh-row-glow-warming:hover {
+  box-shadow: inset 3px 0 0 var(--vh-warming);
+}
+[data-voice-hub] .vh-row-glow-blocked:hover {
+  box-shadow: inset 3px 0 0 var(--vh-blocked);
+}

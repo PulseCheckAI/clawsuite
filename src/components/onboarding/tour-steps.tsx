@@ -1,5 +1,4 @@
 import { Step } from 'react-joyride'
-import { OpenClawStudioIcon } from '@/components/icons/clawsuite'
 
 export const tourSteps: Step[] = [
   // Step 1: Welcome
@@ -8,10 +7,22 @@ export const tourSteps: Step[] = [
     placement: 'center',
     title: 'Welcome to PulseOS! 👋',
     content: (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-        <OpenClawStudioIcon className="size-12 rounded-xl shadow-sm" />
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '12px',
+        }}
+      >
+        <img
+          src="/pulsecheck-wave.svg"
+          alt="PulseCheck"
+          className="size-12 rounded-xl shadow-sm object-contain"
+        />
         <p style={{ textAlign: 'center', margin: 0 }}>
-          Your AI-powered command center for managing agents, chats, files, and more. Let&apos;s take a quick tour!
+          Your AI-powered command center for managing agents, chats, files, and
+          more. Let&apos;s take a quick tour!
         </p>
       </div>
     ),
