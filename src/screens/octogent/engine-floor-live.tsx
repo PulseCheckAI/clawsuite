@@ -46,6 +46,7 @@ import { cn } from '@/lib/utils'
 import { AgentTerminalDrawer } from './cockpit/agent-terminal-drawer'
 import { KgQueryPopover } from './cockpit/kg-query-popover'
 import { SpawnAtDepartmentDialog } from './cockpit/spawn-at-department-dialog'
+import { MotherboardBackdrop } from './motherboard-backdrop'
 
 // ── theme tokens (Liquid Glass + navy Mission Control) ───────────────────────
 const CYAN = '#00E5FF'
@@ -329,10 +330,21 @@ export function EngineFloorLive() {
   const reactorPucks: Puck[] = useMemo(() => {
     const out: Puck[] = []
     for (const a of agents) {
+      // Combined "role · id" label (user-chosen): e.g. tentacle-planner +
+      // terminal-2 → "planner · t2", glyph "P2" (unique per node). Falls back
+      // to id when role/number are absent.
+      const role = (a.tentacleName ?? a.displayName ?? '')
+        .replace(/^tentacle-/, '')
+        .trim()
+      const shortId = (a.id ?? '').replace(/^terminal-/, 't')
+      const num = shortId.match(/\d+/)?.[0] ?? ''
       out.push({
-        key: `og-${a.id}`,
-        glyph: (a.displayName || a.id).slice(0, 2).toUpperCase(),
-        label: a.displayName || a.id,
+        key: `og-${a.id ?? out.length}`,
+        glyph:
+          role && num
+            ? (role[0]! + num).toUpperCase()
+            : (role || a.id || '?').slice(0, 2).toUpperCase(),
+        label: role && shortId ? `${role} · ${shortId}` : role || a.id || '?',
         kind: 'octogent',
         color: CYAN,
         alive: a.lifecycleState === 'running',
@@ -341,9 +353,9 @@ export function EngineFloorLive() {
     }
     for (const s of gatewaySessions) {
       out.push({
-        key: `gw-${s.id}`,
-        glyph: s.id.slice(0, 2).toUpperCase(),
-        label: s.id,
+        key: `gw-${s.id ?? out.length}`,
+        glyph: (s.name || s.id || '?').slice(0, 2).toUpperCase(),
+        label: s.name || s.id || '?',
         kind: 'gateway',
         color: EMERALD,
         alive: true,
@@ -351,9 +363,9 @@ export function EngineFloorLive() {
     }
     for (const j of cronJobs) {
       out.push({
-        key: `cron-${j.id}`,
-        glyph: (j.name || j.id).slice(0, 2).toUpperCase(),
-        label: j.name || j.id,
+        key: `cron-${j.id ?? out.length}`,
+        glyph: (j.name || j.id || '?').slice(0, 2).toUpperCase(),
+        label: j.name || j.id || '?',
         kind: 'cron',
         color: AMBER,
         alive: j.enabled !== false,
@@ -380,8 +392,8 @@ export function EngineFloorLive() {
               : DIM // 'complete'
       return {
         key: `mw-${w.key}`,
-        glyph: (w.displayName || w.label).slice(0, 2).toUpperCase(),
-        label: w.displayName || w.label,
+        glyph: (w.displayName || w.label || '?').slice(0, 2).toUpperCase(),
+        label: w.displayName || w.label || '?',
         kind: 'mission' as const,
         color,
         alive: status === 'running' || status === 'idle',
@@ -426,124 +438,94 @@ export function EngineFloorLive() {
         @keyframes ef-orbit { 0%,100%{transform:translate(-50%,-50%) translate(0,0)} 25%{transform:translate(-50%,-50%) translate(4px,-3px)} 50%{transform:translate(-50%,-50%) translate(-2px,-6px)} 75%{transform:translate(-50%,-50%) translate(-5px,-1px)} }
         @keyframes ef-breathe { 0%,100%{opacity:.55;transform:scale(1)} 50%{opacity:1;transform:scale(1.06)} }
         @keyframes ef-flow { to { stroke-dashoffset: -20; } }
+        /* live status dot — soft outward halo (emerald/cyan when healthy) */
+        @keyframes ef-dot-live { 0%,100%{box-shadow:0 0 0 0 var(--ef-dot-glow,transparent)} 50%{box-shadow:0 0 0 3px transparent} }
+        /* connecting/standby dot — slow amber breathing, no hard pulse */
+        @keyframes ef-dot-wait { 0%,100%{opacity:.45} 50%{opacity:1} }
+        /* offline/down dot — a faint warning throb */
+        @keyframes ef-dot-down { 0%,100%{opacity:.5;transform:scale(.92)} 50%{opacity:.95;transform:scale(1)} }
+        /* "armed & waiting" sweep across a standby module */
+        @keyframes ef-standby-sweep { 0%{transform:translateX(-130%)} 100%{transform:translateX(130%)} }
+        /* gentle module breathing for empty/armed clusters */
+        @keyframes ef-armed { 0%,100%{opacity:.62} 50%{opacity:.95} }
         @media (prefers-reduced-motion: reduce){
           .ef-anim{animation:none!important}
         }
       `}</style>
 
-      {/* header — two honest, per-cluster status pills (provenance + transport) */}
+      {/* transparent living motherboard plane — behind all content, non-interactive */}
+      <MotherboardBackdrop />
+
+      {/* header — Liquid-Glass status modules (provenance + transport).
+          Degraded transports read as STANDBY / RECONNECTING, never "broken". */}
       <div className="flex shrink-0 items-center gap-3 px-6 pt-5">
-        {/* REACTOR pill — Octogent terminals, WS-live transport */}
-        <div
-          className="inline-flex items-center gap-2 rounded-full px-3 py-1.5"
-          style={glass(connected ? EMERALD : AMBER)}
+        {/* REACTOR — Octogent terminals over websocket. Off → amber STANDBY. */}
+        <StatusModule
+          kind={connected ? 'live' : 'connecting'}
+          accent={connected ? EMERALD : AMBER}
+          dotColor={connected ? EMERALD : AMBER}
+          rail="REACTOR"
+          primary={`${reactorLive} live`}
+          primaryColor={CYAN}
+          meta={connected ? 'WS LINK' : 'WS · STANDBY'}
+          metaColor={connected ? EMERALD : AMBER}
+          standby={!connected}
           title={
             connected
               ? 'Octogent terminals · live over websocket (terminal-state-changed)'
-              : 'Octogent event websocket disconnected'
+              : 'Octogent event websocket on standby — reconnecting'
           }
-        >
-          <span
-            className={cn(
-              'ef-anim inline-block size-2 rounded-full',
-              connected && 'animate-pulse',
-            )}
-            style={{
-              background: connected ? EMERALD : AMBER,
-              boxShadow: connected ? `0 0 8px ${EMERALD}` : undefined,
-            }}
-          />
-          <span
-            className="font-mono text-[10px] uppercase tracking-[0.28em]"
-            style={{ color: DIMMER }}
-          >
-            REACTOR
-          </span>
-          <span
-            className="font-mono text-[11px] tabular-nums"
-            style={{ color: CYAN }}
-          >
-            {reactorLive} live
-          </span>
-          <span
-            className="font-mono text-[8px] uppercase tracking-[0.16em]"
-            style={{ color: DIMMER }}
-          >
-            {connected ? 'WS' : 'WS·off'}
-          </span>
-        </div>
-        {/* MISSION pill — Conductor workers, 3s-poll transport */}
-        <div
-          className="inline-flex items-center gap-2 rounded-full px-3 py-1.5"
-          style={glass(missionActive ? CYAN : DIM)}
+        />
+        {/* MISSION — Conductor workers via 3s poll. Idle → cyan ARMED. */}
+        <StatusModule
+          kind={missionActive ? 'live' : 'connecting'}
+          accent={missionActive ? CYAN : DIM}
+          dotColor={missionActive ? CYAN : DIMMER}
+          rail="MISSION"
+          primary={missionActive ? `${missionWorkers.length} active` : 'armed'}
+          primaryColor={missionActive ? CYAN : DIMMER}
+          meta={missionActive ? '3s POLL' : 'STANDBY'}
+          metaColor={missionActive ? CYAN : DIMMER}
+          standby={!missionActive}
           title={
             missionActive
               ? 'Conductor mission workers · 3s poll of spawned sessions'
-              : 'No active Conductor mission (poll disabled while idle)'
+              : 'No active Conductor mission — armed, poll resumes on launch'
           }
-        >
-          <span
-            className={cn(
-              'ef-anim inline-block size-2 rounded-full',
-              missionActive && 'animate-pulse',
-            )}
-            style={{
-              background: missionActive ? CYAN : DIMMER,
-              boxShadow: missionActive ? `0 0 8px ${CYAN}` : undefined,
-            }}
-          />
-          <span
-            className="font-mono text-[10px] uppercase tracking-[0.28em]"
-            style={{ color: DIMMER }}
-          >
-            MISSION
-          </span>
-          <span
-            className="font-mono text-[11px] tabular-nums"
-            style={{ color: missionActive ? CYAN : DIMMER }}
-          >
-            {missionActive ? `${missionWorkers.length} active` : 'idle'}
-          </span>
-          <span
-            className="font-mono text-[8px] uppercase tracking-[0.16em]"
-            style={{ color: DIMMER }}
-          >
-            {missionActive ? '3s POLL' : '—'}
-          </span>
-        </div>
-        <div
-          className="inline-flex items-center gap-2 rounded-full px-3 py-1.5"
-          style={glass(lightrag.healthy ? CYAN : ROSE)}
+        />
+        {/* KG — LightRAG knowledge graph. Down → rose RECONNECTING. */}
+        <StatusModule
+          kind={lightrag.healthy ? 'live' : 'down'}
+          accent={lightrag.healthy ? CYAN : ROSE}
+          dotColor={lightrag.healthy ? CYAN : ROSE}
+          rail="KG"
+          primary={lightrag.healthy ? 'wired' : 'standby'}
+          primaryColor={lightrag.healthy ? CYAN : ROSE}
+          meta={lightrag.healthy ? 'LIGHTRAG' : 'RECONNECTING'}
+          metaColor={lightrag.healthy ? CYAN : ROSE}
+          standby={!lightrag.healthy}
           title={
             lightrag.healthy
               ? 'Knowledge graph reachable'
-              : 'LightRAG unavailable'
+              : 'LightRAG unreachable — knowledge graph reconnecting'
           }
-        >
-          <span
-            className={cn(
-              'ef-anim inline-block size-2 rounded-full',
-              lightrag.healthy && 'animate-pulse',
-            )}
-            style={{
-              background: lightrag.healthy ? CYAN : ROSE,
-              boxShadow: lightrag.healthy ? `0 0 8px ${CYAN}` : undefined,
-            }}
-          />
-          <span
-            className="font-mono text-[10px] uppercase tracking-[0.18em]"
-            style={{ color: lightrag.healthy ? CYAN : ROSE }}
-          >
-            {lightrag.healthy ? 'KG wired' : 'KG down'}
-          </span>
-        </div>
+        />
         {snap.isError && (
-          <span
-            className="ml-auto font-mono text-[10px] uppercase tracking-wider"
-            style={{ color: ROSE }}
+          <div
+            className="ml-auto inline-flex items-center gap-2 rounded-full px-3 py-1.5"
+            style={glass(ROSE)}
+            role="status"
+            aria-label="Octogent control plane reconnecting"
+            title="Octogent control plane unreachable — reconnecting"
           >
-            octogent unreachable
-          </span>
+            <StatusDot kind="down" color={ROSE} />
+            <span
+              className="font-mono text-[10px] uppercase tracking-[0.2em]"
+              style={{ color: ROSE }}
+            >
+              Octogent · reconnecting
+            </span>
+          </div>
         )}
       </div>
 
@@ -708,27 +690,40 @@ export function EngineFloorLive() {
             aria-label="Open knowledge graph query"
             aria-expanded={kgOpen}
             className="flex cursor-pointer items-center justify-center rounded-2xl transition-transform hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00E5FF]"
-            style={{ width: 76, height: 76, ...glass(CYAN, true) }}
+            style={{
+              width: 76,
+              height: 76,
+              ...glass(lightrag.healthy ? CYAN : ROSE, true),
+              opacity: lightrag.healthy ? 1 : 0.82,
+            }}
           >
             <span
               className="font-mono text-lg font-bold"
-              style={{ color: CYAN }}
+              style={{ color: lightrag.healthy ? CYAN : ROSE }}
             >
               KG
             </span>
           </button>
-          <div className="mt-2 text-center">
+          <div className="mt-2 flex flex-col items-center text-center">
             <div
               className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em]"
-              style={{ color: CYAN }}
+              style={{ color: lightrag.healthy ? CYAN : ROSE }}
             >
               Knowledge Graph
             </div>
-            <div
-              className="font-mono text-[9px] uppercase tracking-wider"
-              style={{ color: DIMMER }}
-            >
-              {lightrag.healthy ? 'LightRAG · live' : 'LightRAG · offline'}
+            <div className="mt-0.5 inline-flex items-center gap-1.5">
+              <StatusDot
+                kind={lightrag.healthy ? 'live' : 'down'}
+                color={lightrag.healthy ? CYAN : ROSE}
+              />
+              <span
+                className="font-mono text-[9px] uppercase tracking-wider"
+                style={{ color: lightrag.healthy ? DIMMER : ROSE }}
+              >
+                {lightrag.healthy
+                  ? 'LightRAG · live'
+                  : 'LightRAG · reconnecting'}
+              </span>
             </div>
           </div>
         </div>
@@ -803,11 +798,11 @@ export function EngineFloorLive() {
         <ClusterHubLabel
           x={REACTOR_HUB.x}
           title="Reactor Terminals"
-          accent={CYAN}
+          accent={connected ? CYAN : AMBER}
           line={
             connected
-              ? `${reactorLive} live · WS`
-              : `${reactorLive} live · WS·off`
+              ? `${reactorLive} live · WS link`
+              : `${reactorLive} live · WS standby`
           }
         />
         <ClusterHubLabel
@@ -817,7 +812,7 @@ export function EngineFloorLive() {
           line={
             missionActive
               ? `${missionWorkers.length} active · 3s poll`
-              : 'no active mission'
+              : 'armed · awaiting launch'
           }
         />
 
@@ -986,14 +981,38 @@ export function EngineFloorLive() {
           </div>
         ))}
 
-        {/* empty + overflow states — per cluster, never collapsed */}
+        {/* empty + overflow states — per cluster, never collapsed. An empty
+            cluster reads as ARMED / STANDBY (waiting), never as broken. */}
         {reactorPlaced.length === 0 && (
           <div
-            className="absolute left-[33%] top-[88%] -translate-x-1/2 rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider"
-            style={{ ...glass(CYAN), color: DIMMER }}
+            className="ef-anim absolute left-[33%] top-[88%] flex -translate-x-1/2 items-center gap-2 overflow-hidden rounded-full px-3.5 py-1.5"
+            style={{
+              ...glass(connected ? CYAN : AMBER),
+              animation: 'ef-armed 3.4s ease-in-out infinite',
+            }}
             aria-live="polite"
           >
-            <span style={{ color: CYAN }}>$</span>&nbsp;no reactor terminals
+            <span
+              aria-hidden
+              className="ef-anim pointer-events-none absolute inset-y-0 w-1/3"
+              style={{
+                background: `linear-gradient(90deg, transparent, ${connected ? CYAN : AMBER}22, transparent)`,
+                animation: 'ef-standby-sweep 3.6s ease-in-out infinite',
+              }}
+            />
+            <StatusDot kind="connecting" color={connected ? CYAN : AMBER} />
+            <span
+              className="font-mono text-[10px] uppercase tracking-[0.18em]"
+              style={{ color: connected ? CYAN : AMBER }}
+            >
+              reactor armed
+            </span>
+            <span
+              className="font-mono text-[8px] uppercase tracking-[0.16em]"
+              style={{ color: DIMMER }}
+            >
+              {connected ? 'awaiting terminals' : 'ws standby'}
+            </span>
           </div>
         )}
         {/* Mission empty states are truthful about WHY: idle (poll disabled) vs
@@ -1001,18 +1020,54 @@ export function EngineFloorLive() {
             seeds demo pucks. */}
         {missionPlaced.length === 0 && (
           <div
-            className="absolute left-[67%] top-[88%] -translate-x-1/2 rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider"
-            style={{ ...glass(missionActive ? EMERALD : DIM), color: DIMMER }}
+            className="ef-anim absolute left-[67%] top-[88%] flex -translate-x-1/2 items-center gap-2 overflow-hidden rounded-full px-3.5 py-1.5"
+            style={{
+              ...glass(missionActive ? EMERALD : DIM),
+              animation: 'ef-armed 3.4s ease-in-out infinite',
+            }}
             aria-live="polite"
           >
+            <span
+              aria-hidden
+              className="ef-anim pointer-events-none absolute inset-y-0 w-1/3"
+              style={{
+                background: `linear-gradient(90deg, transparent, ${missionActive ? EMERALD : CYAN}22, transparent)`,
+                animation: 'ef-standby-sweep 3.6s ease-in-out infinite',
+              }}
+            />
+            <StatusDot
+              kind="connecting"
+              color={missionActive ? EMERALD : DIMMER}
+            />
             {missionActive ? (
               <>
-                <span style={{ color: EMERALD }}>·</span>&nbsp;mission
-                decomposing…
+                <span
+                  className="font-mono text-[10px] uppercase tracking-[0.18em]"
+                  style={{ color: EMERALD }}
+                >
+                  mission decomposing
+                </span>
+                <span
+                  className="font-mono text-[8px] uppercase tracking-[0.16em]"
+                  style={{ color: DIMMER }}
+                >
+                  spawning workers
+                </span>
               </>
             ) : (
               <>
-                <span style={{ color: DIMMER }}>·</span>&nbsp;no active mission
+                <span
+                  className="font-mono text-[10px] uppercase tracking-[0.18em]"
+                  style={{ color: DIM }}
+                >
+                  mission armed
+                </span>
+                <span
+                  className="font-mono text-[8px] uppercase tracking-[0.16em]"
+                  style={{ color: DIMMER }}
+                >
+                  awaiting launch
+                </span>
               </>
             )}
           </div>
@@ -1058,6 +1113,102 @@ export function EngineFloorLive() {
           />
         )}
       </div>
+    </div>
+  )
+}
+
+// Status semantics → dot color + animation. Purely presentational.
+//   'live'       → emerald/cyan, soft outward halo
+//   'connecting' → amber, slow breathing (standby / reconnecting)
+//   'down'       → rose, faint warning throb
+type StatusKind = 'live' | 'connecting' | 'down'
+
+// A status dot with state-aware color + subtle, reduced-motion-safe pulse.
+function StatusDot({ kind, color }: { kind: StatusKind; color: string }) {
+  const anim =
+    kind === 'live'
+      ? 'ef-dot-live 2.4s ease-in-out infinite'
+      : kind === 'connecting'
+        ? 'ef-dot-wait 1.8s ease-in-out infinite'
+        : 'ef-dot-down 2.2s ease-in-out infinite'
+  return (
+    <span
+      className="ef-anim relative inline-block size-2 shrink-0 rounded-full"
+      style={{
+        background: color,
+        boxShadow: `0 0 8px ${color}`,
+        // drive the live halo color via a CSS var so the keyframe stays generic
+        ['--ef-dot-glow' as string]: `${color}66`,
+        animation: anim,
+      }}
+    />
+  )
+}
+
+// Liquid-glass header status module. Accent + dot follow the status; when
+// `standby` the module shows a slow shimmer sweep so an offline/idle source
+// reads as "armed & waiting" rather than broken. Presentational only.
+function StatusModule({
+  kind,
+  accent,
+  dotColor,
+  rail,
+  primary,
+  primaryColor,
+  meta,
+  metaColor,
+  title,
+  standby,
+}: {
+  kind: StatusKind
+  accent: string
+  dotColor: string
+  rail: string
+  primary: string
+  primaryColor: string
+  meta: string
+  metaColor: string
+  title: string
+  standby?: boolean
+}) {
+  return (
+    <div
+      className="relative inline-flex items-center gap-2 overflow-hidden rounded-full px-3.5 py-1.5"
+      style={glass(accent, kind === 'live')}
+      title={title}
+      role="status"
+      aria-label={`${rail}: ${primary} — ${meta}`}
+    >
+      {/* standby shimmer — only when armed/waiting/offline, honors reduced-motion */}
+      {standby && (
+        <span
+          aria-hidden
+          className="ef-anim pointer-events-none absolute inset-y-0 w-1/3"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${accent}22, transparent)`,
+            animation: 'ef-standby-sweep 3.6s ease-in-out infinite',
+          }}
+        />
+      )}
+      <StatusDot kind={kind} color={dotColor} />
+      <span
+        className="font-mono text-[10px] font-semibold uppercase tracking-[0.26em]"
+        style={{ color: DIM }}
+      >
+        {rail}
+      </span>
+      <span
+        className="font-mono text-[11px] tabular-nums"
+        style={{ color: primaryColor }}
+      >
+        {primary}
+      </span>
+      <span
+        className="font-mono text-[8px] uppercase tracking-[0.18em]"
+        style={{ color: metaColor }}
+      >
+        {meta}
+      </span>
     </div>
   )
 }

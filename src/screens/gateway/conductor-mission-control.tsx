@@ -639,18 +639,17 @@ function useCyclingStatus(
     if (typeof window === 'undefined') return
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduce) return
+    let intervalId: number | undefined
     const start = window.setTimeout(() => {
       setIdx((i) => (i + 1) % statuses.length)
-      const id = window.setInterval(
+      intervalId = window.setInterval(
         () => setIdx((i) => (i + 1) % statuses.length),
         intervalMs,
       )
-      ;(start as unknown as { _i?: number })._i = id as unknown as number
     }, offset)
     return () => {
       window.clearTimeout(start)
-      const s = start as unknown as { _i?: number }
-      if (s._i != null) window.clearInterval(s._i)
+      if (intervalId != null) window.clearInterval(intervalId)
     }
   }, [statuses, intervalMs, offset])
   return statuses[idx] ?? statuses[0] ?? ''

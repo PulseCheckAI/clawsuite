@@ -25,6 +25,25 @@ const MIN_HEIGHT = 300
 const MAX_HEIGHT = 480
 const DEFAULT_CWD = '~/.openclaw/workspace'
 
+// Calling FitAddon.fit() on a terminal whose container is hidden (zero size) or
+// already disposed throws "Cannot read properties of undefined (reading
+// 'dimensions')" from proposeDimensions(). Only fit when a sized element is
+// connected, and never let a failure escape.
+function safeFit(
+  addon: FitAddon | undefined,
+  terminal: Terminal | undefined,
+): void {
+  if (!addon || !terminal) return
+  const element = terminal.element
+  if (!element || !element.isConnected) return
+  if (element.offsetWidth <= 0 || element.offsetHeight <= 0) return
+  try {
+    addon.fit()
+  } catch {
+    // Renderer not ready or terminal disposed.
+  }
+}
+
 type TerminalTabState = {
   id: string
   title: string
@@ -151,8 +170,8 @@ export function TerminalPanel({ isMobile }: TerminalPanelProps) {
         )
         setHeight(nextHeight)
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime safety
-        const fit = fitMap.current.get(activeTab?.id ?? '')
-        fit?.fit()
+        const tabId = activeTab?.id ?? ''
+        safeFit(fitMap.current.get(tabId), terminalMap.current.get(tabId))
       }
 
       const handleUp = () => {
@@ -207,7 +226,13 @@ export function TerminalPanel({ isMobile }: TerminalPanelProps) {
       terminal.loadAddon(webLinks)
       terminal.loadAddon(searchAddon)
       terminal.open(container)
-      fitAddon.fit()
+      // Defer the initial fit to the next frame: calling fit() synchronously
+      // after open() throws "Cannot read properties of undefined (reading
+      // 'dimensions')" when the container isn't laid out/measured yet. Guard on
+      // a non-zero size; the resize handler re-fits once it's visible.
+      requestAnimationFrame(() => {
+        safeFit(fitAddon, terminal)
+      })
 
       const storedTab = tabs.find((tab) => tab.id === tabId)
       if (storedTab?.log) {

@@ -121,13 +121,21 @@ export function useOctogentEvents(options: UseOctogentEventsOptions = {}): {
       wsRef.current = ws
 
       ws.addEventListener('open', () => {
-        if (disposedRef.current) return
+        // Ignore events from a superseded socket. Under React StrictMode the
+        // first (discarded) socket can fire `close` AFTER the second mount has
+        // reset disposedRef — without this identity check that stale close would
+        // trigger a spurious scheduleReconnect → reconnect loop.
+        if (disposedRef.current || ws !== wsRef.current) return
         reconnectDelayRef.current = INITIAL_RECONNECT_DELAY_MS
         setConnected(true)
       })
 
       ws.addEventListener('message', (ev) => {
-        if (disposedRef.current) return
+        // Ignore events from a superseded socket. Under React StrictMode the
+        // first (discarded) socket can fire `close` AFTER the second mount has
+        // reset disposedRef — without this identity check that stale close would
+        // trigger a spurious scheduleReconnect → reconnect loop.
+        if (disposedRef.current || ws !== wsRef.current) return
         if (typeof ev.data !== 'string') return
         let parsed: unknown
         try {
@@ -155,13 +163,21 @@ export function useOctogentEvents(options: UseOctogentEventsOptions = {}): {
       })
 
       ws.addEventListener('close', () => {
-        if (disposedRef.current) return
+        // Ignore events from a superseded socket. Under React StrictMode the
+        // first (discarded) socket can fire `close` AFTER the second mount has
+        // reset disposedRef — without this identity check that stale close would
+        // trigger a spurious scheduleReconnect → reconnect loop.
+        if (disposedRef.current || ws !== wsRef.current) return
         setConnected(false)
         scheduleReconnect()
       })
 
       ws.addEventListener('error', () => {
-        if (disposedRef.current) return
+        // Ignore events from a superseded socket. Under React StrictMode the
+        // first (discarded) socket can fire `close` AFTER the second mount has
+        // reset disposedRef — without this identity check that stale close would
+        // trigger a spurious scheduleReconnect → reconnect loop.
+        if (disposedRef.current || ws !== wsRef.current) return
         // 'error' is always followed by 'close'; let close handle reconnect.
         setConnected(false)
       })
@@ -172,10 +188,31 @@ export function useOctogentEvents(options: UseOctogentEventsOptions = {}): {
     return () => {
       disposedRef.current = true
       cleanupTimer()
-      try {
-        wsRef.current?.close()
-      } catch {
-        // ignore
+      const ws = wsRef.current
+      if (ws) {
+        // Closing a still-CONNECTING socket makes the browser log a noisy
+        // "WebSocket is closed before the connection is established" error —
+        // which React StrictMode triggers on every dev mount (mount → connect
+        // → cleanup). Defer the close to the handshake completing in that case.
+        if (ws.readyState === WebSocket.CONNECTING) {
+          ws.addEventListener(
+            'open',
+            () => {
+              try {
+                ws.close()
+              } catch {
+                // ignore
+              }
+            },
+            { once: true },
+          )
+        } else {
+          try {
+            ws.close()
+          } catch {
+            // ignore
+          }
+        }
       }
       wsRef.current = null
     }

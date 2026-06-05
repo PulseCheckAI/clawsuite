@@ -16,6 +16,13 @@ import { useAgents as useOctogentAgents } from './use-octogent'
 // ── Gateway sessions (existing /api/gateway/sessions) ───────────────────────
 export type GatewaySession = {
   id: string
+  // The OpenClaw gateway keys sessions on `key` (with `friendlyId`/`label` for
+  // display); `id` is the normalized stable handle we derive from those. Raw
+  // fields kept optional so the normalizer can read whatever the payload sends.
+  key?: string
+  friendlyId?: string
+  label?: string
+  name?: string
   cwd?: string
   status?: string
   modelProvider?: string
@@ -44,7 +51,16 @@ export function useGatewaySessions() {
       })
       if (!res.ok) throw new Error(`gateway/sessions ${res.status}`)
       const payload = (await res.json()) as GatewaySessionsResponse
-      return payload.data?.sessions ?? []
+      // Normalize: the gateway payload keys on `key`/`friendlyId`, not `id`.
+      // Without this every session collapses to a blank id → '?' pucks.
+      return (payload.data?.sessions ?? []).map((s) => {
+        const id = s.id ?? s.key ?? s.friendlyId ?? ''
+        return {
+          ...s,
+          id,
+          name: s.label ?? s.friendlyId ?? s.key ?? id,
+        }
+      })
     },
     staleTime: 5_000,
     refetchInterval: 8_000,

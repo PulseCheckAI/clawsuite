@@ -63,6 +63,23 @@ type TerminalSessionResponse = {
 const DEFAULT_TERMINAL_CWD = '~/.openclaw/workspace'
 const TERMINAL_BG = '#0d0d0d'
 
+// Calling FitAddon.fit() on a terminal whose container is hidden (display:none,
+// zero size) or already disposed throws "Cannot read properties of undefined
+// (reading 'dimensions')" from proposeDimensions(), because the renderer was
+// never initialized. A stale resize handler firing this in a loop is the source
+// of the runaway error spam. Only fit when the container is connected to the DOM
+// AND has a measurable size, and never let a failure escape.
+function safeFit(addon: FitAddon, container: HTMLElement | undefined): void {
+  if (!container || !container.isConnected) return
+  if (container.offsetWidth <= 0 || container.offsetHeight <= 0) return
+  try {
+    addon.fit()
+  } catch {
+    // Renderer not ready or terminal disposed — a later resize/visibility
+    // change will fit successfully.
+  }
+}
+
 function toDebugAnalysis(value: unknown): DebugAnalysis | null {
   if (!value || typeof value !== 'object') return null
   const entry = value as Record<string, unknown>
@@ -479,7 +496,13 @@ export function TerminalWorkspace({
       terminal.loadAddon(fitAddon)
       terminal.loadAddon(webLinks)
       terminal.open(container)
-      fitAddon.fit()
+      // Defer the initial fit to the next frame and guard on size: a tab that
+      // mounts while hidden (inactive) has a zero-size container, and fitting it
+      // synchronously throws. safeFit no-ops until the container is laid out;
+      // the resize/visibility paths re-fit once it becomes visible.
+      window.requestAnimationFrame(function initialFit() {
+        safeFit(fitAddon, containerMapRef.current.get(tab.id))
+      })
 
       terminal.onData(function onData(data) {
         void sendInput(tab.id, data)
@@ -555,15 +578,28 @@ export function TerminalWorkspace({
     function focusOnVisible() {
       if (mode === 'panel' && !panelVisible) return
       focusActiveTerminal()
+      // A tab created while inactive (or the panel while hidden) has a zero-size
+      // container, so its initial fit was skipped and it would render blank.
+      // Now that it is visible, fit it on the next frame so it actually renders.
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime safety
+      const tabId = activeTab?.id
+      if (!tabId) return
+      window.requestAnimationFrame(function fitNowVisible() {
+        const fitAddon = fitMapRef.current.get(tabId)
+        if (!fitAddon) return
+        safeFit(fitAddon, containerMapRef.current.get(tabId))
+        const terminal = terminalMapRef.current.get(tabId)
+        if (terminal) void resizeSession(tabId, terminal)
+      })
     },
-    [focusActiveTerminal, mode, panelVisible, activeTabId],
+    [activeTab?.id, focusActiveTerminal, mode, panelVisible, resizeSession],
   )
 
   useEffect(
     function fitOnResize() {
       function handleResize() {
-        for (const fitAddon of fitMapRef.current.values()) {
-          fitAddon.fit()
+        for (const [tabId, fitAddon] of fitMapRef.current.entries()) {
+          safeFit(fitAddon, containerMapRef.current.get(tabId))
         }
         const snapshot = useTerminalPanelStore.getState().tabs
         for (const tab of snapshot) {

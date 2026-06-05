@@ -95,7 +95,10 @@ export function RssScreen() {
     retry: false,
   })
 
-  const accounts = accountsQuery.data ?? []
+  // Guard against a non-array payload (e.g. Postiz backend returning an error
+  // object) — `?? []` only covers nullish, so a truthy non-array would crash
+  // the whole screen at `accounts.filter`. Array.isArray makes RSS crash-proof.
+  const accounts = Array.isArray(accountsQuery.data) ? accountsQuery.data : []
   // Default-select every connected channel until the user toggles one off.
   const selectedIds = useMemo(
     () => accounts.filter((a) => selected[a.id] ?? true).map((a) => a.id),

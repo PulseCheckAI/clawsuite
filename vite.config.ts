@@ -352,6 +352,29 @@ const config = defineConfig(({ mode, command }) => {
           changeOrigin: false,
           rewrite: () => '/jobs/subscribe',
         },
+        // Octogent orchestrator (:8787) — proxy /octogent/api/* incl. the
+        // terminal-events WS so the dev preview streams live agents (prod parity:
+        // serve.mjs PROXY_ROUTES octogent). Bare /octogent stays SSR (not matched).
+        '/octogent/api': {
+          target: (env.OCTOGENT_URL?.trim() || 'http://127.0.0.1:8787').replace(
+            /\/$/,
+            '',
+          ),
+          ws: true,
+          changeOrigin: false,
+          rewrite: (path) => path.replace(/^\/octogent/, ''),
+        },
+        // LightRAG knowledge graph (:9622) — proxy /lightrag/* (health, docs, api)
+        // so the dev preview's KG anchor goes live (prod parity: serve.mjs lightrag-http).
+        '/lightrag': {
+          target: (env.LIGHTRAG_URL?.trim() || 'http://127.0.0.1:9622').replace(
+            /\/$/,
+            '',
+          ),
+          ws: true,
+          changeOrigin: false,
+          rewrite: (path) => path.replace(/^\/lightrag/, ''),
+        },
       },
     },
     plugins: [

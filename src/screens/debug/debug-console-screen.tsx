@@ -142,7 +142,10 @@ type GatewayHealthData = {
   raw: Record<string, unknown>
 }
 
-const GATEWAY_HEALTH_URL = 'http://127.0.0.1:18789/health'
+// Same-origin proxy (src/routes/api/gateway/health.ts) — the browser cannot
+// fetch the loopback gateway directly (cross-origin → CORS), so go through the
+// dashboard server, which fetches the gateway /health server-side.
+const GATEWAY_HEALTH_URL = '/api/gateway/health'
 
 function normalizeHealthStatus(value: unknown): GatewayHealthStatus {
   if (typeof value !== 'string') return 'starting'

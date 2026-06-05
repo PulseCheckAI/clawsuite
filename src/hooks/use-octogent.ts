@@ -153,6 +153,7 @@ export type AgentLifecycle =
 export type Agent = {
   id: string
   displayName?: string
+  tentacleName?: string
   tentacleId?: string | null
   worktreeId?: string | null
   parentTerminalId?: string | null
@@ -164,8 +165,15 @@ export type Agent = {
   lastActivityAt?: string
 }
 
+// Octogent's /api/terminal-snapshots uses `terminalId`/`label`/`tentacleName`/
+// `processId`/`lifecycleUpdatedAt` (verified against the live API). Older/
+// alternate spellings (`id`/`displayName`/`pid`/`lastActivityAt`) are kept as
+// optional fallbacks so this stays forward-compatible if the API converges.
 type TerminalRaw = {
-  id: string
+  terminalId?: string
+  id?: string
+  label?: string
+  tentacleName?: string
   displayName?: string
   tentacleId?: string | null
   worktreeId?: string | null
@@ -173,8 +181,10 @@ type TerminalRaw = {
   workspaceMode?: 'shared' | 'worktree' | null
   lifecycleState?: AgentLifecycle
   lifecycleReason?: string | null
+  processId?: number | null
   pid?: number | null
   createdAt?: string
+  lifecycleUpdatedAt?: string
   lastActivityAt?: string
 }
 
@@ -183,18 +193,22 @@ type TerminalSnapshotsResponse =
   | { terminals?: Array<TerminalRaw> }
 
 function normalizeAgent(t: TerminalRaw): Agent {
+  const id = t.terminalId ?? t.id ?? ''
   return {
-    id: t.id,
-    displayName: t.displayName,
+    id,
+    // `label` ("terminal-2") is unique per terminal so pucks stay
+    // distinguishable; `tentacleName` ("tentacle-planner") is the role fallback.
+    displayName: t.label ?? t.tentacleName ?? t.displayName ?? id,
+    tentacleName: t.tentacleName,
     tentacleId: t.tentacleId ?? null,
     worktreeId: t.worktreeId ?? null,
     parentTerminalId: t.parentTerminalId ?? null,
     workspaceMode: t.workspaceMode ?? null,
     lifecycleState: t.lifecycleState,
     lifecycleReason: t.lifecycleReason ?? null,
-    pid: t.pid ?? null,
+    pid: t.processId ?? t.pid ?? null,
     createdAt: t.createdAt,
-    lastActivityAt: t.lastActivityAt,
+    lastActivityAt: t.lifecycleUpdatedAt ?? t.lastActivityAt,
   }
 }
 

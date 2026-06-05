@@ -190,6 +190,7 @@ import { Route as ApiGatewaySessionsRouteImport } from './routes/api/gateway/ses
 import { Route as ApiGatewayRpcRouteImport } from './routes/api/gateway/rpc'
 import { Route as ApiGatewayNodesRouteImport } from './routes/api/gateway/nodes'
 import { Route as ApiGatewayLogsRouteImport } from './routes/api/gateway/logs'
+import { Route as ApiGatewayHealthRouteImport } from './routes/api/gateway/health'
 import { Route as ApiGatewayChannelsRouteImport } from './routes/api/gateway/channels'
 import { Route as ApiGatewayAgentsRouteImport } from './routes/api/gateway/agents'
 import { Route as ApiEventsRecentRouteImport } from './routes/api/events/recent'
@@ -1141,6 +1142,11 @@ const ApiGatewayLogsRoute = ApiGatewayLogsRouteImport.update({
   path: '/api/gateway/logs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGatewayHealthRoute = ApiGatewayHealthRouteImport.update({
+  id: '/api/gateway/health',
+  path: '/api/gateway/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGatewayChannelsRoute = ApiGatewayChannelsRouteImport.update({
   id: '/api/gateway/channels',
   path: '/api/gateway/channels',
@@ -1503,6 +1509,7 @@ export interface FileRoutesByFullPath {
   '/api/events/recent': typeof ApiEventsRecentRoute
   '/api/gateway/agents': typeof ApiGatewayAgentsRoute
   '/api/gateway/channels': typeof ApiGatewayChannelsRoute
+  '/api/gateway/health': typeof ApiGatewayHealthRoute
   '/api/gateway/logs': typeof ApiGatewayLogsRoute
   '/api/gateway/nodes': typeof ApiGatewayNodesRoute
   '/api/gateway/rpc': typeof ApiGatewayRpcRoute
@@ -1729,6 +1736,7 @@ export interface FileRoutesByTo {
   '/api/events/recent': typeof ApiEventsRecentRoute
   '/api/gateway/agents': typeof ApiGatewayAgentsRoute
   '/api/gateway/channels': typeof ApiGatewayChannelsRoute
+  '/api/gateway/health': typeof ApiGatewayHealthRoute
   '/api/gateway/logs': typeof ApiGatewayLogsRoute
   '/api/gateway/nodes': typeof ApiGatewayNodesRoute
   '/api/gateway/rpc': typeof ApiGatewayRpcRoute
@@ -1957,6 +1965,7 @@ export interface FileRoutesById {
   '/api/events/recent': typeof ApiEventsRecentRoute
   '/api/gateway/agents': typeof ApiGatewayAgentsRoute
   '/api/gateway/channels': typeof ApiGatewayChannelsRoute
+  '/api/gateway/health': typeof ApiGatewayHealthRoute
   '/api/gateway/logs': typeof ApiGatewayLogsRoute
   '/api/gateway/nodes': typeof ApiGatewayNodesRoute
   '/api/gateway/rpc': typeof ApiGatewayRpcRoute
@@ -2186,6 +2195,7 @@ export interface FileRouteTypes {
     | '/api/events/recent'
     | '/api/gateway/agents'
     | '/api/gateway/channels'
+    | '/api/gateway/health'
     | '/api/gateway/logs'
     | '/api/gateway/nodes'
     | '/api/gateway/rpc'
@@ -2412,6 +2422,7 @@ export interface FileRouteTypes {
     | '/api/events/recent'
     | '/api/gateway/agents'
     | '/api/gateway/channels'
+    | '/api/gateway/health'
     | '/api/gateway/logs'
     | '/api/gateway/nodes'
     | '/api/gateway/rpc'
@@ -2639,6 +2650,7 @@ export interface FileRouteTypes {
     | '/api/events/recent'
     | '/api/gateway/agents'
     | '/api/gateway/channels'
+    | '/api/gateway/health'
     | '/api/gateway/logs'
     | '/api/gateway/nodes'
     | '/api/gateway/rpc'
@@ -2847,6 +2859,7 @@ export interface RootRouteChildren {
   ApiDebugStatusRoute: typeof ApiDebugStatusRoute
   ApiGatewayAgentsRoute: typeof ApiGatewayAgentsRoute
   ApiGatewayChannelsRoute: typeof ApiGatewayChannelsRoute
+  ApiGatewayHealthRoute: typeof ApiGatewayHealthRoute
   ApiGatewayLogsRoute: typeof ApiGatewayLogsRoute
   ApiGatewayNodesRoute: typeof ApiGatewayNodesRoute
   ApiGatewayRpcRoute: typeof ApiGatewayRpcRoute
@@ -4190,6 +4203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGatewayLogsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/gateway/health': {
+      id: '/api/gateway/health'
+      path: '/api/gateway/health'
+      fullPath: '/api/gateway/health'
+      preLoaderRoute: typeof ApiGatewayHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/gateway/channels': {
       id: '/api/gateway/channels'
       path: '/api/gateway/channels'
@@ -4879,6 +4899,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDebugStatusRoute: ApiDebugStatusRoute,
   ApiGatewayAgentsRoute: ApiGatewayAgentsRoute,
   ApiGatewayChannelsRoute: ApiGatewayChannelsRoute,
+  ApiGatewayHealthRoute: ApiGatewayHealthRoute,
   ApiGatewayLogsRoute: ApiGatewayLogsRoute,
   ApiGatewayNodesRoute: ApiGatewayNodesRoute,
   ApiGatewayRpcRoute: ApiGatewayRpcRoute,
