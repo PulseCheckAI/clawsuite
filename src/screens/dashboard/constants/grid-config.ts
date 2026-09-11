@@ -14,6 +14,7 @@ export type WidgetId =
   | 'activity-log'
   | 'services-health'
   | 'scheduled-jobs'
+  | 'founder-metrics'
 
 export type WidgetRegistryEntry = {
   id: WidgetId
@@ -21,6 +22,7 @@ export type WidgetRegistryEntry = {
 }
 
 export const WIDGET_REGISTRY: Array<WidgetRegistryEntry> = [
+  { id: 'founder-metrics', defaultSize: 'large' },
   { id: 'usage-meter', defaultSize: 'large' },
   { id: 'agent-status', defaultSize: 'medium' },
   { id: 'recent-sessions', defaultSize: 'medium' },

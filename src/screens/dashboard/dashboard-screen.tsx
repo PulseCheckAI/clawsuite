@@ -28,6 +28,7 @@ import { CollapsibleWidget } from './components/collapsible-widget'
 import { MetricsWidget } from './components/metrics-widget'
 import { NotificationsWidget } from './components/notifications-widget'
 import { RecentSessionsWidget } from './components/recent-sessions-widget'
+import { FounderMetricsWidget } from './components/founder-metrics-widget'
 import { ServicesHealthWidget } from './components/services-health-widget'
 import { ScheduledJobsWidget } from './components/scheduled-jobs-widget'
 import { SkillsWidget } from './components/skills-widget'
@@ -354,6 +355,7 @@ export function DashboardScreen() {
   const desktopLayout = useMemo(
     function buildDesktopLayout() {
       return {
+        showFounderMetrics: visibleWidgetSet.has('founder-metrics'),
         showServices: visibleWidgetSet.has('services-health'),
         showScheduledJobs: visibleWidgetSet.has('scheduled-jobs'),
         showUsage: visibleWidgetSet.has('usage-meter'),
@@ -373,10 +375,28 @@ export function DashboardScreen() {
     function buildMobileDeepSections() {
       const sections: Array<MobileWidgetSection> = []
       const deepTierOrder = widgetOrder.filter((id) =>
-        ['services', 'scheduled-jobs', 'activity', 'agents', 'sessions', 'tasks', 'skills', 'usage'].includes(id),
+        ['founder-metrics', 'services', 'scheduled-jobs', 'activity', 'agents', 'sessions', 'tasks', 'skills', 'usage'].includes(id),
       )
 
       for (const widgetId of deepTierOrder) {
+        if (widgetId === 'founder-metrics') {
+          if (!visibleWidgetSet.has('founder-metrics')) continue
+          sections.push({
+            id: widgetId,
+            label: 'Founder Metrics',
+            content: (
+              <div className="w-full">
+                <CollapsibleWidget title="Founder Metrics" summary="MRR, ARR, pipeline" defaultOpen={false}>
+                  <ErrorBoundary title="Widget Error" description="This widget failed to load.">
+                    <FounderMetricsWidget onRemove={() => removeWidget('founder-metrics')} />
+                  </ErrorBoundary>
+                </CollapsibleWidget>
+              </div>
+            ),
+          })
+          continue
+        }
+
         if (widgetId === 'services') {
           if (!visibleWidgetSet.has('services-health')) continue
           sections.push({
@@ -1063,6 +1083,12 @@ export function DashboardScreen() {
               <ErrorBoundary title="Widget Error" description="This widget failed to load.">
                 <UsageTrendChart data={dashboardData} />
               </ErrorBoundary>
+
+              {desktopLayout.showFounderMetrics ? (
+                <ErrorBoundary title="Widget Error" description="This widget failed to load.">
+                  <FounderMetricsWidget onRemove={() => removeWidget('founder-metrics')} />
+                </ErrorBoundary>
+              ) : null}
 
               {desktopLayout.showServices ? (
                 <ErrorBoundary title="Widget Error" description="This widget failed to load.">

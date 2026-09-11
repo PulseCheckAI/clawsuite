@@ -15,6 +15,13 @@ export type WidgetMeta = {
 
 export const WIDGET_META: WidgetMeta[] = [
   {
+    id: 'founder-metrics',
+    label: 'Founder Metrics',
+    scope: 'dashboard',
+    tier: 'primary',
+    defaultVisible: true,
+  },
+  {
     id: 'skills',
     label: 'Skills',
     scope: 'dashboard',

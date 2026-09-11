@@ -15,6 +15,7 @@ const HIDDEN_BY_DEFAULT: WidgetId[] = [
   'agent-status',
   'activity-log',
   'skills',
+  'founder-metrics',
 ]
 
 function getDefaultVisibleIds(): WidgetId[] {
