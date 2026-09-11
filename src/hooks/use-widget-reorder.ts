@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react'
 export type DashboardWidgetOrderId =
   | 'now-card'
   | 'metrics'
+  | 'founder-metrics'
   | 'services'
   | 'scheduled-jobs'
   | 'tasks'
@@ -18,6 +19,7 @@ const STORAGE_KEY = 'dashboard-widget-order'
 export const DEFAULT_DASHBOARD_WIDGET_ORDER: Array<DashboardWidgetOrderId> = [
   'now-card',
   'metrics',
+  'founder-metrics',
   'services',
   'scheduled-jobs',
   'tasks',
