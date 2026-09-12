@@ -32,6 +32,18 @@ const __dirname_resolved =
     : dirname(fileURLToPath(import.meta.url))
 const PTY_HELPER = resolve(__dirname_resolved, 'pty-helper.py')
 
+// Resolve the Python interpreter for the PTY helper. On Windows a bare
+// `python3` frequently resolves to the Microsoft Store stub
+// (…\WindowsApps\python3.exe), which only prints "Python was not found" and
+// breaks every terminal session. Prefer the `py` launcher there — it is not
+// shadowed by the Store stub. `PTY_PYTHON` overrides for non-standard installs.
+function resolvePtyPython(): { cmd: string; prefixArgs: string[] } {
+  const override = process.env.PTY_PYTHON?.trim()
+  if (override) return { cmd: override, prefixArgs: [] }
+  if (process.platform === 'win32') return { cmd: 'py', prefixArgs: ['-3'] }
+  return { cmd: 'python3', prefixArgs: [] }
+}
+
 export function createTerminalSession(params: {
   command?: string[]
   cwd?: string
@@ -82,10 +94,11 @@ export function createTerminalSession(params: {
     }
   }
 
-  // Spawn Python PTY helper
+  // Spawn Python PTY helper. resolvePtyPython() avoids the Windows Store stub.
+  const py = resolvePtyPython()
   const proc: ChildProcess = spawn(
-    'python3',
-    [PTY_HELPER, shell, cwd, String(cols), String(rows)],
+    py.cmd,
+    [...py.prefixArgs, PTY_HELPER, shell, cwd, String(cols), String(rows)],
     {
       env: {
         ...process.env,

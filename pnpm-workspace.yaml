@@ -1,0 +1,11 @@
+# Dependencies allowed to run install/build scripts. pnpm 10+ blocks build
+# scripts by default and (pnpm 11) hard-errors on ignored ones, so this list is
+# required for `pnpm install` to succeed in CI / Docker. Mirrors package.json's
+# `pnpm.onlyBuiltDependencies` (which pnpm 11 no longer reads).
+onlyBuiltDependencies:
+  - esbuild
+  - lightningcss
+  - unrs-resolver
+  - electron
+  - electron-winstaller
+  - '@electron/rebuild'
