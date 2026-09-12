@@ -10,17 +10,19 @@ import { createReadStream } from 'node:fs'
 import { Readable } from 'node:stream'
 import type { ReadableStream as NodeReadableStream } from 'node:stream/web'
 import { createFileRoute } from '@tanstack/react-router'
-import { requireLocalOrAuth } from '@/server/auth-middleware'
+import { isAuthenticated, isLocalRequest } from '@/server/auth-middleware'
 import { getMedia } from '@/server/linkedin-media-store'
 
 export const Route = createFileRoute('/api/linkedin/media')({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        // The MCP server fetches from 127.0.0.1 with no cookie. Allow local
-        // requests when password protection isn't gating; otherwise require
-        // the session cookie like every other surface.
-        if (!requireLocalOrAuth(request)) {
+        // The LinkedIn MCP (127.0.0.1:8120) fetches this with NO session cookie,
+        // so under password mode requireLocalOrAuth() would 401 it and every
+        // image/document post would fail (audit #8). The unguessable 32-hex
+        // token below is the real capability; allow a loopback request OR an
+        // authenticated session, then still require a valid token.
+        if (!isLocalRequest(request) && !isAuthenticated(request)) {
           return new Response('Unauthorized', { status: 401 })
         }
 

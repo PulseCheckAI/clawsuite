@@ -41,7 +41,7 @@ function renderLoader(loaderStyle: LoaderStyle, iconClassName?: string) {
         )}
         aria-hidden="true"
       >
-        🦞
+        🤖
       </span>
     )
   }

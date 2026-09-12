@@ -22,6 +22,7 @@ import { Route as SessionsRouteImport } from './routes/sessions'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as RssRouteImport } from './routes/rss'
 import { Route as RpcConsoleRouteImport } from './routes/rpc-console'
+import { Route as ResetRouteImport } from './routes/reset'
 import { Route as PostizRouteImport } from './routes/postiz'
 import { Route as OperationsRouteImport } from './routes/operations'
 import { Route as OctogentRouteImport } from './routes/octogent'
@@ -94,6 +95,7 @@ import { Route as ApiGraphqlRouteImport } from './routes/api/graphql'
 import { Route as ApiGatewayRestartRouteImport } from './routes/api/gateway-restart'
 import { Route as ApiGatewayDiscoverRouteImport } from './routes/api/gateway-discover'
 import { Route as ApiGatewayConfigRouteImport } from './routes/api/gateway-config'
+import { Route as ApiFounderMetricsRouteImport } from './routes/api/founder-metrics'
 import { Route as ApiFilesRouteImport } from './routes/api/files'
 import { Route as ApiEventsRouteImport } from './routes/api/events'
 import { Route as ApiDebugAnalyzeRouteImport } from './routes/api/debug-analyze'
@@ -299,6 +301,11 @@ const RssRoute = RssRouteImport.update({
 const RpcConsoleRoute = RpcConsoleRouteImport.update({
   id: '/rpc-console',
   path: '/rpc-console',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetRoute = ResetRouteImport.update({
+  id: '/reset',
+  path: '/reset',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PostizRoute = PostizRouteImport.update({
@@ -659,6 +666,11 @@ const ApiGatewayDiscoverRoute = ApiGatewayDiscoverRouteImport.update({
 const ApiGatewayConfigRoute = ApiGatewayConfigRouteImport.update({
   id: '/api/gateway-config',
   path: '/api/gateway-config',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiFounderMetricsRoute = ApiFounderMetricsRouteImport.update({
+  id: '/api/founder-metrics',
+  path: '/api/founder-metrics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiFilesRoute = ApiFilesRouteImport.update({
@@ -1409,6 +1421,7 @@ export interface FileRoutesByFullPath {
   '/octogent': typeof OctogentRoute
   '/operations': typeof OperationsRoute
   '/postiz': typeof PostizRoute
+  '/reset': typeof ResetRoute
   '/rpc-console': typeof RpcConsoleRoute
   '/rss': typeof RssRoute
   '/security': typeof SecurityRoute
@@ -1448,6 +1461,7 @@ export interface FileRoutesByFullPath {
   '/api/debug-analyze': typeof ApiDebugAnalyzeRoute
   '/api/events': typeof ApiEventsRouteWithChildren
   '/api/files': typeof ApiFilesRoute
+  '/api/founder-metrics': typeof ApiFounderMetricsRoute
   '/api/gateway-config': typeof ApiGatewayConfigRoute
   '/api/gateway-discover': typeof ApiGatewayDiscoverRoute
   '/api/gateway-restart': typeof ApiGatewayRestartRoute
@@ -1637,6 +1651,7 @@ export interface FileRoutesByTo {
   '/octogent': typeof OctogentRoute
   '/operations': typeof OperationsRoute
   '/postiz': typeof PostizRoute
+  '/reset': typeof ResetRoute
   '/rpc-console': typeof RpcConsoleRoute
   '/rss': typeof RssRoute
   '/security': typeof SecurityRoute
@@ -1675,6 +1690,7 @@ export interface FileRoutesByTo {
   '/api/debug-analyze': typeof ApiDebugAnalyzeRoute
   '/api/events': typeof ApiEventsRouteWithChildren
   '/api/files': typeof ApiFilesRoute
+  '/api/founder-metrics': typeof ApiFounderMetricsRoute
   '/api/gateway-config': typeof ApiGatewayConfigRoute
   '/api/gateway-discover': typeof ApiGatewayDiscoverRoute
   '/api/gateway-restart': typeof ApiGatewayRestartRoute
@@ -1865,6 +1881,7 @@ export interface FileRoutesById {
   '/octogent': typeof OctogentRoute
   '/operations': typeof OperationsRoute
   '/postiz': typeof PostizRoute
+  '/reset': typeof ResetRoute
   '/rpc-console': typeof RpcConsoleRoute
   '/rss': typeof RssRoute
   '/security': typeof SecurityRoute
@@ -1904,6 +1921,7 @@ export interface FileRoutesById {
   '/api/debug-analyze': typeof ApiDebugAnalyzeRoute
   '/api/events': typeof ApiEventsRouteWithChildren
   '/api/files': typeof ApiFilesRoute
+  '/api/founder-metrics': typeof ApiFounderMetricsRoute
   '/api/gateway-config': typeof ApiGatewayConfigRoute
   '/api/gateway-discover': typeof ApiGatewayDiscoverRoute
   '/api/gateway-restart': typeof ApiGatewayRestartRoute
@@ -2095,6 +2113,7 @@ export interface FileRouteTypes {
     | '/octogent'
     | '/operations'
     | '/postiz'
+    | '/reset'
     | '/rpc-console'
     | '/rss'
     | '/security'
@@ -2134,6 +2153,7 @@ export interface FileRouteTypes {
     | '/api/debug-analyze'
     | '/api/events'
     | '/api/files'
+    | '/api/founder-metrics'
     | '/api/gateway-config'
     | '/api/gateway-discover'
     | '/api/gateway-restart'
@@ -2323,6 +2343,7 @@ export interface FileRouteTypes {
     | '/octogent'
     | '/operations'
     | '/postiz'
+    | '/reset'
     | '/rpc-console'
     | '/rss'
     | '/security'
@@ -2361,6 +2382,7 @@ export interface FileRouteTypes {
     | '/api/debug-analyze'
     | '/api/events'
     | '/api/files'
+    | '/api/founder-metrics'
     | '/api/gateway-config'
     | '/api/gateway-discover'
     | '/api/gateway-restart'
@@ -2550,6 +2572,7 @@ export interface FileRouteTypes {
     | '/octogent'
     | '/operations'
     | '/postiz'
+    | '/reset'
     | '/rpc-console'
     | '/rss'
     | '/security'
@@ -2589,6 +2612,7 @@ export interface FileRouteTypes {
     | '/api/debug-analyze'
     | '/api/events'
     | '/api/files'
+    | '/api/founder-metrics'
     | '/api/gateway-config'
     | '/api/gateway-discover'
     | '/api/gateway-restart'
@@ -2779,6 +2803,7 @@ export interface RootRouteChildren {
   OctogentRoute: typeof OctogentRoute
   OperationsRoute: typeof OperationsRoute
   PostizRoute: typeof PostizRoute
+  ResetRoute: typeof ResetRoute
   RpcConsoleRoute: typeof RpcConsoleRoute
   RssRoute: typeof RssRoute
   SecurityRoute: typeof SecurityRoute
@@ -2818,6 +2843,7 @@ export interface RootRouteChildren {
   ApiDebugAnalyzeRoute: typeof ApiDebugAnalyzeRoute
   ApiEventsRoute: typeof ApiEventsRouteWithChildren
   ApiFilesRoute: typeof ApiFilesRoute
+  ApiFounderMetricsRoute: typeof ApiFounderMetricsRoute
   ApiGatewayConfigRoute: typeof ApiGatewayConfigRoute
   ApiGatewayDiscoverRoute: typeof ApiGatewayDiscoverRoute
   ApiGatewayRestartRoute: typeof ApiGatewayRestartRoute
@@ -3025,6 +3051,13 @@ declare module '@tanstack/react-router' {
       path: '/rpc-console'
       fullPath: '/rpc-console'
       preLoaderRoute: typeof RpcConsoleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset': {
+      id: '/reset'
+      path: '/reset'
+      fullPath: '/reset'
+      preLoaderRoute: typeof ResetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/postiz': {
@@ -3529,6 +3562,13 @@ declare module '@tanstack/react-router' {
       path: '/api/gateway-config'
       fullPath: '/api/gateway-config'
       preLoaderRoute: typeof ApiGatewayConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/founder-metrics': {
+      id: '/api/founder-metrics'
+      path: '/api/founder-metrics'
+      fullPath: '/api/founder-metrics'
+      preLoaderRoute: typeof ApiFounderMetricsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/files': {
@@ -4819,6 +4859,7 @@ const rootRouteChildren: RootRouteChildren = {
   OctogentRoute: OctogentRoute,
   OperationsRoute: OperationsRoute,
   PostizRoute: PostizRoute,
+  ResetRoute: ResetRoute,
   RpcConsoleRoute: RpcConsoleRoute,
   RssRoute: RssRoute,
   SecurityRoute: SecurityRoute,
@@ -4858,6 +4899,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDebugAnalyzeRoute: ApiDebugAnalyzeRoute,
   ApiEventsRoute: ApiEventsRouteWithChildren,
   ApiFilesRoute: ApiFilesRoute,
+  ApiFounderMetricsRoute: ApiFounderMetricsRoute,
   ApiGatewayConfigRoute: ApiGatewayConfigRoute,
   ApiGatewayDiscoverRoute: ApiGatewayDiscoverRoute,
   ApiGatewayRestartRoute: ApiGatewayRestartRoute,

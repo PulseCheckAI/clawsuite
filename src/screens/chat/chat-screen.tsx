@@ -161,8 +161,10 @@ function messageFallbackSignature(message: GatewayMessage): string {
   const attachments = Array.isArray(message.attachments)
     ? message.attachments
         .map((attachment) => {
-          const name = typeof attachment?.name === 'string' ? attachment.name : ''
-          const size = typeof attachment?.size === 'number' ? String(attachment.size) : ''
+          const name =
+            typeof attachment?.name === 'string' ? attachment.name : ''
+          const size =
+            typeof attachment?.size === 'number' ? String(attachment.size) : ''
           const type =
             typeof attachment?.contentType === 'string'
               ? attachment.contentType
@@ -264,7 +266,8 @@ function getMessageAttachmentSignature(message: GatewayMessage): string {
   return message.attachments
     .map((attachment) => {
       const name = typeof attachment?.name === 'string' ? attachment.name : ''
-      const size = typeof attachment?.size === 'number' ? String(attachment.size) : ''
+      const size =
+        typeof attachment?.size === 'number' ? String(attachment.size) : ''
       const type =
         typeof attachment?.contentType === 'string'
           ? attachment.contentType
@@ -311,7 +314,9 @@ function shouldCollapseTextDuplicate(
   )
 }
 
-function stripQueuedWrapperFromUserMessage(message: GatewayMessage): GatewayMessage {
+function stripQueuedWrapperFromUserMessage(
+  message: GatewayMessage,
+): GatewayMessage {
   if (message.role !== 'user') return message
 
   const text = textFromMessage(message)
@@ -369,7 +374,8 @@ export function ChatScreen({
     if (typeof window === 'undefined') return 'low'
     const key = `clawsuite-thinking-${activeFriendlyId || 'new'}`
     const stored = window.sessionStorage.getItem(key)
-    if (stored === 'off' || stored === 'low' || stored === 'adaptive') return stored
+    if (stored === 'off' || stored === 'low' || stored === 'adaptive')
+      return stored
     return 'low'
   })
   const { alertOpen, alertThreshold, alertPercent, dismissAlert } =
@@ -392,7 +398,9 @@ export function ChatScreen({
   })
   const { isMobile } = useChatMobile(queryClient)
   const mobileKeyboardInset = useWorkspaceStore((s) => s.mobileKeyboardInset)
-  const mobileComposerFocused = useWorkspaceStore((s) => s.mobileComposerFocused)
+  const mobileComposerFocused = useWorkspaceStore(
+    (s) => s.mobileComposerFocused,
+  )
   const mobileKeyboardActive = mobileKeyboardInset > 0 || mobileComposerFocused
   void mobileKeyboardActive // kept for future use
   const isAgentViewOpen = useAgentViewStore((state) => state.isOpen)
@@ -450,83 +458,87 @@ export function ChatScreen({
     completedStreamingThinking,
     activeToolCalls,
   } = useRealtimeChatHistory({
-      sessionKey: resolvedSessionKey || activeCanonicalKey,
-      friendlyId: activeFriendlyId,
-      historyMessages,
-      enabled: !isNewChat && !isRedirecting,
-      onUserMessage: useCallback(() => {
-        // External message arrived (e.g. from Telegram) — show thinking indicator
-        setWaitingForResponse(true)
-        setPendingGeneration(true)
-      }, []),
-      onApprovalRequest: useCallback((payload: Record<string, unknown>) => {
-        const gatewayApprovalId =
-          typeof payload.id === 'string'
-            ? payload.id
-            : typeof payload.approvalId === 'string'
-              ? payload.approvalId
-              : typeof payload.gatewayApprovalId === 'string'
-                ? payload.gatewayApprovalId
-                : ''
-
-        const currentApprovals = loadApprovals()
-        if (
-          gatewayApprovalId &&
-          currentApprovals.some((entry) => {
-            return (
-              entry.status === 'pending' &&
-              entry.gatewayApprovalId === gatewayApprovalId
-            )
-          })
-        ) {
-          setPendingApprovals(
-            currentApprovals.filter((entry) => entry.status === 'pending'),
-          )
-          return
-        }
-
-        const actionValue = payload.action ?? payload.tool ?? payload.command
-        const action =
-          typeof actionValue === 'string'
-            ? actionValue
-            : actionValue
-              ? JSON.stringify(actionValue)
-              : 'Tool call requires approval'
-        const contextValue = payload.context ?? payload.input ?? payload.args
-        const context =
-          typeof contextValue === 'string'
-            ? contextValue
-            : contextValue
-              ? JSON.stringify(contextValue)
+    sessionKey: resolvedSessionKey || activeCanonicalKey,
+    friendlyId: activeFriendlyId,
+    historyMessages,
+    enabled: !isNewChat && !isRedirecting,
+    onUserMessage: useCallback(() => {
+      // External message arrived (e.g. from Telegram) — show thinking indicator
+      setWaitingForResponse(true)
+      setPendingGeneration(true)
+    }, []),
+    onApprovalRequest: useCallback((payload: Record<string, unknown>) => {
+      const gatewayApprovalId =
+        typeof payload.id === 'string'
+          ? payload.id
+          : typeof payload.approvalId === 'string'
+            ? payload.approvalId
+            : typeof payload.gatewayApprovalId === 'string'
+              ? payload.gatewayApprovalId
               : ''
-        const agentNameValue = payload.agentName ?? payload.agent ?? payload.source
-        const agentName =
-          typeof agentNameValue === 'string' && agentNameValue.trim().length > 0
-            ? agentNameValue
-            : 'Agent'
-        const agentIdValue = payload.agentId ?? payload.sessionKey ?? payload.source
-        const agentId =
-          typeof agentIdValue === 'string' && agentIdValue.trim().length > 0
-            ? agentIdValue
-            : 'gateway'
 
-        addApproval({
-          agentId,
-          agentName,
-          action,
-          context,
-          source: 'gateway',
-          gatewayApprovalId: gatewayApprovalId || undefined,
+      const currentApprovals = loadApprovals()
+      if (
+        gatewayApprovalId &&
+        currentApprovals.some((entry) => {
+          return (
+            entry.status === 'pending' &&
+            entry.gatewayApprovalId === gatewayApprovalId
+          )
         })
-        setPendingApprovals(loadApprovals().filter((entry) => entry.status === 'pending'))
-      }, []),
-      onCompactionStart: useCallback(() => {
-        setIsCompacting(true)
-      }, []),
-      onCompactionEnd: useCallback(() => {
-        setIsCompacting(false)
-      }, []),
-    })
+      ) {
+        setPendingApprovals(
+          currentApprovals.filter((entry) => entry.status === 'pending'),
+        )
+        return
+      }
+
+      const actionValue = payload.action ?? payload.tool ?? payload.command
+      const action =
+        typeof actionValue === 'string'
+          ? actionValue
+          : actionValue
+            ? JSON.stringify(actionValue)
+            : 'Tool call requires approval'
+      const contextValue = payload.context ?? payload.input ?? payload.args
+      const context =
+        typeof contextValue === 'string'
+          ? contextValue
+          : contextValue
+            ? JSON.stringify(contextValue)
+            : ''
+      const agentNameValue =
+        payload.agentName ?? payload.agent ?? payload.source
+      const agentName =
+        typeof agentNameValue === 'string' && agentNameValue.trim().length > 0
+          ? agentNameValue
+          : 'Agent'
+      const agentIdValue =
+        payload.agentId ?? payload.sessionKey ?? payload.source
+      const agentId =
+        typeof agentIdValue === 'string' && agentIdValue.trim().length > 0
+          ? agentIdValue
+          : 'gateway'
+
+      addApproval({
+        agentId,
+        agentName,
+        action,
+        context,
+        source: 'gateway',
+        gatewayApprovalId: gatewayApprovalId || undefined,
+      })
+      setPendingApprovals(
+        loadApprovals().filter((entry) => entry.status === 'pending'),
+      )
+    }, []),
+    onCompactionStart: useCallback(() => {
+      setIsCompacting(true)
+    }, []),
+    onCompactionEnd: useCallback(() => {
+      setIsCompacting(false)
+    }, []),
+  })
 
   // Apply smooth character-reveal animation to the raw SSE text
   const smoothRealtimeStreamingText = useSmoothStreamingText(
@@ -537,7 +549,9 @@ export function ChatScreen({
   // Keep activity stream open persistently — opens on mount so it's ready
   // before the first tool call fires (avoids connection latency gap).
   const waitingForResponseRef = useRef(waitingForResponse)
-  useEffect(() => { waitingForResponseRef.current = waitingForResponse }, [waitingForResponse])
+  useEffect(() => {
+    waitingForResponseRef.current = waitingForResponse
+  }, [waitingForResponse])
 
   useEffect(() => {
     const events = new EventSource('/api/events')
@@ -552,9 +566,7 @@ export function ChatScreen({
         if (payload.type !== 'tool' || typeof payload.title !== 'string') {
           return
         }
-        const name = payload.title
-          .replace(/^Tool activity:\s*/i, '')
-          .trim()
+        const name = payload.title.replace(/^Tool activity:\s*/i, '').trim()
         if (!name) return
         setLiveToolActivity((prev) => {
           const filtered = prev.filter((entry) => entry.name !== name)
@@ -631,7 +643,22 @@ export function ChatScreen({
     const filtered = withoutStalePlaceholders.filter((msg) => {
       if (msg.role === 'user') {
         const text = stripQueuedWrapper(textFromMessage(msg))
+        // Filter the gateway-injected internal system messages — mirrors the
+        // canonical user-branch filter in use-chat-history.ts. Without the full
+        // set, heartbeat / compaction / memory-flush / announce forwards leaked
+        // into the rendered chat (audit #15: this branch only stripped one).
         if (text.startsWith('A subagent task')) return false
+        if (text.startsWith('[Queued announce messages')) return false
+        if (text.includes('Pre-compaction memory flush')) return false
+        if (text.includes('Store durable memories now')) return false
+        if (text.includes('Summarize this naturally for the user')) return false
+        if (text.includes('APPEND new content only and do not overwrite'))
+          return false
+        if (
+          text.includes('Stats: runtime') &&
+          text.includes('sessionKey agent:codex:subagent:')
+        )
+          return false
         return true
       }
       if (msg.role === 'assistant') {
@@ -830,9 +857,10 @@ export function ChatScreen({
     // Use actual realtime streaming state when available
     if (isRealtimeStreaming) {
       const last = finalDisplayMessages[finalDisplayMessages.length - 1]
-      const id = last?.role === 'assistant'
-        ? ((last as any).__optimisticId || (last as any).id || null)
-        : null
+      const id =
+        last?.role === 'assistant'
+          ? (last as any).__optimisticId || (last as any).id || null
+          : null
       return { isStreaming: true, streamingMessageId: id }
     }
     // Fallback: waiting for response + last message is assistant
@@ -890,7 +918,9 @@ export function ChatScreen({
     // Snapshot any unconfirmed optimistic user messages BEFORE refetch.
     // The refetch replaces the query cache with server data — if the server
     // hasn't processed the user's POST yet, the optimistic message vanishes.
-    const currentMessages = (historyQuery.data as any)?.messages as GatewayMessage[] | undefined
+    const currentMessages = (historyQuery.data as any)?.messages as
+      | GatewayMessage[]
+      | undefined
     const pendingOptimistic = (currentMessages ?? []).filter((msg) => {
       const raw = msg as Record<string, unknown>
       return (
@@ -976,7 +1006,6 @@ export function ChatScreen({
       !isNewChat && Boolean(resolvedSessionKey) && historyQuery.isSuccess,
   })
 
-
   // Phase 4.1: Smart Model Suggestions
   const modelsQuery = useQuery({
     queryKey: ['models'],
@@ -1022,7 +1051,9 @@ export function ChatScreen({
 
   // Ref so sendMessage can always read latest thinkingLevel without being in deps
   const thinkingLevelRef = useRef<ThinkingLevel>(thinkingLevel)
-  useEffect(() => { thinkingLevelRef.current = thinkingLevel }, [thinkingLevel])
+  useEffect(() => {
+    thinkingLevelRef.current = thinkingLevel
+  }, [thinkingLevel])
 
   // Auto-upgrade thinking to adaptive for Claude 4.6 when session first loads
   const thinkingInitializedRef = useRef(false)
@@ -1030,10 +1061,15 @@ export function ChatScreen({
     if (!currentModel) return
     if (thinkingInitializedRef.current) return
     thinkingInitializedRef.current = true
-    const is46 = currentModel.toLowerCase().includes('4-6') || currentModel.toLowerCase().includes('claude-4.6')
+    const is46 =
+      currentModel.toLowerCase().includes('4-6') ||
+      currentModel.toLowerCase().includes('claude-4.6')
     if (is46) {
       const key = `clawsuite-thinking-${activeFriendlyId || 'new'}`
-      const stored = typeof window !== 'undefined' ? window.sessionStorage.getItem(key) : null
+      const stored =
+        typeof window !== 'undefined'
+          ? window.sessionStorage.getItem(key)
+          : null
       // Only auto-set if not explicitly configured
       if (!stored) {
         setThinkingLevel('adaptive')
@@ -1042,13 +1078,16 @@ export function ChatScreen({
   }, [currentModel, activeFriendlyId])
 
   // Persist thinking level changes to sessionStorage
-  const handleThinkingLevelChange = useCallback((level: ThinkingLevel) => {
-    setThinkingLevel(level)
-    if (typeof window !== 'undefined') {
-      const key = `clawsuite-thinking-${activeFriendlyId || 'new'}`
-      window.sessionStorage.setItem(key, level)
-    }
-  }, [activeFriendlyId])
+  const handleThinkingLevelChange = useCallback(
+    (level: ThinkingLevel) => {
+      setThinkingLevel(level)
+      if (typeof window !== 'undefined') {
+        const key = `clawsuite-thinking-${activeFriendlyId || 'new'}`
+        window.sessionStorage.setItem(key, level)
+      }
+    },
+    [activeFriendlyId],
+  )
 
   const { suggestion, dismiss, dismissForSession } = useModelSuggestions({
     currentModel, // Real model from session-status (fail closed if empty)
@@ -1065,11 +1104,15 @@ export function ChatScreen({
       ({ runId }: { runId: string | null }) => {
         const activeSend = activeSendRef.current
         if (!activeSend?.clientId) return
-        updateHistoryMessageByClientIdEverywhere(queryClient, activeSend.clientId, (message) => ({
-          ...message,
-          status: 'sent',
-          runId: runId ?? message.runId,
-        }))
+        updateHistoryMessageByClientIdEverywhere(
+          queryClient,
+          activeSend.clientId,
+          (message) => ({
+            ...message,
+            status: 'sent',
+            runId: runId ?? message.runId,
+          }),
+        )
         setSending(false)
       },
       [queryClient],
@@ -1077,11 +1120,15 @@ export function ChatScreen({
     onComplete: useCallback(() => {
       const activeSend = activeSendRef.current
       if (activeSend?.clientId) {
-        updateHistoryMessageByClientIdEverywhere(queryClient, activeSend.clientId, (message) => ({
-          ...message,
-          status: 'done',
-          __optimisticId: undefined,
-        }))
+        updateHistoryMessageByClientIdEverywhere(
+          queryClient,
+          activeSend.clientId,
+          (message) => ({
+            ...message,
+            status: 'done',
+            __optimisticId: undefined,
+          }),
+        )
       }
       activeSendRef.current = null
       refreshHistoryRef.current()
@@ -1090,14 +1137,15 @@ export function ChatScreen({
     onError: useCallback(
       (messageText: string) => {
         const activeSend = activeSendRef.current
-        if (
-          activeSend?.clientId &&
-          !isMissingGatewayAuth(messageText)
-        ) {
-          updateHistoryMessageByClientIdEverywhere(queryClient, activeSend.clientId, (message) => ({
-            ...message,
-            status: 'error',
-          }))
+        if (activeSend?.clientId && !isMissingGatewayAuth(messageText)) {
+          updateHistoryMessageByClientIdEverywhere(
+            queryClient,
+            activeSend.clientId,
+            (message) => ({
+              ...message,
+              status: 'error',
+            }),
+          )
         }
         activeSendRef.current = null
         setSending(false)
@@ -1123,14 +1171,24 @@ export function ChatScreen({
         // status immediately so the Retry timer never fires. This is the
         // primary confirmation path since the gateway does NOT echo user
         // messages back via SSE.
-        updateHistoryMessageByClientId(queryClient, friendlyId, _sessionKey, clientId, (message) => ({
-          ...message,
-          status: 'queued',
-        }))
-        updateHistoryMessageByClientIdEverywhere(queryClient, clientId, (message) => ({
-          ...message,
-          status: 'queued',
-        }))
+        updateHistoryMessageByClientId(
+          queryClient,
+          friendlyId,
+          _sessionKey,
+          clientId,
+          (message) => ({
+            ...message,
+            status: 'queued',
+          }),
+        )
+        updateHistoryMessageByClientIdEverywhere(
+          queryClient,
+          clientId,
+          (message) => ({
+            ...message,
+            status: 'queued',
+          }),
+        )
       },
       [queryClient],
     ),
@@ -1172,7 +1230,12 @@ export function ChatScreen({
     } else {
       setLocalActivity('idle')
     }
-  }, [waitingForResponse, isRealtimeStreaming, liveToolActivity, setLocalActivity])
+  }, [
+    waitingForResponse,
+    isRealtimeStreaming,
+    liveToolActivity,
+    setLocalActivity,
+  ])
 
   const gatewayStatusQuery = useQuery({
     queryKey: ['gateway', 'status'],
@@ -1201,7 +1264,8 @@ export function ChatScreen({
             }
           : null
       : null
-  const gatewayError = gatewayStatusError?.message ?? sessionsError ?? historyError
+  const gatewayError =
+    gatewayStatusError?.message ?? sessionsError ?? historyError
   const gatewayErrorStatus = gatewayStatusError?.status
   const showErrorNotice = Boolean(gatewayError) && !isNewChat
   const handleGatewayRefetch = useCallback(() => {
@@ -1231,7 +1295,8 @@ export function ChatScreen({
       }
     }
     document.addEventListener('visibilitychange', handleVisibility)
-    return () => document.removeEventListener('visibilitychange', handleVisibility)
+    return () =>
+      document.removeEventListener('visibilitychange', handleVisibility)
   }, [historyQuery])
 
   useEffect(() => {
@@ -1263,9 +1328,7 @@ export function ChatScreen({
     }
     return {
       paddingBottom:
-        terminalPanelInset > 0
-          ? `${terminalPanelInset + 16}px`
-          : '16px',
+        terminalPanelInset > 0 ? `${terminalPanelInset + 16}px` : '16px',
     }
   }, [isMobile, terminalPanelInset])
 
@@ -1445,9 +1508,9 @@ export function ChatScreen({
         id: attachment.id ?? crypto.randomUUID(),
       }))
 
-    // Inject text/file attachment content directly into the message body.
-    // Gateways reliably forward text in the message body; file attachments
-    // may be silently dropped for non-image types.
+      // Inject text/file attachment content directly into the message body.
+      // Gateways reliably forward text in the message body; file attachments
+      // may be silently dropped for non-image types.
       const textBlocks = normalizedAttachments
         .filter((a) => {
           const mime =
@@ -1556,7 +1619,8 @@ export function ChatScreen({
         message: enrichedBody,
         attachments:
           payloadAttachments.length > 0 ? payloadAttachments : undefined,
-        thinking: currentThinkingLevel === 'off' ? undefined : currentThinkingLevel,
+        thinking:
+          currentThinkingLevel === 'off' ? undefined : currentThinkingLevel,
         fastMode,
         idempotencyKey: optimisticClientId || crypto.randomUUID(),
       }).catch((err: unknown) => {
@@ -1628,7 +1692,10 @@ export function ChatScreen({
   ])
 
   const retryQueuedMessage = useCallback(
-    function retryQueuedMessage(message: GatewayMessage, mode: 'manual' | 'auto') {
+    function retryQueuedMessage(
+      message: GatewayMessage,
+      mode: 'manual' | 'auto',
+    ) {
       if (!isRetryableQueuedMessage(message)) return false
 
       const body = textFromMessage(message).trim()
@@ -1636,7 +1703,10 @@ export function ChatScreen({
       if (body.length === 0 && attachments.length === 0) return false
 
       const retryKey = getRetryMessageKey(message)
-      if (mode === 'auto' && retriedQueuedMessageKeysRef.current.has(retryKey)) {
+      if (
+        mode === 'auto' &&
+        retriedQueuedMessageKeysRef.current.has(retryKey)
+      ) {
         return false
       }
 
@@ -1646,12 +1716,22 @@ export function ChatScreen({
       const existingClientId = getMessageClientId(message)
 
       if (existingClientId) {
-        updateHistoryMessageByClientId(queryClient, activeFriendlyId, sessionKeyForMessage, existingClientId, function markSending(currentMessage) {
-          return { ...currentMessage, status: 'sending' }
-        })
-        updateHistoryMessageByClientIdEverywhere(queryClient, existingClientId, function markSendingEverywhere(currentMessage) {
-          return { ...currentMessage, status: 'sending' }
-        })
+        updateHistoryMessageByClientId(
+          queryClient,
+          activeFriendlyId,
+          sessionKeyForMessage,
+          existingClientId,
+          function markSending(currentMessage) {
+            return { ...currentMessage, status: 'sending' }
+          },
+        )
+        updateHistoryMessageByClientIdEverywhere(
+          queryClient,
+          existingClientId,
+          function markSendingEverywhere(currentMessage) {
+            return { ...currentMessage, status: 'sending' }
+          },
+        )
       }
 
       if (mode === 'auto') {
@@ -1705,7 +1785,10 @@ export function ChatScreen({
       return
     }
 
-    if (connectionState === 'connected' && hasSeenGatewayDisconnectRef.current) {
+    if (
+      connectionState === 'connected' &&
+      hasSeenGatewayDisconnectRef.current
+    ) {
       hasSeenGatewayDisconnectRef.current = false
       flushRetryableMessages()
     }
@@ -1733,7 +1816,10 @@ export function ChatScreen({
       handleGatewayRefetch()
     }
 
-    window.addEventListener('gateway:health-restored', handleGatewayHealthRestored)
+    window.addEventListener(
+      'gateway:health-restored',
+      handleGatewayHealthRestored,
+    )
     return () => {
       window.removeEventListener(
         'gateway:health-restored',
@@ -1827,12 +1913,17 @@ export function ChatScreen({
     [queryClient],
   )
 
-  const scrollChatToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    const viewport = document.querySelector('[data-chat-scroll-viewport]') as HTMLElement | null
-    if (viewport) {
-      viewport.scrollTo({ top: viewport.scrollHeight, behavior })
-    }
-  }, [])
+  const scrollChatToBottom = useCallback(
+    (behavior: ScrollBehavior = 'smooth') => {
+      const viewport = document.querySelector(
+        '[data-chat-scroll-viewport]',
+      ) as HTMLElement | null
+      if (viewport) {
+        viewport.scrollTo({ top: viewport.scrollHeight, behavior })
+      }
+    },
+    [],
+  )
 
   const send = useCallback(
     (
@@ -1848,7 +1939,11 @@ export function ChatScreen({
       // This prevents double-fire from paste events that trigger multiple send paths.
       const sendKey = `${trimmedBody}|${attachments.map((a) => `${a.name}:${a.size}`).join(',')}`
       const now = Date.now()
-      if (sendKey === lastSendKeyRef.current && now - lastSendAtRef.current < 500) return
+      if (
+        sendKey === lastSendKeyRef.current &&
+        now - lastSendAtRef.current < 500
+      )
+        return
       lastSendKeyRef.current = sendKey
       lastSendAtRef.current = now
 
@@ -1884,7 +1979,9 @@ export function ChatScreen({
           if (import.meta.env.DEV) {
             console.warn('[chat] failed to register new thread', err)
           }
-          void queryClient.invalidateQueries({ queryKey: chatQueryKeys.sessions })
+          void queryClient.invalidateQueries({
+            queryKey: chatQueryKeys.sessions,
+          })
         })
 
         // Send using the new thread id — gateway can still resolve/reroute under the hood
@@ -2060,16 +2157,27 @@ export function ChatScreen({
       const sessionKey =
         resolvedSessionKey || activeSession?.key || activeSessionKey || ''
       if (!sessionKey) return
-      await renameSession(sessionKey, activeSession?.friendlyId ?? null, nextTitle)
+      await renameSession(
+        sessionKey,
+        activeSession?.friendlyId ?? null,
+        nextTitle,
+      )
     },
-    [activeSession?.friendlyId, activeSession?.key, activeSessionKey, renameSession, resolvedSessionKey],
+    [
+      activeSession?.friendlyId,
+      activeSession?.key,
+      activeSessionKey,
+      renameSession,
+      resolvedSessionKey,
+    ],
   )
 
   // Listen for mobile header agent-details tap
   useEffect(() => {
     const handler = () => setAgentViewOpen(true)
     window.addEventListener('clawsuite:chat-agent-details', handler)
-    return () => window.removeEventListener('clawsuite:chat-agent-details', handler)
+    return () =>
+      window.removeEventListener('clawsuite:chat-agent-details', handler)
   }, [setAgentViewOpen])
 
   return (
@@ -2100,8 +2208,11 @@ export function ChatScreen({
         <main
           className={cn(
             'flex h-full flex-1 min-h-0 min-w-0 flex-col overflow-hidden transition-[margin-right,margin-bottom] duration-200',
-            !compact && isAgentViewOpen && !isFocusMode ? 'min-[1024px]:mr-72' : 'mr-0',
-            (isRealtimeStreaming || hasPendingGeneration()) && 'chat-streaming-glow',
+            !compact && isAgentViewOpen && !isFocusMode
+              ? 'min-[1024px]:mr-72'
+              : 'mr-0',
+            (isRealtimeStreaming || hasPendingGeneration()) &&
+              'chat-streaming-glow',
           )}
           style={{
             marginBottom:
@@ -2118,7 +2229,12 @@ export function ChatScreen({
               onOpenSessions={() => setSessionsOpen(true)}
               sessions={sessions ?? []}
               activeFriendlyId={activeFriendlyId}
-              onSelectSession={(key) => void navigate({ to: '/chat/$sessionKey', params: { sessionKey: key } })}
+              onSelectSession={(key) =>
+                void navigate({
+                  to: '/chat/$sessionKey',
+                  params: { sessionKey: key },
+                })
+              }
               showFileExplorerButton={!isMobile && !isFocusMode}
               fileExplorerCollapsed={fileExplorerCollapsed}
               onToggleFileExplorer={handleToggleFileExplorer}
@@ -2138,7 +2254,9 @@ export function ChatScreen({
 
           {!isFocusMode && <ContextBar compact={compact} />}
 
-          {gatewayNotice && <div className="sticky top-0 z-20 px-4 py-2">{gatewayNotice}</div>}
+          {gatewayNotice && (
+            <div className="sticky top-0 z-20 px-4 py-2">{gatewayNotice}</div>
+          )}
           {pendingApprovals.length > 0 && (
             <div className="mx-4 mb-2 rounded-xl border border-amber-500/40 bg-amber-50 px-4 py-3 dark:border-amber-800/50 dark:bg-amber-900/15">
               <div className="space-y-2">
@@ -2149,7 +2267,8 @@ export function ChatScreen({
                   >
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-semibold text-amber-300 dark:text-amber-400">
-                        {'\uD83D\uDD10'} Approval Required - {approval.agentName || 'Agent'}
+                        {'\uD83D\uDD10'} Approval Required -{' '}
+                        {approval.agentName || 'Agent'}
                       </p>
                       <p className="mt-0.5 truncate text-xs text-amber-600 dark:text-amber-500">
                         {approval.action}
@@ -2209,7 +2328,9 @@ export function ChatScreen({
               pinGroupMinHeight={pinGroupMinHeight}
               headerHeight={headerHeight}
               contentStyle={stableContentStyle}
-              bottomOffset={isMobile ? mobileScrollBottomOffset : terminalPanelInset}
+              bottomOffset={
+                isMobile ? mobileScrollBottomOffset : terminalPanelInset
+              }
               isStreaming={derivedStreamingInfo.isStreaming}
               streamingMessageId={derivedStreamingInfo.streamingMessageId}
               streamingText={
@@ -2272,11 +2393,17 @@ export function ChatScreen({
           activeFriendlyId={activeFriendlyId}
           onSelectSession={(friendlyId) => {
             setSessionsOpen(false)
-            void navigate({ to: '/chat/$sessionKey', params: { sessionKey: friendlyId } })
+            void navigate({
+              to: '/chat/$sessionKey',
+              params: { sessionKey: friendlyId },
+            })
           }}
           onNewChat={() => {
             setSessionsOpen(false)
-            void navigate({ to: '/chat/$sessionKey', params: { sessionKey: 'new' } })
+            void navigate({
+              to: '/chat/$sessionKey',
+              params: { sessionKey: 'new' },
+            })
           }}
         />
       )}

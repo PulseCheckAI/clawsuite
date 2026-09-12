@@ -28,11 +28,10 @@ import {
   Logout01Icon,
   SmartPhone01Icon,
   Task01Icon,
-  UserGroupIcon,
   UserMultipleIcon,
 } from '@hugeicons/core-free-icons'
 import { AnimatePresence, motion } from 'motion/react'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, memo, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useChatSettings as useSidebarSettings } from '../hooks/use-chat-settings'
@@ -553,7 +552,6 @@ function ChatSidebarComponent({
   const isSessionsActive = pathname === '/sessions'
   const isUsageActive = pathname === '/usage'
   const isCostsActive = pathname === '/costs'
-  const isAgentsActive = pathname === '/agents'
   const isNodesActive = pathname === '/nodes'
   const isSkillsActive = pathname === '/skills'
   const isFilesActive = pathname === '/files'
@@ -625,9 +623,23 @@ function ChatSidebarComponent({
   const showDebugErrorDot = Boolean(recentIssuesQuery.data)
 
   // Collapsible section states
+  // Command group reuses the original Suite collapse key (back-compat).
   const [suiteExpanded, toggleSuite] = usePersistedBool(
     'openclaw-sidebar-suite-expanded',
     true,
+  )
+  // Per-group collapse state for the regrouped Suite sections (2026-06-05).
+  const [intelExpanded, toggleIntel] = usePersistedBool(
+    'openclaw-sidebar-intel-expanded',
+    true,
+  )
+  const [workExpanded, toggleWork] = usePersistedBool(
+    'openclaw-sidebar-work-expanded',
+    false,
+  )
+  const [commsExpanded, toggleComms] = usePersistedBool(
+    'openclaw-sidebar-comms-expanded',
+    false,
   )
   const [systemExpanded, toggleSystem] = usePersistedBool(
     'openclaw-sidebar-system-expanded',
@@ -792,7 +804,10 @@ function ChatSidebarComponent({
     onClick: openSearchModal,
   }
 
-  const suiteItems: NavItemDef[] = [
+  // Intent-grouped Suite sections (regroup, 2026-06-05). Each group renders as
+  // its own collapsible header; `suiteItems` (flat) is derived below for the
+  // mobile System subset + active-state lookups. Every item is preserved.
+  const commandItems: NavItemDef[] = [
     {
       kind: 'link',
       to: '/dashboard',
@@ -824,13 +839,8 @@ function ChatSidebarComponent({
       active: isTerminalActive,
       dataTour: 'terminal',
     },
-    {
-      kind: 'link',
-      to: '/tasks',
-      icon: Task01Icon,
-      label: 'Tasks',
-      active: isTasksActive,
-    },
+  ]
+  const intelItems: NavItemDef[] = [
     {
       kind: 'link',
       to: '/skills',
@@ -838,6 +848,29 @@ function ChatSidebarComponent({
       label: 'Skills',
       active: isSkillsActive,
       dataTour: 'skills',
+    },
+    {
+      kind: 'link',
+      to: '/memory',
+      icon: BrainIcon,
+      label: 'Memory',
+      active: isMemoryActive,
+    },
+    {
+      kind: 'link',
+      to: '/graph',
+      icon: ConnectIcon,
+      label: 'Knowledge Graph',
+      active: isGraphActive,
+    },
+  ]
+  const workItems: NavItemDef[] = [
+    {
+      kind: 'link',
+      to: '/tasks',
+      icon: Task01Icon,
+      label: 'Tasks',
+      active: isTasksActive,
     },
     {
       kind: 'link',
@@ -855,46 +888,19 @@ function ChatSidebarComponent({
     },
     {
       kind: 'link',
-      to: '/debug',
-      icon: Notification03Icon,
-      label: 'Debug',
-      active: isDebugActive,
-      badge: showDebugErrorDot ? 'error-dot' : undefined,
-    },
-    {
-      kind: 'link',
       to: '/files',
       icon: File01Icon,
       label: 'Files',
       active: isFilesActive,
     },
+  ]
+  const commsItems: NavItemDef[] = [
     {
       kind: 'link',
-      to: '/memory',
-      icon: BrainIcon,
-      label: 'Memory',
-      active: isMemoryActive,
-    },
-    {
-      kind: 'link',
-      to: '/graph',
-      icon: ConnectIcon,
-      label: 'Knowledge Graph',
-      active: isGraphActive,
-    },
-    {
-      kind: 'link',
-      to: '/costs',
-      icon: ChartLineData02Icon,
-      label: 'Cost & Usage',
-      active: isCostsActive,
-    },
-    {
-      kind: 'link',
-      to: '/integrations',
-      icon: DistributionIcon,
-      label: 'Integration Hub',
-      active: isIntegrationsActive,
+      to: '/media',
+      icon: AiMagicIcon,
+      label: 'Media Studio',
+      active: isMediaActive,
     },
     {
       kind: 'link',
@@ -902,13 +908,6 @@ function ChatSidebarComponent({
       icon: Linkedin01Icon,
       label: 'LinkedIn',
       active: isLinkedInActive,
-    },
-    {
-      kind: 'link',
-      to: '/media',
-      icon: AiMagicIcon,
-      label: 'Media Studio',
-      active: isMediaActive,
     },
     {
       kind: 'link',
@@ -926,17 +925,88 @@ function ChatSidebarComponent({
     },
     {
       kind: 'link',
+      to: '/gmail',
+      icon: Mail01Icon,
+      label: 'Gmail',
+      active: isGmailActive,
+    },
+    {
+      kind: 'link',
       to: '/hubspot',
       icon: UserMultipleIcon,
       label: 'HubSpot',
       active: isHubSpotActive,
     },
+  ]
+  const systemGroupItems: NavItemDef[] = [
     {
       kind: 'link',
-      to: '/gmail',
-      icon: Mail01Icon,
-      label: 'Gmail',
-      active: isGmailActive,
+      to: '/integrations',
+      icon: DistributionIcon,
+      label: 'Integration Hub',
+      active: isIntegrationsActive,
+    },
+    {
+      kind: 'link',
+      to: '/costs',
+      icon: ChartLineData02Icon,
+      label: 'Cost & Usage',
+      active: isCostsActive,
+    },
+    {
+      kind: 'link',
+      to: '/debug',
+      icon: Notification03Icon,
+      label: 'Debug',
+      active: isDebugActive,
+      badge: showDebugErrorDot ? 'error-dot' : undefined,
+    },
+  ]
+  // Flat list — consumed by the mobile System subset + any label lookups.
+  const suiteItems: NavItemDef[] = [
+    ...commandItems,
+    ...intelItems,
+    ...workItems,
+    ...commsItems,
+    ...systemGroupItems,
+  ]
+  // Section descriptors drive the desktop collapsible render below.
+  const suiteSections: Array<{
+    id: string
+    label: string
+    items: NavItemDef[]
+    expanded: boolean
+    onToggle: () => void
+    navigateTo?: string
+  }> = [
+    {
+      id: 'command',
+      label: 'Command',
+      items: commandItems,
+      expanded: suiteExpanded,
+      onToggle: toggleSuite,
+      navigateTo: suiteNav,
+    },
+    {
+      id: 'intel',
+      label: 'Agents & Intel',
+      items: intelItems,
+      expanded: intelExpanded,
+      onToggle: toggleIntel,
+    },
+    {
+      id: 'work',
+      label: 'Work & Automation',
+      items: workItems,
+      expanded: workExpanded,
+      onToggle: toggleWork,
+    },
+    {
+      id: 'comms',
+      label: 'Comms & Content',
+      items: commsItems,
+      expanded: commsExpanded,
+      onToggle: toggleComms,
     },
   ]
 
@@ -964,13 +1034,6 @@ function ChatSidebarComponent({
     },
     {
       kind: 'link',
-      to: '/agents',
-      icon: UserGroupIcon,
-      label: 'Agents',
-      active: isAgentsActive,
-    },
-    {
-      kind: 'link',
       to: '/nodes',
       icon: SmartPhone01Icon,
       label: 'Nodes',
@@ -983,6 +1046,15 @@ function ChatSidebarComponent({
       label: 'Gateway Logs',
       active: isGatewayLogsActive,
     },
+  ]
+
+  // "Infrastructure" merges the gateway ops items with the former System group
+  // (Integration Hub, Cost & Usage, Debug) into one coherent bottom section on
+  // desktop. systemGroupItems also stays in the flat suiteItems above, so the
+  // mobile System subset + label lookups keep working unchanged.
+  const infrastructureItems: NavItemDef[] = [
+    ...gatewayItems,
+    ...systemGroupItems,
   ]
 
   // Auto-expand mobile System section if any child route is active.
@@ -1158,27 +1230,27 @@ function ChatSidebarComponent({
       <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin flex flex-col">
         {/* Navigation sections */}
         <div className={cn('shrink-0 space-y-0.5 px-2', isMobile && 'order-2')}>
-          {!isMobile && (
-            <>
-              {/* SUITE */}
-              <SectionLabel
-                label="Suite"
-                isCollapsed={isVisuallyCollapsed}
-                transition={transition}
-                collapsible
-                expanded={suiteExpanded}
-                onToggle={toggleSuite}
-                navigateTo={suiteNav}
-              />
-              <CollapsibleSection
-                expanded={suiteExpanded}
-                items={suiteItems}
-                isCollapsed={isVisuallyCollapsed}
-                transition={transition}
-                onSelectSession={onSelectSession}
-              />
-            </>
-          )}
+          {!isMobile &&
+            suiteSections.map((section) => (
+              <Fragment key={section.id}>
+                <SectionLabel
+                  label={section.label}
+                  isCollapsed={isVisuallyCollapsed}
+                  transition={transition}
+                  collapsible
+                  expanded={section.expanded}
+                  onToggle={section.onToggle}
+                  navigateTo={section.navigateTo}
+                />
+                <CollapsibleSection
+                  expanded={section.expanded}
+                  items={section.items}
+                  isCollapsed={isVisuallyCollapsed}
+                  transition={transition}
+                  onSelectSession={onSelectSession}
+                />
+              </Fragment>
+            ))}
 
           {isMobile && mobileSecondarySuite.length > 0 && (
             <>
@@ -1200,9 +1272,9 @@ function ChatSidebarComponent({
             </>
           )}
 
-          {/* GATEWAY */}
+          {/* INFRASTRUCTURE (gateway ops + system/admin) */}
           <SectionLabel
-            label="Gateway"
+            label="Infrastructure"
             isCollapsed={isVisuallyCollapsed}
             transition={transition}
             collapsible
@@ -1212,7 +1284,7 @@ function ChatSidebarComponent({
           />
           <CollapsibleSection
             expanded={gatewayExpanded}
-            items={gatewayItems}
+            items={isMobile ? gatewayItems : infrastructureItems}
             isCollapsed={isVisuallyCollapsed}
             transition={transition}
             onSelectSession={onSelectSession}

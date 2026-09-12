@@ -9,7 +9,7 @@
 //        a. open AudioContext (warmup the audio graph inside the gesture
 //           so iOS Safari doesn't deny playback later)
 //        b. open WebSocket to wss://api.x.ai/v1/realtime?model=<model>
-//           with subprotocol `xai-client-secret.<ephemeral>`
+//           with subprotocol `xai-<ephemeral-client_secret>>`
 //        c. getUserMedia({ audio }) and pipe through pcm-downsample-processor
 //   3. Buffer mic frames until we see {type:"session.updated"}; then flush.
 //   4. session.update sent immediately on WS open with locked

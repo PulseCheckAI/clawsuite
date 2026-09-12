@@ -47,7 +47,14 @@ type CommandPaletteProps = {
 
 type CommandAction = {
   id: string
-  group: 'Screens' | 'Recent Sessions' | 'Slash Commands'
+  group:
+    | 'Command'
+    | 'Agents & Intel'
+    | 'Work & Automation'
+    | 'Comms & Content'
+    | 'Infrastructure'
+    | 'Recent Sessions'
+    | 'Slash Commands'
   label: string
   keywords: string
   shortcut?: string
@@ -62,7 +69,11 @@ type ScoredAction = CommandAction & {
 }
 
 const SCREEN_GROUP_ORDER = [
-  'Screens',
+  'Command',
+  'Agents & Intel',
+  'Work & Automation',
+  'Comms & Content',
+  'Infrastructure',
   'Recent Sessions',
   'Slash Commands',
 ] as const
@@ -149,7 +160,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
     () => [
       {
         id: 'screen-chat',
-        group: 'Screens',
+        group: 'Command',
         label: 'Chat',
         keywords: 'conversation new session home',
         shortcut: 'Go',
@@ -158,7 +169,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-dashboard',
-        group: 'Screens',
+        group: 'Command',
         label: 'Dashboard',
         keywords: 'home overview metrics',
         shortcut: 'Go',
@@ -167,7 +178,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-attention',
-        group: 'Screens',
+        group: 'Command',
         label: 'Needs You Now',
         keywords: 'attention alerts issues critical triage needs you now',
         shortcut: 'Go',
@@ -176,7 +187,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-graph',
-        group: 'Screens',
+        group: 'Agents & Intel',
         label: 'Knowledge Graph',
         keywords:
           'graph 3d code dependency entity visualization network constellation',
@@ -186,7 +197,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-workspace',
-        group: 'Screens',
+        group: 'Command',
         label: 'Conductor',
         keywords: 'conductor missions runs agents',
         shortcut: 'Go',
@@ -195,7 +206,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'workspace-review',
-        group: 'Screens',
+        group: 'Command',
         label: 'Review Queue',
         keywords: 'review approvals conductor',
         shortcut: 'Go',
@@ -204,7 +215,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'workspace-runs',
-        group: 'Screens',
+        group: 'Command',
         label: 'Active Runs',
         keywords: 'running tasks agents conductor',
         shortcut: 'Go',
@@ -213,7 +224,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'workspace-agents',
-        group: 'Screens',
+        group: 'Command',
         label: 'Agents Config',
         keywords: 'codex claude ollama agent config conductor',
         shortcut: 'Go',
@@ -222,7 +233,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-terminal',
-        group: 'Screens',
+        group: 'Command',
         label: 'Terminal',
         keywords: 'shell console command line',
         shortcut: 'Go',
@@ -231,7 +242,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-skills',
-        group: 'Screens',
+        group: 'Agents & Intel',
         label: 'Skills',
         keywords: 'install tools capabilities',
         shortcut: 'Go',
@@ -240,7 +251,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-users',
-        group: 'Screens',
+        group: 'Infrastructure',
         label: 'Users & Access',
         keywords: 'accounts admin roles permissions members invite create user',
         shortcut: 'Go',
@@ -249,7 +260,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-rpc-console',
-        group: 'Screens',
+        group: 'Infrastructure',
         label: 'Gateway RPC Console',
         keywords: 'gateway rpc inspect methods api debug status health',
         shortcut: 'Go',
@@ -258,7 +269,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-security',
-        group: 'Screens',
+        group: 'Infrastructure',
         label: 'Security & Exposure',
         keywords:
           'security exposure auth bypass posture audit hardening online',
@@ -268,7 +279,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-cron',
-        group: 'Screens',
+        group: 'Work & Automation',
         label: 'Cron',
         keywords: 'jobs schedules automations',
         shortcut: 'Go',
@@ -277,7 +288,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-sessions',
-        group: 'Screens',
+        group: 'Infrastructure',
         label: 'Sessions',
         keywords: 'gateway conversations history',
         shortcut: 'Go',
@@ -286,7 +297,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-usage',
-        group: 'Screens',
+        group: 'Infrastructure',
         label: 'Usage',
         keywords: 'metrics costs consumption',
         shortcut: 'Go',
@@ -295,7 +306,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-logs',
-        group: 'Screens',
+        group: 'Work & Automation',
         label: 'Logs',
         keywords: 'activity debug events',
         shortcut: 'Go',
@@ -304,7 +315,7 @@ export function CommandPalette({ pathname, sessions }: CommandPaletteProps) {
       },
       {
         id: 'screen-settings',
-        group: 'Screens',
+        group: 'Infrastructure',
         label: 'Settings',
         keywords: 'preferences configuration',
         shortcut: 'Go',

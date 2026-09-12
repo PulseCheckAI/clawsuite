@@ -1177,7 +1177,7 @@ const LOADER_STYLES: LoaderStyleOption[] = [
   { value: 'braille-breathe', label: 'Breathe' },
   { value: 'braille-pulse', label: 'Pulse' },
   { value: 'braille-wave', label: 'Wave' },
-  { value: 'lobster', label: 'Lobster' },
+  { value: 'lobster', label: 'Robot' },
   { value: 'logo', label: 'Logo' },
 ]
 
@@ -1195,7 +1195,7 @@ function getPreset(style: LoaderStyle): BrailleSpinnerPreset | null {
 function LoaderPreview({ style }: { style: LoaderStyle }) {
   if (style === 'dots') return <ThreeDotsSpinner />
   if (style === 'lobster')
-    return <span className="inline-block text-sm animate-pulse">🦞</span>
+    return <span className="inline-block text-sm animate-pulse">🤖</span>
   if (style === 'logo') return <LogoLoader />
   const preset = getPreset(style)
   return preset ? (

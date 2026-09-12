@@ -10,6 +10,7 @@ import {
   type TrackerCell,
   type BarListItem,
 } from '@/components/mission-control'
+import { FounderMetricsPanel } from './founder-metrics-panel'
 import { getSupabaseClient } from '@/lib/supabase-client'
 import {
   SUPABASE_URL,
@@ -616,6 +617,8 @@ export function MissionControlScreen() {
             {loadErr}
           </Callout>
         ) : null}
+
+        <FounderMetricsPanel />
 
         <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           <KpiCard

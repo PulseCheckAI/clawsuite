@@ -11,6 +11,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { createYoga } from 'graphql-yoga'
 import { isAuthenticated } from '@/server/auth-middleware'
+import { getRequestUser } from '@/server/auth-users'
 import {
   schema,
   makeLoaders,
@@ -24,10 +25,17 @@ const yoga = createYoga<Record<string, never>, GraphQLContext>({
   graphqlEndpoint: '/api/graphql',
   // GraphiQL explorer + introspection only outside production.
   graphiql: isDev,
-  context: ({ request }): GraphQLContext => ({
-    authed: isAuthenticated(request),
-    loaders: makeLoaders(),
-  }),
+  context: ({ request }): GraphQLContext => {
+    // Multi-user mode: restrict org-scoped (margin) queries to the session
+    // user's own org. Single shared-password / break-glass (no SessionUser)
+    // or a user without an org → null = unrestricted (local-admin posture).
+    const user = getRequestUser(request)
+    return {
+      authed: isAuthenticated(request),
+      allowedOrgIds: user && user.orgId ? new Set([user.orgId]) : null,
+      loaders: makeLoaders(),
+    }
+  },
 })
 
 // TanStack Start forwards a returned Response, but Yoga's response body is a

@@ -96,7 +96,24 @@ export async function verifyUserCredentials(
     password,
   })
   if (error || !data.user) return null
-  const profile = await getProfile(data.user.id)
+  // Read the caller's own dashboard_users row via their authenticated session
+  // (RLS: dashboard_users_self_read = authenticated AND id = auth.uid()), so
+  // login does not depend on the service-role key. Falls back to admin() when healthy.
+  let profile: Awaited<ReturnType<typeof getProfile>> = null
+  {
+    const { data: selfRow } = await anon
+      .from('dashboard_users')
+      .select('role, org_id, disabled')
+      .eq('id', data.user.id)
+      .maybeSingle()
+    if (selfRow)
+      profile = {
+        role: 'admin',
+        orgId: ((selfRow as any).org_id as string | null) ?? null,
+        disabled: Boolean((selfRow as any).disabled),
+      }
+  }
+  if (!profile) profile = await getProfile(data.user.id)
   if (!profile || profile.disabled) return null
   return {
     userId: data.user.id,

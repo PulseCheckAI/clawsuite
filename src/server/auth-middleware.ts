@@ -197,11 +197,31 @@ export function getSessionTokenFromCookie(
   return null
 }
 
-function isLocalRequest(request: Request): boolean {
+const _LOCAL_IPS = ['127.0.0.1', '::1', 'localhost', '::ffff:127.0.0.1']
+
+export function isLocalRequest(request: Request): boolean {
+  // SECURITY (2026-06-12 audit, MED): `x-forwarded-for` is CLIENT-CONTROLLABLE.
+  // The previous implementation took the FIRST XFF hop and defaulted to 127.0.0.1,
+  // so a remote attacker behind any XFF-forwarding proxy could send
+  // `X-Forwarded-For: 127.0.0.1` and be treated as local — granting the no-password
+  // local-trust path (which gates /api/terminal-stream → a real shell).
+  //
+  // Hardened: never trust a raw client XFF. Only honor it when an explicit trusted
+  // proxy is configured (CLAWSUITE_TRUST_PROXY=1), and then use the LAST hop (the one
+  // appended by our own proxy), not the attacker-supplied first hop. Absent a trusted
+  // proxy, the mere PRESENCE of XFF means the request was proxied (not a direct local
+  // connection), so it is NOT local. A direct connection (no XFF) is genuine local dev.
   const forwarded = request.headers.get('x-forwarded-for')
-  const ip = forwarded?.split(',')[0]?.trim() || '127.0.0.1'
-  const localIPs = ['127.0.0.1', '::1', 'localhost', '::ffff:127.0.0.1']
-  return localIPs.includes(ip)
+  if (forwarded) {
+    if (process.env.CLAWSUITE_TRUST_PROXY !== '1') return false
+    const hops = forwarded
+      .split(',')
+      .map((h) => h.trim())
+      .filter(Boolean)
+    const ip = hops[hops.length - 1] || ''
+    return _LOCAL_IPS.includes(ip)
+  }
+  return true
 }
 
 /**

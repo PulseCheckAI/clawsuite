@@ -83,6 +83,9 @@ importers:
       dataloader:
         specifier: ^2.2.3
         version: 2.2.3
+      dotenv:
+        specifier: ^16.6.1
+        version: 16.6.1
       graphql:
         specifier: ^16.14.0
         version: 16.14.0

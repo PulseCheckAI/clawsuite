@@ -87,7 +87,9 @@ export type Scope = {
 }
 
 type TentacleRaw = {
-  id: string
+  id?: string
+  // The live octogent API (:8787 /api/deck/tentacles) emits the id as `tentacleId`.
+  tentacleId?: string
   name?: string
   displayName?: string
   description?: string
@@ -95,30 +97,60 @@ type TentacleRaw = {
   color?: string | null
   status?: string | null
   tags?: Array<string>
-  vaultFiles?: Array<ScopeVaultFile>
+  // octogent emits vault filenames as a string[]; legacy/alt shapes use objects.
+  vaultFiles?: Array<ScopeVaultFile | string>
   todos?: Array<ScopeTodoItem>
+  // octogent emits todos as `todoItems` ({text,done}, no index) plus
+  // `todoTotal`/`todoDone` COUNTS — not the legacy todos/todoCount fields.
+  todoItems?: Array<{ text: string; done: boolean; index?: number }>
   todoCount?: number
+  todoTotal?: number
   completedTodoCount?: number
+  todoDone?: number
 }
 
 type DeckTentaclesResponse =
   | Array<TentacleRaw>
   | { tentacles?: Array<TentacleRaw> }
 
+// octogent emits vaultFiles as bare filename strings; the dashboard Scope type
+// wants { name, path } objects. Coerce strings; pass objects through.
+function normalizeVaultFiles(
+  files: Array<ScopeVaultFile | string> | undefined,
+): Array<ScopeVaultFile> {
+  if (!Array.isArray(files)) return []
+  return files.map((f) => (typeof f === 'string' ? { name: f, path: f } : f))
+}
+
+// Map a live octogent tentacle into a dashboard Scope. The :8787 API emits
+// tentacleId / displayName / todoItems / todoTotal / todoDone (+ string[]
+// vaultFiles); read those FIRST and fall back to the legacy id / todos /
+// todoCount shape so either payload renders correctly (audit #11 — verified
+// against octogent/apps/api/src/deck/readDeckTentacles.ts:243-256).
 function normalizeScope(t: TentacleRaw): Scope {
+  const id = t.tentacleId ?? t.id ?? ''
+  const rawTodos = t.todoItems ?? t.todos ?? []
+  const todos: Array<ScopeTodoItem> = rawTodos.map((item, i) => ({
+    index:
+      typeof (item as ScopeTodoItem).index === 'number'
+        ? (item as ScopeTodoItem).index
+        : i,
+    text: item.text,
+    done: item.done,
+  }))
   return {
-    id: t.id,
-    name: t.name || t.displayName || t.id,
+    id,
+    name: t.displayName || t.name || id,
     description: t.description,
     path: t.path ?? '',
     color: t.color ?? null,
     status: t.status ?? null,
     tags: t.tags ?? [],
-    vaultFiles: t.vaultFiles ?? [],
-    todos: t.todos ?? [],
-    todoCount: t.todoCount ?? t.todos?.length ?? 0,
+    vaultFiles: normalizeVaultFiles(t.vaultFiles),
+    todos,
+    todoCount: t.todoTotal ?? t.todoCount ?? todos.length,
     completedTodoCount:
-      t.completedTodoCount ?? t.todos?.filter((x) => x.done).length ?? 0,
+      t.todoDone ?? t.completedTodoCount ?? todos.filter((x) => x.done).length,
   }
 }
 

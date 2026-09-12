@@ -47,6 +47,14 @@ import {
   matchProxyRoute,
   safeStaticPath,
 } from './src/server/security-headers.mjs'
+import { config as loadSharedEnv } from 'dotenv'
+import { homedir } from 'node:os'
+
+// Shared PulseCheck secrets (TAVILY_API_KEY / PG_URL / OLLAMA_ENDPOINT) — single
+// source of truth at ~/.pulsecheck/shared.env. dotenv does NOT override vars
+// already set in the environment, so pm2/process env still wins; this only fills
+// the gaps so PulseOS can reach Tavily / Postgres / the local Ollama.
+loadSharedEnv({ path: `${homedir()}/.pulsecheck/shared.env` })
 
 const PORT = Number(process.env.PORT) || 3010
 const HOST = process.env.HOST || '0.0.0.0'
@@ -163,6 +171,20 @@ async function serveStatic(req, res, pathname) {
   try {
     s = await stat(filePath)
   } catch {
+    // Hashed build assets are immutable: a miss under /assets/ is a genuine
+    // 404 (e.g. a stale chunk hash from a torn/rolled deploy), NEVER an SPA
+    // route. Falling through to the SSR shell returns index.html (200,
+    // text/html) for a .js module import, which the browser rejects as
+    // "Failed to fetch dynamically imported module" → white screen. Return a
+    // loud, uncacheable 404 so torn deploys surface immediately and the client
+    // can recover with a hard reload instead of silently white-screening.
+    if (pathname.startsWith('/assets/')) {
+      res.statusCode = 404
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+      res.setHeader('Cache-Control', 'no-store')
+      res.end('Not Found')
+      return true
+    }
     return false
   }
   if (!s.isFile()) return false

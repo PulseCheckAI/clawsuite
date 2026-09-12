@@ -114,7 +114,8 @@ export function applyTheme(theme: SettingsThemeMode) {
 
   // Precedence: explicit enterprise theme in localStorage wins over the
   // appTheme/system preference. This makes Mission Control dark-first by
-  // default (pulsecheck-navy) while still letting the user pick paper-light.
+  // default (premium-dark — neutral, no navy tint) while still letting the
+  // user pick paper-light.
   const stored = localStorage.getItem('clawsuite-theme')
   const DARK_ENTERPRISE = [
     'pulsecheck-navy',
@@ -145,7 +146,7 @@ export function applyTheme(theme: SettingsThemeMode) {
   if (resolvedDark) {
     root.setAttribute(
       'data-theme',
-      isStoredDark ? (stored as string) : 'pulsecheck-navy',
+      isStoredDark ? (stored as string) : 'premium-dark',
     )
   } else {
     root.setAttribute('data-theme', 'paper-light')

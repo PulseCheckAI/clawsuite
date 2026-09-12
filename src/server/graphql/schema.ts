@@ -26,6 +26,11 @@ import { listMarginOps, type MarginSnapshot } from '@/server/margin/ops-store'
 
 export interface GraphQLContext {
   authed: boolean
+  // Tenant scope for org-scoped (margin) queries. A non-null Set restricts
+  // queries to those org ids (multi-user mode); null/undefined = unrestricted
+  // (single shared-password / break-glass local-admin posture). Derived from
+  // the session user in api/graphql.ts.
+  allowedOrgIds?: ReadonlySet<string> | null
   loaders: { sourceById: DataLoader<string, IntelSource | null> }
 }
 
@@ -65,6 +70,17 @@ builder.scalarType('DateTime', {
 
 function requireAuth(ctx: GraphQLContext): void {
   if (!ctx.authed) throw new Error('Unauthorized')
+}
+
+// Enforce tenant isolation on org-scoped (margin) queries. When the context
+// carries a concrete allowed-org set (multi-user mode), reject any
+// organizationId outside it; a null/undefined set (single-admin / break-glass)
+// is unrestricted. Closes the cross-tenant read where the client-supplied org
+// id was previously trusted behind only a boolean auth check (audit: GraphQL).
+function requireOrgAccess(ctx: GraphQLContext, organizationId: string): void {
+  if (ctx.allowedOrgIds && !ctx.allowedOrgIds.has(organizationId)) {
+    throw new Error('Forbidden: organizationId is outside your tenant scope')
+  }
 }
 
 const ItemAiBriefRef = builder.objectRef<ItemAiBrief>('ItemAiBrief').implement({
@@ -290,7 +306,7 @@ builder.queryType({
       type: [MarginLeakRef],
       description:
         'Top margin leaks for ONE org by annualized impact (org-scoped). ' +
-        'organizationId is REQUIRED; once auth lands it will be validated ' +
+        'organizationId is REQUIRED and, in multi-user mode, validated ' +
         "against the session's allowed orgs rather than trusted from the client.",
       args: {
         organizationId: t.arg.id({ required: true }),
@@ -302,6 +318,7 @@ builder.queryType({
       },
       resolve: (_parent, args, ctx) => {
         requireAuth(ctx)
+        requireOrgAccess(ctx, String(args.organizationId))
         return listMarginLeaks({
           organizationId: String(args.organizationId),
           locationId:
@@ -317,7 +334,7 @@ builder.queryType({
       type: [MarginSnapshotRef],
       description:
         'Recent per-location margin snapshots for ONE org (org-scoped). ' +
-        'organizationId is REQUIRED; session-validated once auth lands.',
+        'organizationId is REQUIRED and, in multi-user mode, session-validated.',
       args: {
         organizationId: t.arg.id({ required: true }),
         locationId: t.arg.id({ required: false }),
@@ -326,6 +343,7 @@ builder.queryType({
       },
       resolve: (_parent, args, ctx) => {
         requireAuth(ctx)
+        requireOrgAccess(ctx, String(args.organizationId))
         return listMarginOps({
           organizationId: String(args.organizationId),
           locationId:

@@ -95,21 +95,22 @@ const themeScript = `
     const root = document.documentElement
     const media = window.matchMedia('(prefers-color-scheme: dark)')
     // PulseOS theme class + data-theme attribute
-    // One-shot migration: any legacy dark theme (ops-dark / premium-dark
-    // / sunset-brand) gets upgraded to pulsecheck-navy. Users who want a
+    // One-shot migration: the navy/blue-tinted dark themes (pulsecheck-navy
+    // / ops-dark / sunset-brand) get moved to the neutral dark theme
+    // (premium-dark) for a consistent, non-navy look. Users who want a
     // different theme can switch in Settings AFTER this fires; the
-    // migration only runs once per pre-navy stored value.
+    // migration only runs once per stored value.
     let enterpriseTheme = localStorage.getItem('clawsuite-theme')
-    const NAVY_MIGRATION_KEY = 'clawsuite-navy-migrated-v1'
+    const NEUTRAL_MIGRATION_KEY = 'clawsuite-neutral-migrated-v1'
     if (
-      !localStorage.getItem(NAVY_MIGRATION_KEY) &&
-      (enterpriseTheme === 'ops-dark' ||
-        enterpriseTheme === 'premium-dark' ||
+      !localStorage.getItem(NEUTRAL_MIGRATION_KEY) &&
+      (enterpriseTheme === 'pulsecheck-navy' ||
+        enterpriseTheme === 'ops-dark' ||
         enterpriseTheme === 'sunset-brand')
     ) {
-      enterpriseTheme = 'pulsecheck-navy'
-      localStorage.setItem('clawsuite-theme', 'pulsecheck-navy')
-      localStorage.setItem(NAVY_MIGRATION_KEY, '1')
+      enterpriseTheme = 'premium-dark'
+      localStorage.setItem('clawsuite-theme', 'premium-dark')
+      localStorage.setItem(NEUTRAL_MIGRATION_KEY, '1')
     }
     const isValidEnterpriseTheme =
       enterpriseTheme === 'pulsecheck-navy' ||
@@ -138,9 +139,9 @@ const themeScript = `
         theme = 'light'
       }
     } else {
-      // No stored theme yet — default to pulsecheck-navy (Mission Control look)
-      root.setAttribute('data-theme', 'pulsecheck-navy')
-      root.classList.add('pulsecheck-navy')
+      // No stored theme yet — default to premium-dark (neutral dark look)
+      root.setAttribute('data-theme', 'premium-dark')
+      root.classList.add('premium-dark')
       theme = 'dark'
     }
     const apply = () => {

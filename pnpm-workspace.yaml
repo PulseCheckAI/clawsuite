@@ -1,5 +1,14 @@
-allowBuilds:
-  electron: set this to true or false
-  electron-winstaller: set this to true or false
-  esbuild: set this to true or false
-  unrs-resolver: set this to true or false
+# Dependencies allowed to run install/build scripts. pnpm 10+ blocks build
+# scripts by default and (pnpm 11) hard-errors on ignored ones, so this list is
+# required for `pnpm install` to succeed in CI / Docker. Mirrors package.json's
+# `pnpm.onlyBuiltDependencies` (which pnpm 11 no longer reads). Replaces a broken
+# `allowBuilds:` stub (not a real pnpm key) whose placeholder values did nothing.
+# Note: Electron's heavy binary download is separately skipped in the Dockerfile
+# via ELECTRON_SKIP_BINARY_DOWNLOAD=1; it is a desktop-only devDependency.
+onlyBuiltDependencies:
+  - esbuild
+  - lightningcss
+  - unrs-resolver
+  - electron
+  - electron-winstaller
+  - '@electron/rebuild'

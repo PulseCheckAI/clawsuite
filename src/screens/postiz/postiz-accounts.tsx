@@ -22,6 +22,7 @@ import {
   RefreshIcon,
 } from '@hugeicons/core-free-icons'
 import { cn } from '@/lib/utils'
+import { isForbiddenPlatform } from '@/shared/postiz-platforms'
 import type { PostizAccount } from '@/routes/api/postiz/accounts'
 
 interface AccountsResp {
@@ -32,10 +33,9 @@ interface AccountsResp {
   hint?: string
 }
 
-function isLinkedIn(p: string): boolean {
-  const v = p.toLowerCase().trim()
-  return v === 'linkedin' || v === 'linkedin-page'
-}
+// Canonical LinkedIn guard (prefix match — catches linkedin, linkedin-page,
+// linkedin-personal, linkedin-company, …) shared with the server modules.
+const isLinkedIn = isForbiddenPlatform
 
 function formatRelative(iso: string | null | undefined): string {
   if (!iso) return '—'

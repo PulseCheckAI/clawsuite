@@ -9,5 +9,20 @@ services:
       - CLAWSUITE_ALLOWED_HOSTS=${CLAWSUITE_ALLOWED_HOSTS:-}
       - CLAWSUITE_PASSWORD=${CLAWSUITE_PASSWORD:-}
     restart: unless-stopped
+    # Liveness check (mirrors the Dockerfile HEALTHCHECK): healthy if the app
+    # answers HTTP at all — a 401 under password mode still proves liveness.
+    # Built-in Node http only; never probes an external sidecar.
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3000/',r=>process.exit(0)).on('error',()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    # Cap memory so a runaway container can't exhaust the host.
+    mem_limit: 1g
     extra_hosts:
       - 'host.docker.internal:host-gateway'
